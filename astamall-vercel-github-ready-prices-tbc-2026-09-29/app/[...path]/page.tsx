@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeading, ProductCard } from '@/components/brand';
-import { Shop, ProductPurchase, ProductGallery } from '@/components/shop';
+import { Shop, ProductPurchase, ProductGallery, ProductSelectionProvider } from '@/components/shop';
 import { CartContents } from '@/components/store-shell';
 import { FaqList, ContactForm } from '@/components/forms';
 import AboutStory from '@/components/about-story';
@@ -46,11 +46,18 @@ export default async function ContentPage({ params }: Props) {
   if (section === 'shop' && slug) {
     const p = products.find(p => p.slug === slug);
     if (!p) notFound();
-    const related = products.filter(other => other.slug !== p.slug && (other.category === p.category || other.ingredients.some(i => p.ingredients.includes(i)))).slice(0, 3);
+    const relatedScore = (other: typeof p) =>
+      (other.category === p.category ? 4 : 0) +
+      (other.type === p.type ? 2 : 0) +
+      other.ingredients.filter(ingredient => p.ingredients.includes(ingredient)).length;
+    const related = products
+      .filter(other => other.slug !== p.slug)
+      .sort((a, b) => relatedScore(b) - relatedScore(a))
+      .slice(0, 4);
     return <main id="main-content" className="inner-page premium-detail">
       <div className="breadcrumbs"><Link href="/shop">Shop</Link><span>/</span><span>{p.short}</span></div>
-      <section className="pdp-hero"><ProductGallery product={p}/><div className="pdp-copy"><h1>{p.name}</h1><p className="product-type">{p.category} / {p.type}</p><ProductPurchase product={p}/><p className="intro-text">{p.description}</p></div></section>
-      <div className="pdp-information">
+      <ProductSelectionProvider key={p.slug}><section className="pdp-hero" id="overview"><ProductGallery product={p}/><div className="pdp-copy"><p className="product-category-label">{p.category}</p><h1>{p.name}</h1><p className="intro-text">{p.description}</p><ProductPurchase product={p}/></div></section></ProductSelectionProvider><nav className="pdp-section-nav" aria-label="Product sections"><a href="#overview">Overview</a><a href="#product-details">Product details</a><a href="#product-reviews">Reviews</a>{p.longFormImages&&<a href="#product-references">Guides &amp; references</a>}</nav>
+      <div className="pdp-information" id="product-details">
         <section className="pdp-information-block pdp-attributes">
           <header><p>Product information</p><h2>Product attributes</h2></header>
           <dl>
@@ -69,53 +76,54 @@ export default async function ContentPage({ params }: Props) {
         <section className="pdp-information-block pdp-description-block">
           <header><p>Full guide</p><h2>Product description</h2></header>
           <div className="pdp-description-content">
-            <section className="pdp-description-section">
-              <h3>Benefits &amp; features</h3>
+            <details className="pdp-description-section" open>
+              <summary>Benefits &amp; features<span aria-hidden="true">+</span></summary>
               <h4>{p.benefit}</h4>
               {p.functions?<ul>{p.functions.map(item=><li key={item}>{item}</li>)}</ul>:<ul><li>Thoughtfully developed for ASTAMALL</li><li>Designed for an everyday beauty or wellness routine</li><li>Clear product guidance before launch</li></ul>}
               {p.official&&<p className="product-claim">These cosmetic functions refer to appearance and skin feel.</p>}
-            </section>
+            </details>
 
-            <section className="pdp-description-section">
-              <h3>How to use</h3>
+            <details className="pdp-description-section">
+              <summary>How to use<span aria-hidden="true">+</span></summary>
               <h4>A simple place in your routine.</h4>
               {p.howToUse?<ol className="usage-steps">{p.howToUse.map((step,index)=><li key={step}><span>{String(index+1).padStart(2,'0')}</span><p>{step}</p></li>)}</ol>:<p>{p.routine}</p>}
-            </section>
+            </details>
 
-            <section className="pdp-description-section">
-              <h3>Key ingredients</h3>
+            <details className="pdp-description-section">
+              <summary>Key ingredients<span aria-hidden="true">+</span></summary>
               <h4>Understand what goes in.</h4>
               {p.keyIngredients?<div className="key-ingredient-list">{p.keyIngredients.map(item=><div key={item.name}><h5>{item.name}</h5><p>{item.description}</p></div>)}</div>:<><p>Featured ingredient: {p.ingredient}. The complete ingredient list will be published when the final product label is confirmed.</p><Link href="/ingredients" className="text-link">Explore the ingredient library <span aria-hidden="true">↗</span></Link></>}
-            </section>
+            </details>
 
             {p.sourceUrl&&<p className="small-text">Product information translated from <a href={p.sourceUrl} target="_blank" rel="noreferrer">NAFU LIFE</a>. Refer to the product packaging for complete ingredients and directions.</p>}
-            {p.cautions&&<section className="pdp-description-section"><h3>Care and storage</h3><h4>Use with care.</h4><ul>{p.cautions.map(item=><li key={item}>{item}</li>)}</ul></section>}
+            {p.cautions&&<details className="pdp-description-section"><summary>Care and storage<span aria-hidden="true">+</span></summary><h4>Use with care.</h4><ul>{p.cautions.map(item=><li key={item}>{item}</li>)}</ul></details>}
           </div>
         </section>
 
-        {p.usageGuideImage&&<section className="pdp-usage-guide" aria-label="Product application guide"><img src={p.usageGuideImage} alt={p.usageGuideImageAlt || ''} width="537" height="2170" loading="lazy" /></section>}
-        {p.longFormImages&&<section className="pdp-longform" aria-label="Translated product visual guides"><header><p>Explore the product</p><h2>More about {p.short.toLowerCase()}</h2></header>{p.longFormImages.map(item=><figure key={item.src}><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" /><figcaption>{item.caption}</figcaption></figure>)}</section>}
+        {p.usageGuideImage&&<details className="pdp-usage-guide"><summary>Application guide <span aria-hidden="true">+</span></summary><img src={p.usageGuideImage} alt={p.usageGuideImageAlt || ''} width="537" height="2170" loading="lazy" /></details>}
+
         {p.award&&<section className={`pdp-recognition ${p.recognitionImage?'pdp-recognition-with-image':''}`}>{p.recognitionImage&&<div className="pdp-recognition-media"><img src={p.recognitionImage} alt={p.recognitionImageAlt || ''} width="1254" height="1254" loading="lazy" /></div>}<div className="pdp-recognition-copy"><p>Recognition</p><h2>{p.award.split(';').map(award=><span key={award}>{award.trim()}</span>)}</h2></div></section>}
-        <ProductReviews productName={p.name} reviews={p.reviews??[]}/>
+        <div id="product-reviews"><ProductReviews productName={p.name} reviews={p.reviews??[]}/></div>
+        {p.longFormImages&&<section className="pdp-longform" id="product-references" aria-label="Product visual guides and reference images"><header><h2>Product guides &amp; references</h2><p>Translated source material, kept together for a closer look.</p></header>{p.longFormImages.map(item=><details className="reference-item" key={item.src}><summary>{item.caption}<span aria-hidden="true">+</span></summary><figure><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" /><figcaption>{item.caption} · <a href={item.src} target="_blank" rel="noreferrer">Open full size ↗</a></figcaption></figure></details>)}</section>}
       </div>
-      {related.length>0&&<section className="related-section"><div className="section-heading"><h2>Related products</h2><p>Continue discovering the collection.</p></div><div className="product-grid editorial-grid">{related.map(p=><ProductCard key={p.slug} product={p}/>)}</div></section>}
+      {related.length>0&&<section className="related-section"><div className="section-heading"><h2>Related products</h2><p>Continue discovering the collection.</p></div><div className="product-grid related-product-grid">{related.map(p=><ProductCard key={p.slug} product={p} presentation="shop" minimal />)}</div></section>}
     </main>;
   }
   if (section === 'ingredients' && slug) {
     const ingredient = ingredients.find(i => i.slug === slug);
     if (!ingredient) notFound();
     const containing = products.filter(p => p.ingredients.includes(slug) || (slug === 'astaxanthin' && p.ingredients.includes('asta-s')));
-    return <main id="main-content" className="inner-page"><div className="breadcrumbs"><Link href="/ingredients">Ingredient Library</Link><span>/</span><span>{ingredient.name}</span></div><PageHeading title={ingredient.name} text={ingredient.caption} /><div className="ingredient-detail"><div className="ingredient-detail-art"><img src="/assets/astaxanthin-droplet-v1.webp" alt="Illustrative red liquid, part of ASTAMALL's ingredient visual identity" width="1024" height="1536" /></div><div className="prose"><section><h2>What is it?</h2><p>{ingredient.text}</p></section><section><h2>Why is it used?</h2><p>{ingredient.use}</p></section><section><h2>Within the formula.</h2><p>{ingredient.formula}</p></section></div></div><section className="related-section"><h2>Find it in the collection.</h2>{containing.length ? <div className="product-grid">{containing.map(p => <ProductCard key={p.slug} product={p} />)}</div> : <p>Product formulation details are being confirmed.</p>}</section></main>;
+    return <main id="main-content" className="inner-page"><div className="breadcrumbs"><Link href="/ingredients">Ingredient Library</Link><span>/</span><span>{ingredient.name}</span></div><PageHeading title={ingredient.name} text={ingredient.caption} /><div className="ingredient-detail"><div className="ingredient-detail-art"><img src="/assets/journey-origin-cutout-v1.png" alt="Red liquid sculpture, part of ASTAMALL's ingredient visual identity" width="1024" height="1536" /></div><div className="prose"><section><h2>What is it?</h2><p>{ingredient.text}</p></section><section><h2>Why is it used?</h2><p>{ingredient.use}</p></section><section><h2>Within the formula.</h2><p>{ingredient.formula}</p></section></div></div><section className="related-section"><h2>Find it in the collection.</h2>{containing.length ? <div className="product-grid">{containing.map(p => <ProductCard key={p.slug} product={p} />)}</div> : <p>Product formulation details are being confirmed.</p>}</section></main>;
   }
   if (!pageMeta[section]) notFound();
   const [title, description] = pageMeta[section];
   return <main id="main-content" className={`inner-page ${section}-page`}>
     {section === 'shop' && <><PageHeading title="Shop the collection" text="Skincare, health foods and health supplements." /><Shop /></>}
-    {section === 'astaxanthin' && <><PageHeading title="An ingredient. A new perspective." text="Astaxanthin brought us to the meeting point of science, beauty and everyday wellness." /><div className="ingredient-detail"><div className="ingredient-detail-art"><img src="/assets/astaxanthin-droplet-v1.webp" alt="Conceptual astaxanthin-inspired liquid with red particles" width="1024" height="1536" /></div><div className="prose"><h2>It starts with understanding.</h2><p>We began with Astaxanthin, an ingredient that opened our eyes to the connection between science, beauty and wellness.</p><p>Our collection brings that interest into skincare, health foods and health supplements. Every product has its own formulation, directions and role.</p><h2>The Asta-S story.</h2><p>The ingredient developer describes Asta-S as a patented, Taiwan-developed free-form astaxanthin technology, designed for improved stability and bioavailability in skincare applications.</p><p className="small-text">This is a manufacturer description, not an independent ASTAMALL clinical claim. Substantiating documents are awaiting review.</p><Link href="/ingredients/asta-s" className="text-link">Asta-S ingredient profile ↗</Link></div></div><section className="education-note"><h2>One name doesn&apos;t tell the whole story.</h2><p>An ingredient is only part of a formula. Read the finished product&apos;s ingredients, directions and precautions before deciding whether it belongs in your routine.</p><Link href="/ingredients" className="button">Ingredient Library</Link></section><div className="product-grid">{products.filter(p => p.ingredients.includes('asta-s')).map(p => <ProductCard key={p.slug} product={p} />)}</div></>}
+    {section === 'astaxanthin' && <><PageHeading title="An ingredient. A new perspective." text="Astaxanthin brought us to the meeting point of science, beauty and everyday wellness." /><div className="ingredient-detail"><div className="ingredient-detail-art"><img src="/assets/journey-origin-cutout-v1.png" alt="Astaxanthin-inspired red liquid sculpture" width="1024" height="1536" /></div><div className="prose"><h2>It starts with understanding.</h2><p>We began with Astaxanthin, an ingredient that opened our eyes to the connection between science, beauty and wellness.</p><p>Our collection brings that interest into skincare, health foods and health supplements. Every product has its own formulation, directions and role.</p><h2>The Asta-S story.</h2><p>The ingredient developer describes Asta-S as a patented, Taiwan-developed free-form astaxanthin technology, designed for improved stability and bioavailability in skincare applications.</p><p className="small-text">This is a manufacturer description, not an independent ASTAMALL clinical claim. Substantiating documents are awaiting review.</p><Link href="/ingredients/asta-s" className="text-link">Asta-S ingredient profile ↗</Link></div></div><section className="education-note"><h2>One name doesn&apos;t tell the whole story.</h2><p>An ingredient is only part of a formula. Read the finished product&apos;s ingredients, directions and precautions before deciding whether it belongs in your routine.</p><Link href="/ingredients" className="button">Ingredient Library</Link></section><div className="product-grid">{products.filter(p => p.ingredients.includes('asta-s')).map(p => <ProductCard key={p.slug} product={p} />)}</div></>}
     {section === 'ingredients' && <><PageHeading title="Know what goes in." text="An introduction to the ingredients and technologies behind the ASTAMALL collection, with clear distinctions between confirmed information and details still awaiting documentation." label="Ingredient Library" /><div className="ingredient-index">{ingredients.map((i, n) => <Link href={`/ingredients/${i.slug}`} key={i.slug}><span className={`ingredient-index-visual visual-${n % 3}`} aria-hidden="true" /><div><h2>{i.name}</h2><p>{i.caption}</p></div><span aria-hidden="true">↗</span></Link>)}</div></>}
     {section === 'about' && <AboutStory />}
-    {section === 'journal' && !slug && <><PageHeading title="ASTAMALL Journal" text="Ingredient stories, beauty routines, skin education and wellness, edited with clarity." label="Read and discover" /><div className="journal-index">{articles.map((article, index) => <Link href={`/journal/${article.slug}`} key={article.slug} className="journal-index-item"><div className={`journal-art journal-art-${index}`}><img src={index === 2 ? '/assets/astaxanthin-powder-cutout-v2.webp' : '/assets/astaxanthin-droplet-v1.webp'} alt="" /></div><div><span>{article.category}</span><h2>{article.title}</h2><p>{article.excerpt}</p><span className="text-link">Read article <span aria-hidden="true">↗</span></span></div></Link>)}</div></>}
-    {section === 'journal' && slug && (() => { const article=articles.find(item=>item.slug===slug); if(!article) notFound(); return <article className="journal-article"><div className="breadcrumbs"><Link href="/journal">Journal</Link><span>/</span><span>{article.category}</span></div><header><p className="eyebrow">{article.category}</p><h1>{article.title}</h1><p>{article.excerpt}</p></header><div className="journal-article-visual"><img src={article.slug==='understanding-your-beauty-routine'?'/assets/astaxanthin-powder-cutout-v2.webp':'/assets/astaxanthin-droplet-v1.webp'} alt="Astaxanthin-inspired editorial composition" /></div><div className="journal-body">{article.paragraphs.map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div><Link href="/shop" className="button">Explore the Collection</Link></article>; })()}
+    {section === 'journal' && !slug && <><PageHeading title="ASTAMALL Journal" text="Ingredient stories, beauty routines, skin education and wellness, edited with clarity." label="Read and discover" /><div className="journal-index">{articles.map((article, index) => <Link href={`/journal/${article.slug}`} key={article.slug} className="journal-index-item"><div><span>{article.category}</span><h2>{article.title}</h2><p>{article.excerpt}</p><span className="text-link">Read article <span aria-hidden="true">↗</span></span></div></Link>)}</div></>}
+    {section === 'journal' && slug && (() => { const article=articles.find(item=>item.slug===slug); if(!article) notFound(); return <article className="journal-article"><div className="breadcrumbs"><Link href="/journal">Journal</Link><span>/</span><span>{article.category}</span></div><header><p className="eyebrow">{article.category}</p><h1>{article.title}</h1><p>{article.excerpt}</p></header><div className="journal-body">{article.paragraphs.map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div><Link href="/shop" className="button">Explore the Collection</Link></article>; })()}
     {section === 'faq' && <><JsonLd value={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }} /><PageHeading title="Help & FAQ" text="Products, payment and delivery information." /><FaqList /><div className="education-note"><h2>Still curious?</h2><Link href="/contact" className="button">Contact Us</Link></div></>}
     {section === 'contact' && <><PageHeading title="Contact us" text="Product questions, ingredient information or business enquiries." /><div className="contact-layout"><aside><h2>Let’s talk.</h2><a href="mailto:astamall92@gmail.com" className="text-link">astamall92@gmail.com</a><div className="contact-social"><a href="https://instagram.com/astamall92" target="_blank" rel="noreferrer">Instagram ↗</a><a href="https://tiktok.com/@astamall92" target="_blank" rel="noreferrer">TikTok ↗</a></div></aside><ContactForm /></div></>}
     {section === 'cart' && <><PageHeading title="Your cart" text="Review your items and selected options." /><div className="cart-page-content"><CartContents fullPage /></div></>}

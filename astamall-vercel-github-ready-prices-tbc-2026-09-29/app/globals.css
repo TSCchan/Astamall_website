@@ -1153,7 +1153,6 @@ form>.notice[role=status]{margin-top:24px}
 .shop-product-card .product-image-link:hover .official-product-art img,.shop-product-card .product-image-link:focus-visible .official-product-art img{transform:scale(1.02)}
 .shop-product-card .product-image-link:hover .product-sprite,.shop-product-card .product-image-link:focus-visible .product-sprite{transform:translateY(-3px) rotate(.5deg) scale(.96)}
 .shop-product-card .product-caption{justify-content:space-between;margin:18px 0 8px;color:var(--maroon);font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase}
-.shop-product-card .product-caption span:last-child{color:var(--muted);font-weight:500;letter-spacing:.05em}
 .shop-product-card h3{max-width:none;min-height:0;margin:0;font-family:var(--font-display);font-size:clamp(1.55rem,1.9vw,1.95rem);font-weight:500;letter-spacing:-.025em;line-height:1.1}
 .shop-product-card h3 a{transition:color .2s ease}
 .shop-product-card h3 a:hover,.shop-product-card h3 a:focus-visible{color:var(--maroon)}
@@ -1202,3 +1201,101 @@ form>.notice[role=status]{margin-top:24px}
 /* Keep source product photography fully visible in the catalog. */
 .official-product-art:has(img[src*="catalog-"]) img{object-fit:contain;background:#fff}
 .catalog-variants{font-size:14px;line-height:1.7;margin:16px 0}
+
+/* Product detail recommendations: a compact, calm gallery distinct from the shop grid. */
+.premium-detail .related-section{margin-top:88px;padding-top:30px;border-top:1px solid var(--line)}
+.premium-detail .related-section .section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px 28px;margin-bottom:26px}
+.premium-detail .related-section .section-heading h2{margin:0;font-size:clamp(2rem,3vw,3rem);line-height:1.1}
+.premium-detail .related-section .section-heading p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.premium-detail .related-product-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;align-items:stretch}
+.related-product-grid .shop-product-card{display:flex;flex-direction:column;min-width:0}
+.related-product-grid .shop-product-card .product-image-link{aspect-ratio:1;border-radius:2px}
+.related-product-grid .shop-product-card .product-image-frame{border-radius:2px}
+.related-product-grid .shop-product-card .product-caption{gap:8px;margin:13px 0 7px;font-size:10px;line-height:1.35;letter-spacing:.07em}
+.related-product-grid .shop-product-card h3{margin:0;font-size:clamp(1.1rem,1.55vw,1.45rem);line-height:1.22;letter-spacing:-.02em;text-wrap:balance}
+.related-product-grid .shop-product-card .product-bottom{margin-top:auto;padding-top:12px}
+.related-product-grid .shop-product-card .card-price-pending{font-size:13px;line-height:1.4}
+@media(max-width:1100px){.premium-detail .related-product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}}
+@media(max-width:700px){
+ .premium-detail .related-section{margin-top:68px;padding-top:24px}
+ .premium-detail .related-section .section-heading{display:block;margin-bottom:22px}
+ .premium-detail .related-section .section-heading p{margin-top:8px}
+ .premium-detail .related-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 14px}
+ .related-product-grid .shop-product-card .product-caption{flex-wrap:wrap;gap:2px 8px;font-size:9px;margin:10px 0 6px}
+ .related-product-grid .shop-product-card h3{font-size:clamp(1rem,4.2vw,1.2rem)}
+}
+
+/* The cinematic journey shares the catalog and the storefront navigation. */
+.cinematic-home-shell .site-header{position:fixed;opacity:1;visibility:visible;pointer-events:auto;transform:none;background:rgba(247,243,236,.92);border-bottom:1px solid rgba(48,35,31,.08);color:#30231f}
+.cinematic-home-shell .site-header .brand-logo{display:block}
+.journey-hero,.journey-fallback{--journey-ivory:#f7f3ec;--journey-ink:#30231f;--journey-red:#9e1831;background:var(--journey-ivory);color:var(--journey-ink)}
+.journey-hero{height:100svh;min-height:650px;position:relative;overflow:hidden;isolation:isolate}
+.journey-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 76% 43%,#fffdf9 0,transparent 54%);pointer-events:none}
+.journey-scene{position:absolute;left:38%;right:1%;top:85px;bottom:100px;touch-action:pan-y}
+.journey-scene canvas{display:block;width:100%;height:100%;touch-action:pan-y}
+.journey-copy{position:absolute;left:6%;width:34%;top:26%;bottom:21%;pointer-events:none;z-index:2}
+.journey-panel{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;will-change:transform,opacity}
+.journey-panel[inert]{pointer-events:none}
+.journey-panel:not([inert]) .journey-links{pointer-events:auto}
+.journey-eyebrow{color:var(--journey-red);font-size:10px;font-weight:600;letter-spacing:.19em;margin:0 0 26px;line-height:1.6}
+.journey-panel h1,.journey-panel h2,.journey-fallback h1{font-family:var(--font-display),serif;font-size:clamp(2.65rem,4.4vw,4.8rem);font-weight:400;line-height:1.03;letter-spacing:-.045em;margin:0;max-width:650px}
+.journey-panel h1 em,.journey-panel h2 em,.journey-fallback h1 em{display:block;font-weight:400;color:var(--journey-red);margin-top:.12em}
+.journey-description{font-size:14px;line-height:1.8;max-width:355px;margin:25px 0 0;color:#716158}
+.journey-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:29px}
+.journey-cta{display:inline-flex;gap:20px;align-items:center;justify-content:space-between;padding:16px 23px;border-radius:2px;background:#30231f;color:#fffdf9;font-size:12px;font-weight:500;line-height:1.4;text-decoration:none;transition:background .2s}
+.journey-cta span{font-size:17px}
+.journey-story{font-size:12px;border-bottom:1px solid #30231f;padding:5px 0}
+.journey-skip{position:absolute;top:106px;left:6%;z-index:5;color:#716158;font-size:10px;letter-spacing:.06em;padding:8px 0}
+.journey-bottom{position:absolute;left:6%;right:5%;bottom:32px;display:flex;align-items:center;gap:32px;z-index:4}
+.journey-scroll-hint{font-size:9px;letter-spacing:.13em;white-space:nowrap;color:#716158;display:flex;align-items:center;gap:10px}
+.journey-scroll-hint>span{font-size:20px}
+.journey-stages{display:flex;flex:1;justify-content:flex-end;gap:20px}
+.journey-stages button{appearance:none;border:0;background:transparent;padding:10px 0;position:relative;display:flex;gap:8px;align-items:baseline;cursor:pointer;color:#716158;font:inherit;min-height:42px}
+.journey-stage-number{font-size:9px;font-variant-numeric:tabular-nums;opacity:.7}
+.journey-stage-name{font-size:10px;white-space:nowrap}
+.journey-stage-line{position:absolute;height:1px;bottom:0;left:0;right:0;background:#d6c9bb;transform-origin:left}
+.journey-stages button[aria-current=step]{color:#9e1831}
+.journey-stages button[aria-current=step] .journey-stage-line{background:#9e1831;height:2px}
+.journey-count{display:none;font-size:11px;color:#9e1831;font-variant-numeric:tabular-nums}
+.journey-count i{font-style:normal;color:#716158}
+.journey-loading-art{position:absolute;inset:12% 22%;overflow:hidden;border-radius:50%;opacity:.7}
+.journey-loading-art img{width:100%;height:100%;object-fit:cover}
+.journey-fallback{padding:155px 6% 90px;min-height:85svh;display:grid;grid-template-columns:.9fr 1.1fr;align-items:center;gap:5%}
+.journey-fallback-copy>p:not(.journey-eyebrow){color:#716158;font-size:14px;line-height:1.8;margin:25px 0;max-width:410px}
+.journey-fallback-collection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;align-items:center}
+.journey-fallback-collection>a:nth-child(2){transform:translateY(35px)}
+.journey-fallback-collection img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:contain}
+.journey-fallback-collection>a>span{display:flex;justify-content:space-between;gap:8px;padding-top:12px;font-size:11px}
+.journey-hero a:focus-visible,.journey-hero button:focus-visible,.journey-fallback a:focus-visible{outline:2px solid #9e1831;outline-offset:5px}
+@media(hover:hover){.journey-cta:hover{background:#9e1831}.journey-stages button:hover,.journey-skip:hover{color:#9e1831}}
+@media(min-width:768px) and (max-width:1100px){.journey-copy{left:5%;width:36%}.journey-panel h1,.journey-panel h2{font-size:3.3rem}.journey-stages{gap:15px}.journey-stage-name{font-size:9px}.journey-scroll-hint{display:none}.journey-scene{left:40%;right:0}.journey-bottom{left:5%;right:5%}}
+@media(max-width:767px){
+.journey-hero{min-height:720px}
+.journey-scene{left:0;right:0;top:86px;height:42%;bottom:auto}
+.journey-copy{top:51%;left:7%;width:86%;bottom:95px}
+.journey-panel{justify-content:flex-start}
+.journey-panel h1,.journey-panel h2{font-size:clamp(2.15rem,8.7vw,3.2rem);line-height:1.02;max-width:430px;letter-spacing:-.04em}
+.journey-eyebrow{font-size:9px;margin-bottom:13px;letter-spacing:.15em}
+.journey-description{font-size:12px;line-height:1.65;margin-top:15px;max-width:360px}
+.journey-links{margin-top:18px;gap:18px}
+.journey-cta{font-size:11px;padding:13px 18px;gap:18px}
+.journey-skip{top:78px;left:auto;right:7%;font-size:9px}
+.journey-bottom{left:7%;right:7%;bottom:21px;gap:16px}
+.journey-scroll-hint{display:none}
+.journey-stages{justify-content:space-between;gap:12px}
+.journey-stages button{flex:1;justify-content:center;min-height:40px}
+.journey-stage-name{display:none}
+.journey-stage-number{font-size:10px}
+.journey-count{display:block;white-space:nowrap}
+.journey-fallback{padding:125px 7% 65px;display:block;min-height:100svh}
+.journey-fallback h1{font-size:2.8rem}
+.journey-fallback-collection{margin-top:42px;gap:10px}
+.journey-fallback-collection>a>span{font-size:10px;line-height:1.5}
+.journey-fallback-collection>a:nth-child(2){transform:translateY(20px)}
+}
+@media(max-height:700px) and (min-width:768px){.journey-hero{min-height:600px}.journey-copy{top:24%;bottom:17%}.journey-panel h1,.journey-panel h2{font-size:3.4rem}.journey-description{margin-top:16px;font-size:12px}.journey-links{margin-top:19px}.journey-eyebrow{margin-bottom:17px}.journey-scene{top:85px;bottom:70px}}
+@media(prefers-reduced-motion:reduce){.journey-cta{transition:none}}
+
+.journey-pause{position:absolute;right:5%;top:106px;z-index:5;border:0;background:transparent;color:#716158;padding:8px 0;font:inherit;font-size:10px;cursor:pointer;letter-spacing:.04em}
+.journey-resume{display:block;border:0;background:transparent;color:#716158;font:inherit;font-size:11px;margin-top:18px;padding:6px 0;cursor:pointer;border-bottom:1px solid #c5b8aa}
+@media(max-width:767px){.journey-pause{top:78px;left:7%;right:auto;font-size:9px}}

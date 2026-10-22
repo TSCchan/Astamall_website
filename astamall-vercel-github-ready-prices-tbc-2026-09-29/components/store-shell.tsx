@@ -16,10 +16,11 @@ import { CartContents } from '@/components/cart-content';
 import PageTransitions from '@/components/page-transitions';
 export { CartContents } from '@/components/cart-content';
 
-const navigation = [['/', 'Home'], ['/shop', 'Shop'], ['/astaxanthin', 'Astaxanthin'], ['/about', 'About'], ['/journal', 'Journal'], ['/faq', 'FAQ']];
+const navigation = [['/', 'Home'], ['/shop', 'Shop'], ['/about', 'Our story'], ['/journal', 'Journal'], ['/contact', 'Contact']];
 
 export default function StoreShell({ children }: { children: ReactNode }) {
   const path = usePathname();
+  const headerNavigation = navigation;
   const cart = useSyncExternalStore(subscribeCart, getCartSnapshot, getServerCartSnapshot);
   const { loaded, storageError } = cart;
   const lines = useMemo(() => cart.lines.filter(line => products.some(p => p.slug === line.slug && p.price !== null)), [cart.lines]);
@@ -66,11 +67,11 @@ export default function StoreShell({ children }: { children: ReactNode }) {
   }), [lines, loaded]);
   const results = products.filter(p => `${p.name} ${p.category} ${p.ingredient}`.toLowerCase().includes(query.toLowerCase().trim()));
 
-  return <StoreContext.Provider value={value}><PageTransitions><div className={path === '/' ? 'home-shell static-home-shell' : 'inner-shell'}>
+  return <StoreContext.Provider value={value}><PageTransitions><div className={path === '/' ? 'home-shell cinematic-home-shell' : 'inner-shell'}>
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="site-header">
       <Logo />
-      <nav className="desktop-nav" aria-label="Main navigation">{navigation.map(([href, label]) => <Link href={href} key={href} aria-current={path === href ? 'page' : undefined}>{label}</Link>)}</nav>
+      <nav className="desktop-nav" aria-label="Main navigation">{headerNavigation.map(([href, label]) => <Link href={href} key={href} aria-current={path === href || (href !== '/' && path.startsWith(href + '/')) ? 'page' : undefined}>{label}</Link>)}</nav>
       <div className="header-actions">
         <button id="search-trigger" className="icon-button" onClick={() => setSearchOpen(true)} aria-label="Search products"><MagnifyingGlass size={21} weight="light" /></button>
         <button id="account-trigger" className="icon-button account-action" onClick={() => setAccountOpen(true)} aria-label="Account information"><User size={21} weight="light" /></button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CaretDown, ArrowUpRight } from '@phosphor-icons/react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { faqs } from '@/lib/catalog';
@@ -24,6 +25,8 @@ const contactFields = [
 ];
 
 export function ContactForm() {
+  const params = useSearchParams();
+  const enquiry = params.get('product') ? `I would like to enquire about ${params.get('product')}.\nOption: ${params.get('option') || 'Standard'}\nQuantity: ${params.get('quantity') || '1'}\n\n` : '';
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -39,6 +42,6 @@ export function ContactForm() {
     window.location.href = `mailto:astamall92@gmail.com?subject=${encodeURIComponent(`ASTAMALL: ${data.get('topic')}`)}&body=${encodeURIComponent(body)}`;
     setMessage('Your email draft is ready. Send it from your email app to contact us. Nothing has been submitted through this website.');
   };
-  return <form className="contact-form" onSubmit={submit} noValidate><div className="form-grid">{contactFields.map(f => <label className="field" key={f.name}>{f.label}<input name={f.name} type={f.type} autoComplete={f.auto} required={f.required} aria-invalid={Boolean(errors[f.name])} aria-describedby={errors[f.name] ? `${f.name}-error` : undefined} />{errors[f.name] && <span className="field-error" id={`${f.name}-error`}>{errors[f.name]}</span>}</label>)}<label className="field">Topic<select name="topic"><option>Product question</option><option>Ingredients</option><option>Orders</option><option>Business enquiry</option><option>Other</option></select></label><label className="field full-field">Order number (optional)<input name="order" /></label><label className="field full-field">Message<textarea name="message" rows={5} required aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'message-error' : undefined} />{errors.message && <span className="field-error" id="message-error">{errors.message}</span>}</label></div><p className="small-text">This opens your email app with a draft. We do not collect this form on the website.</p><button className="button" type="submit">Create email draft <ArrowUpRight size={18} /></button>{message && <p role="status" className="notice">{message}</p>}</form>;
+  return <form className="contact-form" onSubmit={submit} noValidate><div className="form-grid">{contactFields.map(f => <label className="field" key={f.name}>{f.label}<input name={f.name} type={f.type} autoComplete={f.auto} required={f.required} aria-invalid={Boolean(errors[f.name])} aria-describedby={errors[f.name] ? `${f.name}-error` : undefined} />{errors[f.name] && <span className="field-error" id={`${f.name}-error`}>{errors[f.name]}</span>}</label>)}<label className="field">Topic<select name="topic"><option>Product question</option><option>Ingredients</option><option>Orders</option><option>Business enquiry</option><option>Other</option></select></label><label className="field full-field">Order number (optional)<input name="order" /></label><label className="field full-field">Message<textarea name="message" defaultValue={enquiry} rows={5} required aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? 'message-error' : undefined} />{errors.message && <span className="field-error" id="message-error">{errors.message}</span>}</label></div><p className="small-text">This opens your email app with a draft. We do not collect this form on the website.</p><button className="button" type="submit">Create email draft <ArrowUpRight size={18} /></button>{message && <p role="status" className="notice">{message}</p>}</form>;
 }
 

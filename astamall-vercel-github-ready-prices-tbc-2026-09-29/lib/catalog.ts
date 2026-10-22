@@ -4,7 +4,7 @@ export type Product = {
   description: string; routine: string; award?: string; price: number | null;
   sourceUrl?: string; sourceName?: string; options?: { label: string; options: SampleOption[] }; official?: boolean; image?: string; imageAlt?: string; size?: string;
   galleryImages?: Array<{ src: string; alt: string; label: string }>;
-  longFormImages?: Array<{ src: string; alt: string; caption: string; width: number; height: number }>;
+  longFormImages?: Array<{ src: string; alt: string; caption: string; width: number; height: number; reference?: boolean }>;
   usageGuideImage?: string; usageGuideImageAlt?: string;
   recognitionImage?: string; recognitionImageAlt?: string;
   functions?: string[]; howToUse?: string[];
@@ -306,7 +306,11 @@ const catalogue: Product[] = [
   "official": true,
   "image": "/assets/asta-s-eye-mask-product-v1.webp",
   "imageAlt": "Official NAFU LIFE Asta-S Regenerative Eye Mask box with three pairs of under-eye patches",
+  "galleryImages": [
+    { "src": "/assets/asta-s-eye-mask-eye-area-guide-en-v1.png", "alt": "English Asta-S eye-area guide highlighting dryness, fine lines, eye bags and dark circles", "label": "Eye-area guide" }
+  ],
   "longFormImages": [
+    { "src": "/assets/asta-s-eye-mask-eye-area-guide-en-v1.png", "alt": "English visual guide to common eye-area concerns including dryness, fine lines, eye bags and dark circles", "caption": "Eye-area concerns", "width": 1236, "height": 1273 },
     { "src": "/assets/asta-s-eye-mask-ingredients-en-v1.png", "alt": "English visual guide to the eye mask's five featured ingredients: TIBI postbiotics, Asta-S astaxanthin, kava, a water-lily-derived ingredient and hyaluronic acid", "caption": "Five featured ingredients", "width": 1254, "height": 1254 },
     { "src": "/assets/asta-s-eye-mask-how-to-use-en-v1.png", "alt": "English three-step guide showing how to cleanse, apply the eye patches and pat in remaining essence", "caption": "How to use the eye mask", "width": 1254, "height": 1254 }
   ],
@@ -349,38 +353,67 @@ const catalogue: Product[] = [
   "category": "Health Foods",
   "type": "Collagen drink",
   "size": "20 ml × 20 sachets / box",
-  "ingredient": "Naticol collagen, astaxanthin & vitamin C",
+  "ingredient": "Naticol fish collagen, astaxanthin & vitamin C",
   "ingredients": [
     "collagen",
     "asta-s"
   ],
   "position": "0% 0%",
   "benefit": "3,000 mg of French collagen in each convenient sachet.",
-  "description": "A ready-to-drink collagen formula containing 3,000 mg of French Naticol collagen per sachet, with astaxanthin, sodium hyaluronate, brown-rice ceramides, vitamin C and iron. A convenient daily addition to your beauty nutrition routine.",
+  "description": "A ready-to-drink beauty nutrition formula with 3,000 mg of French Naticol fish collagen peptides per 20 ml sachet. The blend also features astaxanthin, sodium hyaluronate, brown-rice ceramides, Japanese cherry blossom extract and vitamin C. Each box contains 20 individually portioned sachets.",
   "routine": "The manufacturer lists one sachet daily for routine use, or two sachets for enhanced use. Follow the product label.",
   "price": null,
+  "official": true,
   "image": "/assets/catalog-5-en-v1.webp",
   "imageAlt": "NAFU Collagen PLUS Quick-Charge Collagen Drink — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/nafu-collagen-lifestyle-en-v1.png", "alt": "English NAFU Collagen PLUS lifestyle image with a model holding the product box", "label": "Lifestyle" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/nafu-collagen-lifestyle-en-v1.png", "alt": "English lifestyle visual for NAFU Collagen PLUS Quick-Charge Collagen Drink", "caption": "Collagen PLUS Quick-Charge Drink", "width": 1254, "height": 1254 },
+    { "src": "/assets/nafu-collagen-astaxanthin-en-v1.png", "alt": "English manufacturer infographic about patented astaxanthin, with laboratory antioxidant comparisons that are not clinical product claims", "caption": "Featured astaxanthin", "width": 1254, "height": 1254 },
+    { "src": "/assets/nafu-collagen-naticol-en-v1.png", "alt": "English ingredient guide describing the French Naticol fish collagen peptides", "caption": "French fish collagen peptides", "width": 1160, "height": 1355 },
+    { "src": "/assets/nafu-collagen-formula-en-v1.png", "alt": "English four-card ingredient guide for sodium hyaluronate, rice ceramides, Japanese cherry blossom extract and PureWay-C vitamin C", "caption": "The quick-charge formula", "width": 1098, "height": 1433 },
+    { "src": "/assets/nafu-collagen-faq-en-v1.svg", "alt": "English translation of eight NAFU Collagen PLUS product questions and answers covering use, fish origin and allergies", "caption": "Product questions and answers", "width": 2000, "height": 3595, "reference": true },
+    { "src": "/assets/nafu-collagen-nutrition-label-en-v1.svg", "alt": "English translation of NAFU Collagen PLUS ingredients, nutrition facts, serving amounts and allergen information", "caption": "Ingredients and nutrition information", "width": 2000, "height": 3610, "reference": true }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/nafucollagen-2-1",
   "sourceName": "晶瑩PLUS快充膠原飲(20ml/包，20包/盒)",
   "functions": [
-    "Provides 3,000 mg collagen per sachet",
-    "Combines collagen with vitamin C and iron",
-    "Convenient 20 ml ready-to-drink format"
+    "3,000 mg French Naticol fish collagen peptides per sachet",
+    "Features astaxanthin, sodium hyaluronate and brown-rice ceramides",
+    "20 ml ready-to-drink sachets; 20 per box"
   ],
+  "howToUse": [
+    "Take one 20 ml sachet daily as described by the manufacturer.",
+    "The manufacturer also describes two sachets daily for enhanced use; follow the current product label."
+  ],
+  "purpose": "Ready-to-drink collagen supplement for a daily beauty nutrition routine.",
   "keyIngredients": [
     {
-      "name": "Naticol collagen",
-      "description": "3,000 mg of French collagen per sachet."
+      "name": "Naticol fish collagen peptides",
+      "description": "3,000 mg of French fish-derived collagen peptides per sachet."
     },
     {
-      "name": "Astaxanthin, sodium hyaluronate & brown-rice ceramides",
-      "description": "Featured ingredients in the beauty nutrition blend."
+      "name": "Astaxanthin",
+      "description": "A carotenoid featured in the formula."
     },
     {
-      "name": "Vitamin C & iron",
-      "description": "Vitamin C supports normal collagen formation and iron absorption."
+      "name": "Sodium hyaluronate & brown-rice ceramides",
+      "description": "Moisture-focused ingredients highlighted in NAFU LIFE's formula guide."
+    },
+    {
+      "name": "Japanese cherry blossom extract",
+      "description": "A botanical extract listed on the product packaging and formula guide."
+    },
+    {
+      "name": "Vitamin C",
+      "description": "The supplied nutrition label lists 75 mg of vitamin C per 20 ml sachet."
     }
+  ],
+  "cautions": [
+    "Contains fish-derived collagen. Check the ingredient label before use if you have a fish allergy.",
+    "Refer to the current product packaging for the full ingredient list and directions."
   ]
 },
 {
@@ -390,33 +423,54 @@ const catalogue: Product[] = [
   "category": "Health Foods",
   "type": "Drip coffee",
   "size": "10 drip bags / box",
-  "ingredient": "Coffee & three-strain probiotic blend",
+  "ingredient": "Coffee & three probiotic cultures",
   "ingredients": [],
   "position": "0% 0%",
   "benefit": "A fruity medium-light roast with a clean finish.",
-  "description": "A NAFU LIFE × Come True Coffee collaboration combining specialty coffee with a three-strain probiotic formula in a patented heat-resistant brewing bag. The Morning Fruit blend is medium-light roasted, with notes of plum, raisin, biscuit and black tea.",
+  "description": "NAFU LIFE × Come True Coffee's Morning Fruit pairs medium-light-roast specialty coffee with three selected probiotic cultures: Bifidobacterium animalis, Lactobacillus plantarum and Bacillus coagulans. It has aroma notes of plum, raisin, biscuit and black tea. The manufacturer describes a heat-resistant probiotic drink brewing pack protected by Taiwan utility model patent M615537. Each box contains 10 individually packed drip bags.",
   "routine": "Brew using the drip-bag directions on the packaging; follow the specified water amount and temperature.",
   "price": null,
+  "official": true,
   "image": "/assets/catalog-6.webp",
   "imageAlt": "Probiotic Drip Coffee — Morning Fruit — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/probiotic-coffee-morning-fruit-pack-en-v1.png", "alt": "English Morning Fruit probiotic drip coffee pack photograph showing the box, one drip bag and 2022 taste award emblem", "label": "Morning Fruit pack" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/probiotic-coffee-three-cultures-en-v1.png", "alt": "English guide to Bifidobacterium animalis, Lactobacillus plantarum and Bacillus coagulans in the coffee blend", "caption": "Three selected probiotic cultures", "width": 1254, "height": 1254 },
+    { "src": "/assets/probiotic-coffee-b-corp-en-v1.png", "alt": "English translation of the supplied Come True Coffee B Corporation graphic", "caption": "Coffee and community", "width": 1122, "height": 1402 },
+    { "src": "/assets/probiotic-coffee-brewing-en-v1.png", "alt": "English three-step guide to brewing the probiotic drip coffee with 180 to 200 milliliters of water at 88 to 92 degrees Celsius", "caption": "How to brew", "width": 1122, "height": 1402 },
+    { "src": "/assets/probiotic-coffee-nutrition-en-v1.png", "alt": "English translation of the supplied nutrition facts and product specifications for 10 drip bags", "caption": "Nutrition and product details", "width": 1122, "height": 1402 },
+    { "src": "/assets/probiotic-coffee-testing-en-v1.png", "alt": "English summary of the supplied coffee bean and filter material test report graphic", "caption": "Quality testing reference", "width": 976, "height": 1611 },
+    { "src": "/assets/probiotic-coffee-morning-fruit-flavor-en-v1.png", "alt": "English translation of the supplied Morning Fruit flavor graphic with medium-light roast and sweet orange, cranberry, dried fruit and black tea tasting notes", "caption": "Supplied flavor graphic; the current NAFU LIFE listing describes plum, raisin, biscuit and black tea notes", "width": 1608, "height": 978 }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/probiotic-dripcoffee-flavor2-box",
   "sourceName": "益予成真 益生菌濾掛咖啡（晨光果露) 10包/盒",
   "functions": [
-    "Medium-light roast with fruit-forward aromas",
-    "Individually packed drip bags",
-    "A convenient coffee and probiotic combination"
+    "Medium-light roast with plum, raisin, biscuit and black-tea notes",
+    "Three selected probiotic cultures",
+    "10 individually packed drip bags per box"
   ],
+  "purpose": "Medium-light-roast specialty drip coffee with a three-culture probiotic blend.",
   "keyIngredients": [
     {
       "name": "Medium-light roast coffee",
       "description": "Plum, raisin, biscuit and black-tea aroma notes."
     },
     {
-      "name": "Three-strain probiotic formula",
-      "description": "Included in the manufacturer’s patented heat-resistant brewing bag."
+      "name": "Bifidobacterium animalis",
+      "description": "One of the three cultures shown in the manufacturer's blend guide."
+    },
+    {
+      "name": "Lactobacillus plantarum",
+      "description": "A selected culture in the probiotic blend."
+    },
+    {
+      "name": "Bacillus coagulans",
+      "description": "The third culture shown in the blend guide."
     }
   ],
-  "award": "2022 iTQi Superior Taste Award — 2 stars."
+  "award": "2022 International Taste Institute Superior Taste Award — two stars."
 },
 {
   "slug": "probiotic-drip-coffee-cocoa-waltz",
@@ -425,66 +479,105 @@ const catalogue: Product[] = [
   "category": "Health Foods",
   "type": "Drip coffee",
   "size": "10 drip bags / box",
-  "ingredient": "Coffee & three-strain probiotic blend",
+  "ingredient": "Coffee & three probiotic cultures",
   "ingredients": [],
   "position": "0% 0%",
-  "benefit": "A rounded medium roast with cocoa and walnut notes.",
-  "description": "A NAFU LIFE × Come True Coffee collaboration pairing specialty coffee with a three-strain probiotic formula in a patented heat-resistant brewing bag. Cocoa Waltz is medium roasted, with chocolate, walnut and buttery aroma notes and a clean finish.",
+  "benefit": "A medium roast with chocolate, walnut, butter and a clean finish.",
+  "description": "NAFU LIFE × Come True Coffee's Cocoa Waltz pairs medium-roast specialty coffee with a three-culture probiotic blend. The manufacturer describes chocolate, walnut and buttery aroma notes with a clean finish, a patented heat-resistant probiotic drip-bag design, and 10 individually packed 10 g bags per box. The supplied ingredient graphic identifies Lactobacillus plantarum, Bacillus coagulans and Bifidobacterium animalis as the three cultures.",
   "routine": "Brew using the drip-bag directions on the packaging; follow the specified water amount and temperature.",
   "price": null,
+  "official": true,
   "image": "/assets/catalog-7.webp",
   "imageAlt": "Probiotic Drip Coffee — Cocoa Waltz — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/probiotic-coffee-cocoa-waltz-pack-en-v1.png", "alt": "English Cocoa Waltz probiotic drip coffee pack photograph showing its box, individual bag and 2022 two-star taste award emblem", "label": "Cocoa Waltz pack" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/probiotic-coffee-three-cultures-en-v1.png", "alt": "English guide to the three probiotic cultures in the supplied coffee blend graphic", "caption": "Three selected probiotic cultures", "width": 1254, "height": 1254 },
+    { "src": "/assets/probiotic-coffee-nutrition-en-v1.png", "alt": "English translation of the supplied nutrition facts and product specifications for 10 drip bags", "caption": "Nutrition and product details", "width": 1122, "height": 1402 },
+    { "src": "/assets/probiotic-coffee-testing-en-v1.png", "alt": "English summary of the supplied coffee bean and filter material test report graphic", "caption": "Quality testing reference", "width": 976, "height": 1611 },
+    { "src": "/assets/probiotic-coffee-cocoa-waltz-flavor-en-v1.png", "alt": "English Cocoa Waltz flavor graphic showing a medium roast and chocolate, walnut, butter and clean-finish notes", "caption": "Cocoa Waltz flavor profile", "width": 1608, "height": 978 }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/probiotic-dripcoffee-flavor1-box",
   "sourceName": "益予成真 益生菌濾掛咖啡（可可圓舞曲) 10包/盒",
   "functions": [
-    "Medium roast with a rounded flavour",
-    "Individually packed drip bags",
-    "A convenient coffee and probiotic combination"
+    "Medium roast with chocolate, walnut, butter and clean-finish notes",
+    "Three selected probiotic cultures",
+    "10 individually packed 10 g drip bags per box"
   ],
+  "purpose": "Medium-roast specialty drip coffee with a three-culture probiotic blend.",
   "keyIngredients": [
     {
       "name": "Medium roast coffee",
-      "description": "Chocolate, walnut and buttery aroma notes."
+      "description": "Chocolate, walnut and buttery aroma notes with a clean finish."
     },
     {
-      "name": "Three-strain probiotic formula",
-      "description": "Included in the manufacturer’s patented heat-resistant brewing bag."
+      "name": "Lactobacillus plantarum",
+      "description": "One of the three cultures named in the supplied ingredient graphic."
+    },
+    {
+      "name": "Bacillus coagulans",
+      "description": "A selected culture in the probiotic blend."
+    },
+    {
+      "name": "Bifidobacterium animalis",
+      "description": "The third culture named in the supplied ingredient graphic."
     }
-  ],
-  "award": "2022 iTQi Superior Taste Award — 2 stars."
+  ]
 },
 {
   "slug": "lean-life-coffee",
-  "name": "LEAN LIFE Slimming Coffee",
+  "name": "LEAN LIFE Coffee",
   "short": "Coffee",
   "category": "Health Foods",
   "type": "Coffee",
-  "size": "10 sachets / box",
-  "ingredient": "Arabica coffee & five-culture blend",
+  "size": "20 mL × 10 sachets / box",
+  "ingredient": "Arabica coffee extract & Slimpro five-culture blend",
   "ingredients": [],
   "position": "0% 0%",
-  "benefit": "Full-bodied Arabica coffee with five added cultures.",
-  "description": "LEAN LIFE Coffee combines 100% Arabica coffee selected under HWC Coffee supervision with five added cultures. High-temperature extraction followed by rapid cooling preserves the coffee’s rich aroma in a convenient sachet format.",
-  "routine": "Prepare according to the directions on the product packaging.",
+  "benefit": "Rich Arabica coffee concentrate with a five-culture probiotic blend.",
+  "description": "LEAN LIFE Coffee combines coffee extract made from 100% Arabica beans with the Slimpro five-culture probiotic blend. NAFU LIFE says HWC Coffee oversees the bean selection and that high-temperature extraction followed by rapid cooling retains the coffee aroma. The supplied product label lists Brazilian and Ethiopian coffee origins, manufacture in Taiwan, 20 mL per sachet and 10 sachets per box. Each sachet contains 114.62 mg of caffeine.",
+  "routine": "Tear open one sachet and pour the coffee concentrate into a cup. Dilute with water at a concentrate-to-water ratio of 1:4 or 1:5; use less water for a stronger taste. Milk and ice can also be used.",
   "price": null,
   "image": "/assets/catalog-8.webp",
-  "imageAlt": "LEAN LIFE Slimming Coffee — NAFU LIFE product photograph",
+  "imageAlt": "LEAN LIFE Coffee — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/lean-life-coffee-pour-en-v1.png", "alt": "English LEAN LIFE Coffee promotional image showing concentrate poured from a sachet into a glass", "label": "Coffee concentrate" },
+    { "src": "/assets/lean-life-coffee-how-to-use-en-v1.png", "alt": "English three-step guide for opening, pouring and diluting LEAN LIFE Coffee", "label": "How to prepare" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/lean-life-coffee-story-en-v1.png", "alt": "English LEAN LIFE Coffee reference panel showing the box, ways to mix it and everyday use illustrations", "caption": "The LEAN LIFE Coffee story", "width": 1024, "height": 1536 },
+    { "src": "/assets/lean-life-coffee-how-to-use-en-v1.png", "alt": "English three-step guide for opening, pouring and diluting LEAN LIFE Coffee", "caption": "How to prepare", "width": 1254, "height": 1254 },
+    { "src": "/assets/lean-life-coffee-specifications-en-v1.png", "alt": "English nutrition facts, ingredients, origins, storage and caffeine information for LEAN LIFE Coffee", "caption": "Product specifications and nutrition", "width": 1024, "height": 1536 }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/leanlifecoffee-slimpro-1box",
   "sourceName": "LEAN LIFE Coffee 孅盈咖啡（10包/盒）",
   "functions": [
-    "100% Arabica coffee",
-    "Contains five added cultures",
-    "Convenient individually packed sachets"
+    "Coffee extract made from 100% Arabica beans",
+    "Slimpro five-culture probiotic blend",
+    "Ready-to-mix 20 mL sachets; 10 per box"
+  ],
+  "purpose": "Ready-to-mix coffee concentrate with a five-culture probiotic blend.",
+  "shelfLife": "2 years; see the package for the expiry date",
+  "storage": "Keep in a cool, dry place away from heat and direct sunlight.",
+  "howToUse": [
+    "Open the outer sachet and tear the coffee concentrate stick along the dotted line.",
+    "Pour the concentrate into a cup.",
+    "Add water at a concentrate-to-water ratio of 1:4 or 1:5. Use less water for a stronger taste, or mix with milk and ice."
   ],
   "keyIngredients": [
     {
-      "name": "100% Arabica coffee",
-      "description": "Selected under HWC Coffee supervision."
+      "name": "Coffee extract from 100% Arabica beans",
+      "description": "Beans from Brazil and Ethiopia are selected under HWC Coffee supervision."
     },
     {
-      "name": "Five-culture blend",
-      "description": "Includes Bifidobacterium animalis, butyric-acid bacteria, Kluyveromyces marxianus, Lactobacillus plantarum and spore-forming lactic-acid bacteria."
+      "name": "Slimpro five-culture blend",
+      "description": "The manufacturer lists Bifidobacterium animalis, butyric-acid bacteria, Kluyveromyces marxianus yeast, Lactobacillus plantarum and spore-forming lactic-acid bacteria."
     }
+  ],
+  "cautions": [
+    "Each 20 mL sachet contains 114.62 mg of caffeine. The supplied label recommends no more than two sachets per day.",
+    "Children, pregnant people and those breastfeeding should consider their total caffeine intake."
   ]
 },
 {
@@ -494,37 +587,63 @@ const catalogue: Product[] = [
   "category": "Health Supplements",
   "type": "Capsules",
   "size": "30 capsules / pouch",
-  "ingredient": "Bilberry, maqui berry & vitamin A",
+  "ingredient": "Bilberry, maqui berry, grape seed & vitamin A",
   "ingredients": [
     "asta-s"
   ],
   "position": "0% 0%",
-  "benefit": "Plant-based capsules for everyday eye nutrition.",
-  "description": "A vegan capsule formula designed for night owls and frequent screen users. It combines bilberry, grape seed, maqui berry, algal astaxanthin, piperine and vitamin A. Made without preservatives or sweeteners.",
-  "routine": "Follow the directions and recommended serving on the product packaging.",
+  "benefit": "Plant-based daily eye nutrition for screen-filled days and late nights.",
+  "description": "Quick-Charge Blueberry Night Capsules are designed for night owls and frequent screen users. The vegan formula combines bilberry extract, grape seed extract, maqui berry, red-algae astaxanthin, piperine and vitamin A. NAFU LIFE highlights bilberry extract standardized to 25% anthocyanins and grape seed extract standardized to 80% proanthocyanidins. The capsules contain no added preservatives or sweeteners, and each pouch holds 30 capsules.",
+  "routine": "Take one capsule daily, with or without food. The capsule may be opened and mixed into a cool or room-temperature drink; avoid drinks above 40°C. Swallowing it whole is recommended.",
   "price": null,
   "image": "/assets/catalog-9-en-v1.webp",
   "imageAlt": "Quick-Charge Blueberry Night Capsules — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/blueberry-overview-en-v1.png", "alt": "English Quick-Charge Blueberry Night Capsules promotional image with the product pouch and purple capsules", "label": "Product overview" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/blueberry-02-audience-en-v1.png", "alt": "English guide to everyday lifestyles shown for Quick-Charge Blueberry Night Capsules", "caption": "Who it is for", "width": 758, "height": 2075 },
+    { "src": "/assets/blueberry-03-everyday-en-v1.png", "alt": "English lifestyle panel for the blueberry capsule daily routine", "caption": "Everyday eye nutrition", "width": 981, "height": 1603 },
+    { "src": "/assets/blueberry-04-ingredients-en-v1.png", "alt": "English illustrated guide to bilberry, maqui berry, grape seed, algal astaxanthin, piperine and vitamin A", "caption": "Featured ingredients", "width": 761, "height": 2067 },
+    { "src": "/assets/blueberry-05-quality-en-v1.png", "alt": "English quality panel showing the vegan formula and no added preservatives or sweeteners", "caption": "Quality and formula", "width": 1016, "height": 1547 },
+    { "src": "/assets/blueberry-06-banner-en-v1.png", "alt": "English Quick-Charge Blueberry Night Capsules lifestyle banner", "caption": "Made for everyday routines", "width": 1544, "height": 1019 },
+    { "src": "/assets/blueberry-07-comparison-en-v1.png", "alt": "English comparison chart of anthocyanins and other featured ingredients", "caption": "Ingredient comparison", "width": 1188, "height": 1324 },
+    { "src": "/assets/blueberry-08-faq-en-v1.png", "alt": "English frequently asked questions about taking, opening and storing blueberry capsules", "caption": "Frequently asked questions", "width": 784, "height": 2006 }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/blueberry-capsules-1",
-  "sourceName": "快充藍莓夜膠囊(30入/袋)",
+  "sourceName": "快充藍莓晶亮夜膠囊(30入/袋)",
   "functions": [
-    "Vegan formula and capsule shell",
+    "Vegan formula and plant-based capsule shell",
     "No added preservatives or sweeteners",
-    "Combines botanical extracts with vitamin A"
+    "Bilberry, maqui berry and grape seed extracts with vitamin A"
   ],
   "keyIngredients": [
     {
-      "name": "Bilberry & grape seed extracts",
-      "description": "Bilberry extract provides 25% anthocyanins; grape seed extract provides 80% proanthocyanidins."
+      "name": "Bilberry extract",
+      "description": "Standardized to 25% anthocyanins."
     },
     {
-      "name": "Maqui berry & algal astaxanthin",
-      "description": "Featured ingredients in the eye-nutrition blend."
+      "name": "Maqui berry & grape seed extract",
+      "description": "Maqui berry is a source of anthocyanins and delphinidins; grape seed extract is standardized to 80% proanthocyanidins."
     },
     {
-      "name": "Piperine & vitamin A",
-      "description": "Piperine is included to support nutrient absorption; vitamin A supports normal vision."
+      "name": "Red-algae astaxanthin & piperine",
+      "description": "Featured together in the botanical blend; piperine is included to support nutrient absorption."
+    },
+    {
+      "name": "Vitamin A",
+      "description": "Helps maintain normal vision, including adaptation to dim light."
     }
+  ],
+  "howToUse": [
+    "Take one capsule each day, with or without food.",
+    "Swallow the capsule whole, or open it and mix the contents into a cool or room-temperature drink.",
+    "Avoid mixing with drinks hotter than 40°C."
+  ],
+  "purpose": "Everyday eye nutrition for people with frequent screen use and late-night routines.",
+  "cautions": [
+    "Pregnant people and children should seek advice from a doctor or dietitian before use.",
+    "Follow the directions on the package and seek individualized advice if needed."
   ]
 },
 {
@@ -534,42 +653,63 @@ const catalogue: Product[] = [
   "category": "Health Supplements",
   "type": "Capsules",
   "size": "30 capsules / box",
-  "ingredient": "UC-II, astaxanthin & OptiMSM",
+  "ingredient": "UC-II®, AstaZine®, OptiMSM®, K2, algae calcium & magnesium",
   "ingredients": [
     "asta-s"
   ],
   "position": "0% 0%",
-  "benefit": "Six featured nutrients for everyday mobility support.",
-  "description": "A multi-ingredient capsule formula combining UC-II, Astazine astaxanthin, OptiMSM, vitamin K2, algae calcium and magnesium glycinate. Developed for daily joint and bone nutrition in a convenient capsule format.",
-  "routine": "Follow the directions and recommended serving on the product packaging.",
+  "benefit": "Six featured nutrients for everyday joint and bone nutrition.",
+  "description": "UC-Flex PLUS Complex Capsules combine six featured ingredients in a one-capsule daily serving: UC-II® undenatured type II collagen, AstaZine® astaxanthin, OptiMSM® methylsulfonylmethane, K2 VITAL® vitamin K2, algae calcium and magnesium glycinate. NAFU LIFE presents the formula for everyday mobility, stability and bone nutrition. The 30-capsule box uses opaque Alu-Alu blister packaging and the brand states that no artificial colors or preservatives are added.",
+  "routine": "Take one capsule daily, following the directions on the package.",
   "price": null,
   "image": "/assets/catalog-10-en-v1.webp",
   "imageAlt": "UC-Flex PLUS Complex Capsules — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/uc-flex-formula-en-v1.png", "alt": "English UC-Flex PLUS six-ingredient diagram around the product box", "label": "Six-ingredient formula" },
+    { "src": "/assets/uc-flex-assurance-en-v1.png", "alt": "English UC-Flex PLUS ingredient-brand and quality assurance graphic", "label": "Quality assurance" },
+    { "src": "/assets/uc-flex-comparison-en-v1.png", "alt": "English UC-Flex PLUS and UC-Flex EX comparison with packaging and daily serving details", "label": "PLUS comparison" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/uc-flex-reference-01-story-en-v1.png", "alt": "English UC-Flex PLUS product story, audience and six-ingredient overview", "caption": "Product story and formula", "width": 724, "height": 2171 },
+    { "src": "/assets/uc-flex-reference-02-ingredients-en-v1.png", "alt": "English reference guide to MSM, vitamin K2, algae calcium and magnesium glycinate", "caption": "Supporting ingredients", "width": 1054, "height": 1493 },
+    { "src": "/assets/uc-flex-reference-03-science-en-v1.png", "alt": "English NAFU LIFE visual guide to UC-II, AstaZine astaxanthin and MSM", "caption": "Featured ingredients in detail", "width": 724, "height": 2172 },
+    { "src": "/assets/uc-flex-reference-04-comparison-en-v1.png", "alt": "English K2 VITAL reference and side-by-side UC-Flex PLUS comparison", "caption": "Formula and packaging comparison", "width": 724, "height": 2172 },
+    { "src": "/assets/uc-flex-reference-05-quality-en-v1.png", "alt": "English UC-Flex PLUS quality, certification and daily-use reference graphic", "caption": "Quality and daily use", "width": 885, "height": 1777 }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/uc-flex-plus-1",
   "sourceName": "瑩顧力PLUS複方膠囊（30粒/盒）",
   "functions": [
-    "Combines six featured nutrients",
-    "Designed for joint and bone nutrition",
-    "Convenient 30-capsule box"
+    "Combines six featured nutrients in one daily capsule",
+    "Designed for everyday joint and bone nutrition",
+    "Opaque Alu-Alu blister packaging; 30 capsules per box",
+    "No added artificial colors or preservatives"
   ],
   "keyIngredients": [
     {
-      "name": "UC-II & OptiMSM",
-      "description": "Featured ingredients for joint nutrition and mobility support."
+      "name": "UC-II® undenatured type II collagen",
+      "description": "40 mg of the branded collagen ingredient shown in NAFU LIFE's formula graphic."
     },
     {
-      "name": "Astazine astaxanthin",
-      "description": "Included in the multi-ingredient nutrition blend."
+      "name": "AstaZine® astaxanthin",
+      "description": "4 mg of branded astaxanthin from red algae in the featured formula."
     },
     {
-      "name": "Vitamin K2 & algae calcium",
-      "description": "Nutrients included to support normal bone health."
+      "name": "OptiMSM® methylsulfonylmethane",
+      "description": "200 mg of MSM, a source of sulfur in the formula."
+    },
+    {
+      "name": "K2 VITAL® vitamin K2 & algae calcium",
+      "description": "Vitamin K2 and plant-derived calcium are included for normal bone nutrition."
     },
     {
       "name": "Magnesium glycinate",
-      "description": "A source of magnesium in the formula."
+      "description": "A magnesium source included alongside the other featured ingredients."
     }
-  ]
+  ],
+  "howToUse": [
+    "Take one capsule daily, following the directions on the package."
+  ],
+  "purpose": "Daily joint, bone and movement nutrition in a one-capsule serving."
 },
 {
   "slug": "vegan-algal-astaxanthin-complex-capsules",
@@ -578,34 +718,70 @@ const catalogue: Product[] = [
   "category": "Health Supplements",
   "type": "Capsules",
   "size": "30 capsules / box",
-  "ingredient": "Algal astaxanthin & sesamin",
+  "ingredient": "Algal astaxanthin 12 mg & sesamin 10 mg",
   "ingredients": [
-    "asta-s"
+    "astaxanthin"
   ],
   "position": "0% 0%",
-  "benefit": "A vegan blend of astaxanthin, sesamin and plant oils.",
-  "description": "A vegan supplement combining algal astaxanthin, sesamin, phospholipids and flaxseed oil. Both the formula and capsule shell are plant-based. Designed as a convenient addition to a daily wellness routine.",
-  "routine": "Follow the directions and recommended serving on the product packaging.",
+  "benefit": "A plant-based daily capsule with 12 mg algal astaxanthin and 10 mg sesamin.",
+  "description": "NAFU LIFE Vegan Red Algae Astaxanthin Complex Capsules combine 12 mg of algae-derived astaxanthin and 10 mg of sesame-derived sesamin per capsule. The formula also contains flaxseed oil, providing 27 mg omega-3, and soy-derived phosphatidylserine (1 mg). Both the ingredients and capsule shell are plant-based. Each 30-capsule box uses light-protective Alu-Alu blister packaging, with one capsule as the daily serving.",
+  "routine": "Take one capsule once daily after a meal with water. Do not exceed one capsule per day.",
   "price": null,
   "image": "/assets/catalog-11.webp",
   "imageAlt": "Vegan Algal Astaxanthin Complex Capsules — NAFU LIFE product photograph",
+  "galleryImages": [
+    { "src": "/assets/sesamin-gallery-01-dose-en-v1.png", "alt": "English 12 mg astaxanthin per capsule comparison graphic", "label": "12 mg per capsule" },
+    { "src": "/assets/sesamin-gallery-02-source-en-v1.png", "alt": "English comparison of krill and cultivated algae as astaxanthin sources", "label": "Vegan algae source" },
+    { "src": "/assets/sesamin-gallery-03-blister-en-v1.png", "alt": "English guide to vegan capsules and protective Alu-Alu blister packaging", "label": "Protective packaging" }
+  ],
+  "longFormImages": [
+    { "src": "/assets/sesamin-reference-01-en-v1.png", "alt": "English NAFU LIFE astaxanthin and sesamin overview", "caption": "Product overview", "width": 1316, "height": 1195, "reference": true },
+    { "src": "/assets/sesamin-reference-02-en-v1.png", "alt": "English reference panel on unbalanced dining", "caption": "Everyday dining", "width": 1505, "height": 1045, "reference": true },
+    { "src": "/assets/sesamin-reference-03-en-v1.png", "alt": "English reference panel on work and concentration", "caption": "Work and study", "width": 1506, "height": 1045, "reference": true },
+    { "src": "/assets/sesamin-reference-04-en-v1.png", "alt": "English reference panel on fatigue during work", "caption": "Busy days", "width": 1505, "height": 1045, "reference": true },
+    { "src": "/assets/sesamin-reference-05-en-v1.png", "alt": "English reference panel on settling down for sleep", "caption": "Evening routine", "width": 1505, "height": 1045, "reference": true },
+    { "src": "/assets/sesamin-reference-06-en-v1.png", "alt": "English NAFU LIFE astaxanthin product illustration", "caption": "Daily routine", "width": 1166, "height": 1349, "reference": true },
+    { "src": "/assets/sesamin-reference-07-en-v1.png", "alt": "English four-ingredient guide showing algal astaxanthin, sesamin, soy phospholipids and flaxseed oil", "caption": "Four featured ingredients", "width": 951, "height": 1654, "reference": true },
+    { "src": "/assets/sesamin-reference-08-en-v1.png", "alt": "English introduction to algae-derived astaxanthin", "caption": "About astaxanthin", "width": 751, "height": 2092, "reference": true },
+    { "src": "/assets/sesamin-reference-09-en-v1.png", "alt": "English red algae source illustration", "caption": "Red algae source", "width": 1343, "height": 1171, "reference": true },
+    { "src": "/assets/sesamin-reference-10-en-v1.png", "alt": "English Algalif Icelandic astaxanthin sourcing and production overview", "caption": "Algalif sourcing", "width": 1047, "height": 1501, "reference": true },
+    { "src": "/assets/sesamin-reference-11-en-v1.png", "alt": "English packaging-label explainer with per-capsule ingredient amounts", "caption": "Clearly labeled amounts", "width": 1418, "height": 1109, "reference": true },
+    { "src": "/assets/sesamin-reference-12-en-v1.png", "alt": "English Alu-Alu blister and vegan capsule packaging guide", "caption": "Capsule packaging", "width": 1118, "height": 1407, "reference": true },
+    { "src": "/assets/sesamin-reference-13-en-v1.png", "alt": "English plant-based formula and capsule-shell reference", "caption": "Plant-based formula", "width": 1086, "height": 1448, "reference": true },
+    { "src": "/assets/sesamin-reference-14-en-v1.png", "alt": "English product information, ingredients, allergens and nutrition per capsule", "caption": "Product label and nutrition", "width": 1001, "height": 1571, "reference": true },
+    { "src": "/assets/sesamin-reference-15-en-v1.png", "alt": "English reference to third-party reports for heavy metals, microorganisms and pesticide residues", "caption": "Quality-control reports", "width": 1198, "height": 1313, "reference": true }
+  ],
   "sourceUrl": "https://www.nafulife.com/products/astaxanthinsesamin",
   "sourceName": "純素紅藻蝦紅素複方膠囊(30粒/盒)",
   "functions": [
-    "Vegan formula and capsule shell",
-    "Combines astaxanthin with sesamin",
-    "Includes phospholipids and flaxseed oil"
+    "12 mg algae-derived astaxanthin and 10 mg sesamin per daily capsule",
+    "27 mg omega-3 from flaxseed oil and 1 mg soy-derived phosphatidylserine",
+    "Plant-based formula and capsule shell with no added colorants",
+    "Individually protected in Alu-Alu blister packaging"
   ],
   "keyIngredients": [
     {
-      "name": "Algal astaxanthin & sesamin",
-      "description": "The formula’s two featured ingredients."
+      "name": "Algal astaxanthin",
+      "description": "12 mg per capsule from Haematococcus pluvialis red algae extract."
     },
     {
-      "name": "Phospholipids & flaxseed oil",
-      "description": "Provide additional nutritional lipids; flaxseed oil is a source of omega-3."
+      "name": "Sesamin",
+      "description": "10 mg per capsule from sesame extract."
+    },
+    {
+      "name": "Flaxseed oil",
+      "description": "Provides 27 mg omega-3 per capsule."
+    },
+    {
+      "name": "Soy phosphatidylserine",
+      "description": "1 mg per capsule, from soy lecithin."
     }
-  ]
+  ],
+  "howToUse": ["Take one capsule once daily after a meal with water. Do not exceed one capsule per day."],
+  "purpose": "Plant-based daily nutrition featuring algal astaxanthin and sesamin.",
+  "cautions": ["Contains sesame and soy.", "If pregnant, nursing, taking medication or managing a medical condition, consult a healthcare professional before use.", "Keep out of reach of children. Stop use if discomfort occurs."],
+  "storage": "Store in a cool, dry place away from heat and direct sunlight.",
+  "shelfLife": "3 years; see packaging for batch and expiry date."
 }
 ];
 
