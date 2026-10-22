@@ -216,16 +216,20 @@ const catalogue: Product[] = [
     "label": "Shade",
     "options": [
       {
-        "label": "NLC02 Saturn Nude"
+        "label": "NLC02 Saturn Nude",
+        "color": "#b97a6a"
       },
       {
-        "label": "NLC70 Rose Galaxy"
+        "label": "NLC70 Rose Galaxy",
+        "color": "#a8606b"
       },
       {
-        "label": "NLC38 Twilight Orange"
+        "label": "NLC38 Twilight Orange",
+        "color": "#b4583f"
       },
       {
-        "label": "NLC35 Starlight Berry"
+        "label": "NLC35 Starlight Berry",
+        "color": "#a93a4f"
       }
     ]
   },

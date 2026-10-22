@@ -23,7 +23,8 @@ export default function StoreShell({ children }: { children: ReactNode }) {
   const headerNavigation = navigation;
   const cart = useSyncExternalStore(subscribeCart, getCartSnapshot, getServerCartSnapshot);
   const { loaded, storageError } = cart;
-  const lines = useMemo(() => cart.lines.filter(line => products.some(p => p.slug === line.slug && p.price !== null)), [cart.lines]);
+  // Products awaiting Malaysian pricing can still be collected; prices are confirmed with the order request.
+  const lines = useMemo(() => cart.lines.filter(line => products.some(p => p.slug === line.slug)), [cart.lines]);
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -38,12 +39,21 @@ export default function StoreShell({ children }: { children: ReactNode }) {
   const feedback = useRef<{ cancel: () => void } | null>(null);
   const cartOrigin = useRef<HTMLElement | null>(null);
   const routeRef = useRef(path);
+  const sentinel = useRef<HTMLDivElement>(null);
+  // The header condenses once the page leaves its first screen; no scroll listener runs.
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => document.documentElement.toggleAttribute('data-scrolled', !entry.isIntersecting));
+    observer.observe(node);
+    return () => { observer.disconnect(); document.documentElement.removeAttribute('data-scrolled'); };
+  }, []);
   useEffect(() => { routeRef.current = path; return () => { feedback.current?.cancel(); feedback.current = null; }; }, [path]);
   const count = lines.reduce((n, l) => n + l.quantity, 0);
   const value = useMemo<Store>(() => ({
     lines, loaded,
     add: async (slug, quantity = 1, options = {}) => {
-      if (!products.some(p => p.slug === slug && p.price !== null)) return;
+      if (!products.some(p => p.slug === slug)) return;
       const product = products.find(p => p.slug === slug)!;
       const available = productOptions(product).options;
       const variant = available.some(o => o.label === options.variant) ? options.variant : available[0].label;
@@ -68,6 +78,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
   const results = products.filter(p => `${p.name} ${p.category} ${p.ingredient}`.toLowerCase().includes(query.toLowerCase().trim()));
 
   return <StoreContext.Provider value={value}><PageTransitions><div className={path === '/' ? 'home-shell cinematic-home-shell' : 'inner-shell'}>
+    <div ref={sentinel} className="scroll-sentinel" aria-hidden="true" />
     <a className="skip-link" href="#main-content">Skip to content</a>
     <header className="site-header">
       <Logo />
@@ -81,7 +92,7 @@ export default function StoreShell({ children }: { children: ReactNode }) {
     </header>
     {children}
     <Sheet open={menuOpen} onOpenChange={setMenuOpen}><SheetContent className="brand-sheet" showCloseButton={false} onCloseAutoFocus={event => { event.preventDefault(); document.getElementById("menu-trigger")?.focus(); }}><SheetTitle className="panel-title">ASTAMALL</SheetTitle><SheetDescription>Beauty, powered by Astaxanthin.</SheetDescription><SheetClose className="icon-button panel-close" aria-label="Close navigation"><X size={22} /></SheetClose><nav className="mobile-nav" aria-label="Mobile navigation">{navigation.map(([href, label]) => <Link href={href} onClick={() => setMenuOpen(false)} key={href}>{label}</Link>)}</nav></SheetContent></Sheet>
-    <Sheet open={cartOpen} onOpenChange={setCartOpen}><SheetContent className="brand-sheet cart-sheet" showCloseButton={false} onCloseAutoFocus={event => { event.preventDefault(); (cartOrigin.current?.isConnected ? cartOrigin.current : document.getElementById("cart-trigger"))?.focus(); }}><SheetTitle className="panel-title">Your collection</SheetTitle><SheetDescription>Storefront preview. No orders or payments are taken.</SheetDescription><SheetClose className="icon-button panel-close" aria-label="Close cart"><X size={22} /></SheetClose><CartContents onNavigate={() => setCartOpen(false)} />{storageError && <p role="status" className="notice">Your browser could not save this cart. It is available only for this visit.</p>}</SheetContent></Sheet>
+    <Sheet open={cartOpen} onOpenChange={setCartOpen}><SheetContent className="brand-sheet cart-sheet" showCloseButton={false} onCloseAutoFocus={event => { event.preventDefault(); (cartOrigin.current?.isConnected ? cartOrigin.current : document.getElementById("cart-trigger"))?.focus(); }}><SheetTitle className="panel-title">Your bag{count > 0 && <span className="panel-count">{count}</span>}</SheetTitle><SheetDescription>Prices are confirmed with your order request.</SheetDescription><SheetClose className="icon-button panel-close" aria-label="Close cart"><X size={22} /></SheetClose><CartContents onNavigate={() => setCartOpen(false)} />{storageError && <p role="status" className="notice">Your browser could not save this cart. It is available only for this visit.</p>}</SheetContent></Sheet>
     <Dialog open={searchOpen} onOpenChange={setSearchOpen}><DialogContent className="brand-dialog" showCloseButton={false} onCloseAutoFocus={event => { event.preventDefault(); document.getElementById("search-trigger")?.focus(); }}><DialogTitle className="panel-title">Find your next ritual.</DialogTitle><DialogDescription>Search by product, category or ingredient.</DialogDescription><DialogClose className="icon-button panel-close" aria-label="Close search"><X size={22} /></DialogClose><label className="field">Search products<input value={query} onChange={e => setQuery(e.target.value)} placeholder="Try serum or Asta-S" type="search" /></label><p className="small-text" aria-live="polite">{results.length} products found</p><div className="search-results">{results.map(p => <Link href={`/shop/${p.slug}`} key={p.slug} onClick={() => setSearchOpen(false)}><ProductArt product={p} /><span>{p.name}<small>{p.category}</small></span><span aria-hidden="true">↗</span></Link>)}{results.length === 0 && <p>No products match that search. Try a category such as skincare or health foods.</p>}</div></DialogContent></Dialog>
     <Dialog open={accountOpen} onOpenChange={setAccountOpen}><DialogContent className="brand-dialog" showCloseButton={false} onCloseAutoFocus={event => { event.preventDefault(); document.getElementById("account-trigger")?.focus(); }}><DialogTitle className="panel-title">A little more to come.</DialogTitle><DialogDescription>Customer accounts are not available in this storefront preview. Your cart is saved on this browser only.</DialogDescription><DialogClose className="icon-button panel-close" aria-label="Close account information"><X size={22} /></DialogClose><Link href="/contact" className="button" onClick={() => setAccountOpen(false)}>Contact Us</Link></DialogContent></Dialog>
   </div></PageTransitions></StoreContext.Provider>;

@@ -10,14 +10,16 @@ export function AnimatedNumber({ value }: { value: number }) {
   return <span className="number-window" aria-label={String(value)}><AnimatePresence initial={false} mode="popLayout"><motion.span key={value} aria-hidden="true" initial={reduce ? false : { y: 9, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={reduce ? {} : { y: -9, opacity: 0 }} transition={{ duration: .18 }}>{value}</motion.span></AnimatePresence></span>;
 }
 
-export function AddButton({ slug, quantity = 1, quick = false, variant }: { slug: string; quantity?: number; quick?: boolean; variant?: string }) {
+export function AddButton({ slug, quantity = 1, quick = false, variant, label, onAdded }: { slug: string; quantity?: number; quick?: boolean; variant?: string; label?: string; onAdded?: () => void }) {
   const { add, loaded } = useStore();
+  const reduce = useReducedMotion();
   const [state, setState] = useState<'idle' | 'adding' | 'added'>('idle');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mounted = useRef(true);
   const locked = useRef(false);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; if (timer.current) clearTimeout(timer.current); }; }, []);
-  return <button className={quick ? 'quick-add' : 'button add-button'} disabled={!loaded || state === 'adding'} aria-label={quick ? `${state === 'added' ? 'Added' : 'Quick Add'} ${slug.replaceAll('-', ' ')}` : undefined} onClick={async event => {
+  const text = state === 'added' ? 'Added to bag' : state === 'adding' ? 'Adding' : label ?? (quick ? 'Quick add' : 'Add to bag');
+  return <button className={quick ? 'quick-add' : 'button add-button'} data-state={state} disabled={!loaded || state === 'adding'} aria-label={quick ? `${state === 'added' ? 'Added' : 'Quick add'} ${slug.replaceAll('-', ' ')}` : undefined} onClick={async event => {
     if (locked.current) return;
     locked.current = true;
     setState('adding');
@@ -26,13 +28,18 @@ export function AddButton({ slug, quantity = 1, quick = false, variant }: { slug
     locked.current = false;
     if (!mounted.current) return;
     setState('added');
-    timer.current = setTimeout(() => setState('idle'), 1600);
-  }}><span aria-hidden="true">{state === 'added' ? <Check size={16} /> : quick ? <Plus size={16} /> : null}</span><span aria-live="polite">{state === 'added' ? 'Added' : state === 'adding' ? 'Adding' : quick ? 'Quick Add' : 'Add to Cart'}</span></button>;
+    onAdded?.();
+    timer.current = setTimeout(() => setState('idle'), 1800);
+  }}>
+    <span className="add-button-fill" aria-hidden="true" />
+    <span className="add-button-icon" aria-hidden="true"><AnimatePresence initial={false} mode="popLayout"><motion.span key={state === 'added' ? 'check' : 'plus'} initial={reduce ? false : { scale: .4, rotate: -45, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} exit={reduce ? {} : { scale: .4, rotate: 45, opacity: 0 }} transition={{ type: 'spring', stiffness: 420, damping: 24 }}>{state === 'added' ? <Check size={16} weight="bold" /> : <Plus size={16} />}</motion.span></AnimatePresence></span>
+    <span className="add-button-label" aria-live="polite"><AnimatePresence initial={false} mode="popLayout"><motion.span key={text} initial={reduce ? false : { y: 14, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={reduce ? {} : { y: -14, opacity: 0 }} transition={{ type: 'spring', stiffness: 380, damping: 30 }}>{text}</motion.span></AnimatePresence></span>
+  </button>;
 }
 
 // A single material moves toward its destination; cart data updates immediately.
 export function flyToCart(origin: HTMLElement | undefined, target: HTMLElement | null): { done: Promise<void>; cancel: () => void } {
-  const source = origin?.closest('.product-card, .pdp-hero')?.querySelector<HTMLElement>('[data-product-art]');
+  const source = origin?.closest('.product-card, .pdp-hero, .quick-shop, .buy-bar')?.querySelector<HTMLElement>('[data-product-art]');
   if (!source || !target || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !target.getBoundingClientRect().width || getComputedStyle(target).visibility === 'hidden') return { done: Promise.resolve(), cancel: () => {} };
   const from = source.getBoundingClientRect();
   const to = target.getBoundingClientRect();
