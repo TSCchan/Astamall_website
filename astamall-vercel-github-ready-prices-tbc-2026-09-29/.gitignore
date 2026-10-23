@@ -44,3 +44,8 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# Generated locally by next dev and tsc
+/AGENTS.md
+/CLAUDE.md
+*.tsbuildinfo
