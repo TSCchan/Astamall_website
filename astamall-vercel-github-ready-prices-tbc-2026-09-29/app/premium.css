@@ -508,35 +508,16 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 }
 
 /* ---------- Sculpture hero ---------- */
-/* Layers: origin copy 1 (behind the liquid), sculpture canvas 2, category copy 3, controls 4-5. */
-.sculpture-hero{height:100svh;min-height:640px;background:radial-gradient(ellipse at 50% 46%,#fffdf9 0,#f7f3ec 55%,#eae1d5 100%)}
-.sculpture-hero:before{display:none}
-.sculpture-scene{position:absolute;inset:0;z-index:2;pointer-events:none}
-.sculpture-scene canvas{display:block}
-.sculpture-copy{position:absolute;inset:0;pointer-events:none}
-.sculpture-copy-back{z-index:1}
-.sculpture-copy-front{z-index:3}
-.sculpture-panel{position:absolute;inset:auto 0 auto 0;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;will-change:transform,opacity;padding-inline:24px}
-.sculpture-copy-back .sculpture-panel{top:50%;translate:0 -50%;max-width:980px}
-.sculpture-copy-front .sculpture-panel{bottom:84px;max-width:720px}
-.sculpture-copy-front .journey-description{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.sculpture-panel .journey-eyebrow{margin-bottom:20px}
-.sculpture-panel h1{font-size:clamp(3.4rem,7vw,7.4rem);line-height:1.02;letter-spacing:-.045em;padding-bottom:6px}
-.sculpture-panel h2{font-size:clamp(2rem,3vw,3.1rem);line-height:1.05;letter-spacing:-.04em;padding-bottom:4px}
-.sculpture-panel em{display:block;color:var(--maroon);font-style:italic;line-height:1.1;padding-bottom:6px}
-.sculpture-panel .journey-description{max-width:520px;margin:18px auto 0}
-.sculpture-panel .journey-links{justify-content:center;pointer-events:auto}
-.sculpture-hero .journey-cta{border-radius:999px;padding:15px 24px;background:var(--wine);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
-.sculpture-hero .journey-cta:hover{transform:translateY(-2px);background:var(--maroon);box-shadow:var(--shadow-card)}
-.sculpture-hero .journey-skip,.sculpture-hero .journey-pause{z-index:5}
-.sculpture-bottom{z-index:4;justify-content:center;bottom:28px}
-.sculpture-bottom .journey-stages{flex:0 1 auto}
-@media (max-width:767px){
-  .sculpture-hero{min-height:600px}
-  .sculpture-copy-back .sculpture-panel{top:52%}
-  .sculpture-panel h1{font-size:clamp(2.6rem,11vw,3.4rem)}
-  .sculpture-panel h2{font-size:clamp(1.9rem,8vw,2.5rem)}
-  .sculpture-copy-front .sculpture-panel{bottom:70px}
-  .sculpture-panel .journey-description{font-size:13px}
-  .sculpture-bottom{left:7%;right:7%;bottom:18px}
-}
+/* Liquid particle sculpture (components/ui/liquid-sculpture-hero.tsx) in the ASTAMALL palette. */
+.astamall-sculpture-hero{min-height:620px;background:radial-gradient(ellipse at 50% 48%,#fffdf9 0,#f7f3ec 52%,#ece3d7 100%)!important}
+.astamall-sculpture-hero .sh-backdrop{font-family:var(--font-display);font-weight:500;letter-spacing:.06em;line-height:.78;padding-left:.06em;
+  background:linear-gradient(180deg,rgba(145,46,64,.11) 0%,rgba(100,28,43,.05) 62%,rgba(100,28,43,0) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.astamall-sculpture-hero .sh-eyebrow{font-weight:600;letter-spacing:.24em;font-size:11px;color:var(--maroon);opacity:1}
+.astamall-sculpture-hero .sh-h1{font-weight:500;line-height:.98;letter-spacing:-.035em;padding-bottom:.06em}
+.astamall-sculpture-hero .sh-accent{display:block;letter-spacing:-.025em}
+.astamall-sculpture-hero .sh-body{opacity:.74}
+.astamall-sculpture-hero .sh-btn{background:var(--wine);color:#fffaf6;box-shadow:0 14px 30px -18px rgba(100,28,43,.8);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
+.astamall-sculpture-hero .sh-btn:hover{background:var(--maroon);transform:translateY(-2px);box-shadow:0 18px 34px -16px rgba(100,28,43,.75)}
+.astamall-sculpture-hero .sh-txt{border-bottom-color:rgba(100,28,43,.35)}
+.astamall-sculpture-hero .sh-txt:hover{color:var(--maroon)}
+.astamall-sculpture-hero .sh-hint{color:var(--wine)}
