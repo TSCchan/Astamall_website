@@ -1,31 +1,28 @@
 # ASTAMALL cinematic homepage
 
-The homepage now uses one React Three Fiber scene driven by a GSAP ScrollTrigger value: origin, skincare, health foods, supplements, and the full collection. The existing site header and all sections after the hero remain in place.
+The homepage hero has two layers driven by one GSAP ScrollTrigger value:
+
+1. **Fluid** (`lib/fluid-sim.ts`): a WebGL2 stable-fluids solver (advection, vorticity, pressure projection) covering the whole hero. The dye is rendered as glossy astaxanthin-red liquid; surface normals come from the dye gradient, so the ink is lit like a three-dimensional material. The cursor (or a finger on touch screens) paints freely anywhere in the hero.
+2. **Product spiral** (`components/cinematic/spiral-scene.tsx`): every catalog product with a photograph sits on a 3D helix (React Three Fiber). Scrolling turns the helix so each product swings to the front in turn; a liquid waterline reveals each arriving product.
+
+While scrolling, the fluid follows the helix: two arms of ink orbit the on-screen point between the current and the next product, widest between products and tightening as the next one arrives. When the reader settles on a product the ink drains faster so the product reads clearly.
+
+## Stops
+
+Stop 0 is the introduction, stops 1 to N are the products in catalog order (grouped by category), and the last stop is the collection close. ScrollTrigger snaps to each stop. `lib/cinematic-motion.ts` holds the shared maths (`spiralState`, `spiralPanelWeight`).
 
 ## Catalog integration
 
-`lib/cinematic-catalog.ts` adapts the existing product catalog. Products may supply `active`, `featured`, `displayPriority`, `heroImage`, and `modelUrl` merchandising fields. No catalog prices, product detail images, first-image order, or product descriptions were changed.
-
-The five homepage stages use the user's supplied compositions as transparent PNGs: red sculpture, beauty products, collagen, supplements, and a mixed collection. `heroStageArt` maps these editorial images to stages. They are separate from the store catalog and do not change product listings or gallery images. The images retain their supplied branding. Each composition is mapped onto a subdivided surface for liquid deformation. Category URLs use the shop's actual category values.
-
-`components/cinematic-hero.tsx` preserves the older hero. No `liquid-sculpture-hero.tsx` existed in the supplied checkout.
+`lib/cinematic-catalog.ts` builds `spiralProducts` from the catalog. Products may set `active: false`, `featured: false` or a `heroImage` override. Prices, gallery order and product copy are unchanged.
 
 ## Motion and accessibility
 
-- Continuous, reversible scroll timeline with no wheel interception.
-- Desktop scroll distance: 420vh; mobile: 300vh.
-- A pointer-responsive red sculpture: local silhouette stretching, travelling ripples, and a soft return when the pointer leaves. Frame-rate-independent input smoothing runs in refs and shader uniforms, without per-frame React state.
-- A continuous, reversible waterline joins outgoing and incoming images, with local refraction and folding at the crest. No particle field or grain dissolve. Settled product photography is undistorted and still.
-- Optional pause/resume control; static collection for reduced motion, unavailable WebGL, startup failure, or context loss.
-- Static server-rendered content remains usable before JavaScript loads.
-- Inactive copy is inert and hidden from assistive technology; navigation and category CTAs remain normal links.
-- Lazy scene module, next-category loading, capped device pixel ratio, lower mobile mesh subdivision and distortion, and offscreen/background render suspension. No extra lighting pass or external environment texture.
-- Synchronous ScrollTrigger cleanup before DOM removal; owned geometries/materials dispose on unmount. The renderer releases the WebGL context on unmount.
+- Native scroll with pin and snap; no wheel interception.
+- Pause control; static collection for reduced motion, unavailable WebGL2, startup failure or context loss.
+- Copy panels for inactive stops are inert and hidden from assistive technology; the fluid canvas never receives input.
+- Ink decay uses real elapsed time, so the surface clears on time on slow devices. Phones use a finer brush and less ink.
+- Offscreen and background-tab rendering is suspended. Both WebGL contexts are released on unmount.
 
 ## Validation
 
-Run `node --test tests/cinematic-motion.test.mjs` for phase continuity, clamping, reverse chapter stops and conserved scene weights. The Next.js production build also runs TypeScript validation.
-
-Browser QA covers desktop and mobile layouts, chapter navigation in both directions, pointer response, pause/resume, category links, and continuing into the rest of the homepage. Physical-device frame rate and GPU memory profiling have not been measured; performance depends on the device.
-
-October 22 motion refinement: preserve the premium editorial layout (variance 7, density 3), increase focal motion to 8. The sculpture's liquid response and the scroll waterline are the authored sequence; navigation and product details retain their existing behavior.
+Run `node --test tests/cinematic-motion.test.mjs`. The production build runs TypeScript. Headless browsers render WebGL at a few frames per second; to judge the fluid at real speed, capture with Chrome virtual time (`Emulation.setVirtualTimePolicy`).

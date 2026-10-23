@@ -506,3 +506,33 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .category-row-stack img,.lux-card .official-product-art img,.lux-gallery .gallery-layer img{transition:none!important}
   ::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }
+
+/* ---------- Fluid spiral hero ---------- */
+/* Layers: product spiral 0, copy 2, fluid 3 (never intercepts input), controls 4-5. */
+.spiral-hero{height:100svh;min-height:640px;background:radial-gradient(ellipse at 68% 46%,#fffdf9 0,var(--journey-ivory) 58%,#f1e9e1 100%)}
+.spiral-hero:before{display:none}
+.spiral-scene{position:absolute;inset:0;z-index:0;touch-action:pan-y}
+.spiral-scene canvas{display:block}
+.fluid-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;display:block}
+.spiral-hero .journey-copy{z-index:2;left:6%;width:36%;top:22%;bottom:20%}
+.spiral-hero .journey-panel h1,.spiral-hero .journey-panel h2{font-size:clamp(2.8rem,4.6vw,5rem);line-height:1.04;letter-spacing:-.04em;padding-bottom:4px}
+.spiral-hero .journey-panel h2{font-size:clamp(2.4rem,3.8vw,4.2rem)}
+.spiral-hero .journey-panel em{display:block;color:var(--maroon);font-style:italic;line-height:1.1;padding-bottom:4px}
+.spiral-category{font-size:13px;color:var(--maroon);margin:0 0 18px;font-family:var(--font-display);font-style:italic;font-size:22px;line-height:1}
+.spiral-hero .journey-cta{border-radius:999px;padding:15px 24px;background:var(--wine);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
+.spiral-hero .journey-cta:hover{transform:translateY(-2px);background:var(--maroon);box-shadow:var(--shadow-card)}
+.spiral-hero .journey-skip,.spiral-hero .journey-pause{z-index:5}
+.spiral-bottom{z-index:4;bottom:28px;align-items:center}
+.spiral-progress{position:relative;flex:1;height:1px;max-width:420px;overflow:hidden}
+.spiral-progress>span{position:absolute;inset:0;background:var(--wine);transform-origin:left;transform:scaleX(0)}
+.spiral-bottom .journey-stages{flex:0 1 auto}
+@media (max-width:767px){
+  .spiral-hero{min-height:600px}
+  .spiral-hero .journey-copy{left:7%;width:86%;top:auto;bottom:88px;height:44%}
+  .spiral-hero .journey-panel{justify-content:flex-end}
+  .spiral-hero .journey-panel h1,.spiral-hero .journey-panel h2{font-size:clamp(2.1rem,9vw,2.8rem)}
+  .spiral-category{font-size:18px;margin-bottom:10px}
+  .spiral-bottom{left:7%;right:7%;bottom:22px;gap:14px}
+  .spiral-progress{max-width:none}
+  .spiral-bottom .journey-stages{display:none}
+}
