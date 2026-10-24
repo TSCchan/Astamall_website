@@ -13,7 +13,9 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
 
 - **Scroll pacing.** Each scroll gesture eases the journey on by half a stage, so two scrolls bring in the next product.
   - A gesture is a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page or Space keys.
-  - A trackpad's momentum counts as part of the same swipe.
+  - On a trackpad the journey follows the fingers live (at most half a stage per swipe), then settles on the half step when the swipe ends.
+  - A tiny accidental nudge springs back.
+  - A swipe's momentum counts as part of that swipe, but a new swipe made while momentum is still trailing off is recognised.
   - A quick second scroll queues on, up to one product ahead.
   - The last product also takes two scrolls: the first holds on it (it settles back slightly), the second glides the page on until the ingredient marquee sits just under the site header.
   - From the sections below, one scroll up glides the hero back in.

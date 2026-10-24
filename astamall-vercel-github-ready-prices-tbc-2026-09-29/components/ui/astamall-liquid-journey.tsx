@@ -13,6 +13,7 @@ const PAPER: [number, number, number] = [247 / 255, 243 / 255, 236 / 255];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (t: number) => t * t * (3 - 2 * t);
+const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeIn = (t: number) => t * t * t;
 /** Each scroll gesture moves half a stage: two scrolls bring in the next product. */
@@ -289,8 +290,9 @@ export default function AstamallLiquidJourney() {
     };
   }, [mode, relayout]);
 
-  // Pinned scroll: one viewport per stage. Each scroll gesture (wheel, trackpad, swipe, key) eases the
-  // journey on by half a stage, so two scrolls bring in the next product; the scrollbar snaps to half stages.
+  // Pinned scroll: one viewport per stage. Each scroll gesture (wheel notch, trackpad swipe, touch swipe, key)
+  // moves the journey on by half a stage, so two scrolls bring in the next product. A trackpad swipe is followed
+  // live, then settles on the half step; the scrollbar snaps to half stages.
   // Reverted synchronously, before React removes the section.
   useLayoutEffect(() => {
     if (mode !== 'animated' || !root.current || !host.current) return;
@@ -302,8 +304,9 @@ export default function AstamallLiquidJourney() {
         scrollTrigger: {
           trigger: root.current, start: 'top top',
           end: () => `+=${Math.round(innerHeight * END * (innerWidth < 1024 ? 0.85 : 1.05))}`,
-          pin: true, pinSpacer: host.current!, scrub: 0.35, invalidateOnRefresh: true,
-          snap: { snapTo: STEP / END, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
+          pin: true, pinSpacer: host.current!, scrub: 0.15, invalidateOnRefresh: true,
+          // the delay outlasts a gesture's settle, so snapping only ever handles the scrollbar
+          snap: { snapTo: STEP / END, inertia: false, directional: false, duration: { min: 0.5, max: 1 }, delay: 0.3, ease: 'power2.inOut' },
         },
       });
       trigger.current = tween.scrollTrigger!;
@@ -313,16 +316,27 @@ export default function AstamallLiquidJourney() {
     let moving: gsap.core.Tween | null = null;
     let target = 0;
     let lastWheel = 0;
-    let used = false;
+    let lastAbs = 0;
     let touchY: number | null = null;
-    const stageY = (stage: number) => {
+    // one scroll gesture: where it started, how far it has travelled (in stages) and how its speed has evolved
+    type Gesture = { origin: number; travel: number; native: boolean; start: number; peak: number; trough: number; decayed: boolean };
+    let gesture: Gesture | null = null;
+    let settleTimer = 0;
+    // a trackpad swipe of this many pixels of wheel delta covers one half step
+    const PX_PER_STEP = 240;
+    const exitY = () => {
       const t = trigger.current!;
-      if (stage < EXIT) return t.start + (t.end - t.start) * stage / END;
       // past the end: the next section (the marquee) lands just under the fixed site header
       const next = host.current?.nextElementSibling;
       const header = document.querySelector('.site-header')?.getBoundingClientRect().height ?? 0;
       return next ? scrollY + next.getBoundingClientRect().top - header : t.end + (root.current?.offsetHeight ?? innerHeight);
     };
+    const stageY = (stage: number) => {
+      const t = trigger.current!;
+      if (stage <= END) return t.start + (t.end - t.start) * stage / END;
+      return mix(t.end, exitY(), Math.min(1, (stage - END) / STEP));
+    };
+    const clampStage = (stage: number) => Math.min(EXIT, Math.max(0, stage));
     // the resting half step nearest the scroll position (or the one already being eased to)
     const current = () => {
       if (moving) return target;
@@ -334,17 +348,36 @@ export default function AstamallLiquidJourney() {
       return Math.round(at / STEP) * STEP;
     };
     const inside = () => { const t = trigger.current; return !!t && scrollY >= t.start - 2 && scrollY <= stageY(EXIT) + 2; };
-    const go = (stage: number) => {
+    const scrollTo = () => window.scrollTo({ top: scroller.y, behavior: 'instant' });
+    const go = (stage: number, duration?: number) => {
       if (!trigger.current) return;
       const from = current();
       target = stage;
-      moving?.kill();
+      gsap.killTweensOf(scroller);
       scroller.y = scrollY;
       moving = gsap.to(scroller, {
-        y: stageY(stage), duration: 1.1 + Math.min(Math.abs(stage - from) / STEP - 1, 4) * 0.2, ease: 'power2.out',
-        onUpdate: () => window.scrollTo({ top: scroller.y, behavior: 'instant' }),
+        y: stageY(stage), duration: duration ?? 1.1 + Math.min(Math.abs(stage - from) / STEP - 1, 4) * 0.2, ease: 'power2.out',
+        onUpdate: scrollTo,
         onComplete: () => { moving = null; },
       });
+    };
+    // trackpads: the journey follows the fingers, with a light ease so it never jitters
+    const follow = (stage: number) => {
+      gsap.killTweensOf(scroller);
+      moving = null;
+      scroller.y = scrollY;
+      gsap.to(scroller, { y: stageY(stage), duration: 0.35, ease: 'power3.out', onUpdate: scrollTo });
+    };
+    // the gesture is over: settle on the half step it was heading for (a tiny nudge springs back)
+    const finish = () => {
+      clearTimeout(settleTimer);
+      settleTimer = 0;
+      const g = gesture;
+      gesture = null;
+      if (!g || g.native) return;
+      const dest = Math.abs(g.travel) > STEP * 0.15 ? clampStage(g.origin + Math.sign(g.travel) * STEP) : g.origin;
+      // the closer the fingers already brought it, the quicker it settles
+      go(dest, 0.4 + Math.min(1, Math.abs(stageY(dest) - scrollY) / (stageY(STEP) - stageY(0))) * 0.5);
     };
     // Returns true when the gesture belongs to the journey (and so must not scroll the page natively).
     // A second scroll while the first is still easing queues on, up to one full stage ahead.
@@ -360,21 +393,36 @@ export default function AstamallLiquidJourney() {
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX) || e.ctrlKey) return;
       if (leaving()) { e.preventDefault(); return; }
-      // a trackpad's momentum arrives as a stream of events: only a fresh gesture moves on.
-      // Mouse-wheel notches are large and spaced out, so each notch counts as its own scroll.
+      const dy = e.deltaMode === 1 ? e.deltaY * 40 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
+      const abs = Math.abs(dy);
+      if (!abs) return;
       const now = performance.now();
       const gap = now - lastWheel;
-      const notch = e.deltaMode === 1 || Math.abs(e.deltaY) >= 80;
-      if (gap > 220 || (notch && gap > 90)) used = false;
       lastWheel = now;
-      const dir = Math.sign(e.deltaY);
-      if (!dir || !inside()) return;
-      const next = current() + dir * STEP;
-      if (next < 0 || next > EXIT) return;
+      // A new gesture starts after a pause, with every mouse-wheel notch, or when a fresh trackpad swipe
+      // lifts the speed again while the previous swipe's momentum is still trailing off.
+      const notch = e.deltaMode === 1 || (abs >= 80 && gap > 90);
+      const g0 = gesture;
+      if (g0) {
+        g0.peak = Math.max(g0.peak, abs);
+        if (abs < g0.peak * 0.5) g0.decayed = true;
+        g0.trough = g0.decayed ? Math.min(g0.trough, lastAbs) : abs;
+      }
+      const rising = !!g0 && g0.decayed && now - g0.start > 250 && abs > g0.trough * 2 + 8;
+      lastAbs = abs;
+      if (!g0 || gap > 140 || notch || rising) {
+        if (g0) finish();
+        const origin = current();
+        const next = origin + Math.sign(dy) * STEP;
+        gesture = { origin, travel: 0, native: !inside() || next < 0 || next > EXIT, start: now, peak: abs, trough: abs, decayed: false };
+      }
+      const g = gesture!;
+      if (g.native) return;
       e.preventDefault();
-      if (used) return;
-      used = true;
-      step(dir);
+      g.travel = Math.max(-STEP, Math.min(STEP, g.travel + (notch ? Math.sign(dy) * STEP * 0.4 : (dy / PX_PER_STEP) * STEP)));
+      follow(clampStage(g.origin + g.travel));
+      clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(finish, notch ? 120 : 150);
     };
     const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0]?.clientY ?? null; };
     const onTouchMove = (e: TouchEvent) => {
@@ -402,7 +450,8 @@ export default function AstamallLiquidJourney() {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('keydown', onKey);
-      moving?.kill();
+      clearTimeout(settleTimer);
+      gsap.killTweensOf(scroller);
       context.revert(); trigger.current = null; state.value = 0;
     };
   }, [mode, paint]);
