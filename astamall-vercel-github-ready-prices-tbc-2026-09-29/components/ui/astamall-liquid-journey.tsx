@@ -310,6 +310,11 @@ export default function AstamallLiquidJourney() {
         },
       });
       trigger.current = tween.scrollTrigger!;
+      // while the hero fills the screen, the site header sits transparently on it
+      ScrollTrigger.create({
+        trigger: host.current, start: 'top top', end: 'bottom top+=90',
+        onToggle: self => document.documentElement.toggleAttribute('data-over-hero', self.isActive),
+      });
     }, root);
 
     const scroller = { y: 0 };
@@ -453,6 +458,7 @@ export default function AstamallLiquidJourney() {
       clearTimeout(settleTimer);
       gsap.killTweensOf(scroller);
       context.revert(); trigger.current = null; state.value = 0;
+      document.documentElement.removeAttribute('data-over-hero');
     };
   }, [mode, paint]);
 

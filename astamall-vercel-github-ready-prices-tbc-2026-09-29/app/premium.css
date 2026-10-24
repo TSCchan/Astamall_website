@@ -46,8 +46,14 @@ body{text-rendering:optimizeLegibility}
 .text-link:hover>span[aria-hidden],.text-link:hover svg{transform:translate(3px,-3px)}
 
 /* ---------- Header ---------- */
-.site-header,.cinematic-home-shell .site-header{height:84px;transition:height .5s var(--ease-out),background .4s,box-shadow .4s,border-color .4s;background:rgba(250,247,242,.72);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border-bottom:1px solid transparent}
-html[data-scrolled] .site-header{height:66px;background:rgba(250,247,242,.88);border-bottom-color:color-mix(in srgb,var(--line) 70%,transparent);box-shadow:0 10px 30px -24px rgba(54,35,38,.35)}
+/* The header is part of the page, not a bar laid over it: no edge, line or shadow. Over the homepage hero it is
+   transparent; elsewhere, once scrolled, it takes the page's own paper colour and fades softly into the content. */
+.site-header,.cinematic-home-shell .site-header{height:84px;transition:height .5s var(--ease-out);background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:0;box-shadow:none}
+.site-header:before{content:"";position:absolute;inset:0 0 -32px;z-index:-1;pointer-events:none;opacity:0;transition:opacity .45s var(--ease-out);
+  background:linear-gradient(180deg,rgba(250,247,242,.97) 0,rgba(250,247,242,.97) calc(100% - 32px),rgba(250,247,242,0) 100%)}
+html[data-scrolled] .site-header{height:66px;background:transparent;border-bottom:0;box-shadow:none}
+html[data-scrolled] .site-header:before{opacity:1}
+html[data-over-hero] .site-header:before{opacity:0}
 .site-header .brand-logo{transition:width .5s var(--ease-out)}
 html[data-scrolled] .site-header .brand-logo{width:50px}
 .desktop-nav{gap:34px}
