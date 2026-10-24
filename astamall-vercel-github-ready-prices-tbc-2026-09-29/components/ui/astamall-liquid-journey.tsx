@@ -96,6 +96,7 @@ export default function AstamallLiquidJourney() {
   const layout = useRef<Layout | null>(null);
   const progress = useRef({ value: 0 });
   const trigger = useRef<ScrollTrigger | null>(null);
+  const goTo = useRef<((stage: number) => void) | null>(null);
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<'animated' | 'static'>('animated');
@@ -265,7 +266,8 @@ export default function AstamallLiquidJourney() {
     };
   }, [mode, relayout]);
 
-  // Pinned scroll: one viewport per stage, scrubbed and snapped to each stage.
+  // Pinned scroll: one viewport per stage. Each scroll gesture (wheel, trackpad, swipe, key) plays one
+  // full transition to the next stage; the scrollbar still works and snaps to the nearest stage.
   // Reverted synchronously, before React removes the section.
   useLayoutEffect(() => {
     if (mode !== 'animated' || !root.current || !host.current) return;
@@ -277,20 +279,85 @@ export default function AstamallLiquidJourney() {
         scrollTrigger: {
           trigger: root.current, start: 'top top',
           end: () => `+=${Math.round(innerHeight * LAST * (innerWidth < 1024 ? 0.85 : 1.05))}`,
-          pin: true, pinSpacer: host.current!, scrub: 1, invalidateOnRefresh: true,
-          // no inertia: a flick moves one stage at a time instead of flying past products
-          snap: { snapTo: 1 / LAST, inertia: false, duration: { min: 0.45, max: 1.1 }, delay: 0.06, ease: 'power3.inOut' },
+          pin: true, pinSpacer: host.current!, scrub: 0.35, invalidateOnRefresh: true,
+          snap: { snapTo: 1 / LAST, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
         },
       });
       trigger.current = tween.scrollTrigger!;
     }, root);
-    return () => { context.revert(); trigger.current = null; state.value = 0; };
-  }, [mode, paint]);
 
-  function jump(stage: number) {
-    const scroll = trigger.current;
-    if (scroll) window.scrollTo({ top: scroll.start + (scroll.end - scroll.start) * stage / LAST, behavior: 'smooth' });
-  }
+    const scroller = { y: 0 };
+    let moving: gsap.core.Tween | null = null;
+    let lastWheel = 0;
+    let used = false;
+    let touchY: number | null = null;
+    const stageY = (stage: number) => { const t = trigger.current!; return t.start + (t.end - t.start) * stage / LAST; };
+    const current = () => { const t = trigger.current!; return Math.round(clamp01((scrollY - t.start) / (t.end - t.start)) * LAST); };
+    const inside = () => { const t = trigger.current; return !!t && scrollY >= t.start - 2 && scrollY <= t.end + 2; };
+    const go = (stage: number) => {
+      if (!trigger.current) return;
+      moving?.kill();
+      scroller.y = scrollY;
+      moving = gsap.to(scroller, {
+        y: stageY(stage), duration: 1.15 + Math.min(Math.abs(stage - current()) - 1, 3) * 0.25, ease: 'power2.inOut',
+        onUpdate: () => window.scrollTo({ top: scroller.y, behavior: 'instant' }),
+        onComplete: () => { moving = null; },
+      });
+    };
+    goTo.current = go;
+    // Returns true when the gesture belongs to the journey (and so must not scroll the page natively).
+    const step = (dir: number) => {
+      if (!inside()) return false;
+      const next = current() + dir;
+      if (next < 0 || next > LAST) return false;
+      if (!moving) go(next);
+      return true;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < Math.abs(e.deltaX) || e.ctrlKey) return;
+      // a trackpad's momentum arrives as a stream of events: only a fresh gesture moves on
+      const now = performance.now();
+      if (now - lastWheel > 220) used = false;
+      lastWheel = now;
+      const dir = Math.sign(e.deltaY);
+      if (!dir || !inside()) return;
+      const next = current() + dir;
+      if (next < 0 || next > LAST) return;
+      e.preventDefault();
+      if (used || moving) return;
+      used = true;
+      step(dir);
+    };
+    const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0]?.clientY ?? null; };
+    const onTouchMove = (e: TouchEvent) => {
+      if (touchY === null || !inside()) return;
+      const dy = touchY - (e.touches[0]?.clientY ?? touchY);
+      const next = current() + Math.sign(dy);
+      if (!dy || next < 0 || next > LAST) return;
+      e.preventDefault();
+      if (Math.abs(dy) > 28 && !moving) { touchY = null; step(Math.sign(dy)); }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (e.altKey || e.ctrlKey || e.metaKey || target?.closest('input,textarea,select,[contenteditable]')) return;
+      const dir = ['ArrowDown', 'PageDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey) ? 1
+        : ['ArrowUp', 'PageUp'].includes(e.key) || (e.key === ' ' && e.shiftKey) ? -1 : 0;
+      if (dir && step(dir)) e.preventDefault();
+    };
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('keydown', onKey);
+      moving?.kill();
+      goTo.current = null;
+      context.revert(); trigger.current = null; state.value = 0;
+    };
+  }, [mode, paint]);
 
   if (mode === 'static') return <StaticJourney />;
   return <div ref={host} className="lj-host">
@@ -316,7 +383,7 @@ export default function AstamallLiquidJourney() {
         </div>)}
       </div>
       <nav className="lj-steps" aria-label="Collection journey">
-        {journeyStages.map((stage, i) => <button key={stage.label} type="button" onClick={() => jump(i)} aria-current={active === i ? 'step' : undefined}>
+        {journeyStages.map((stage, i) => <button key={stage.label} type="button" onClick={() => goTo.current?.(i)} aria-current={active === i ? 'step' : undefined}>
           <span className="lj-step-dot" aria-hidden="true" /><span className="lj-step-name">{stage.label}</span>
         </button>)}
       </nav>

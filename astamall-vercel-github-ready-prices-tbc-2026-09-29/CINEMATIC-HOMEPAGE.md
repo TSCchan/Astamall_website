@@ -11,7 +11,11 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
 
 ## Motion
 
-- **Scroll.** One viewport per stage, scrubbed and snapped one stage at a time. The stage pills at the bottom jump straight to a stage.
+- **Scroll.** One viewport per stage. Each scroll gesture plays one full transition (about a second) to the next or previous stage: a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page and Space keys.
+  - A trackpad's momentum is counted as part of the same gesture, so it never skips a product.
+  - Past the first and last stage the page scrolls normally.
+  - Dragging the scrollbar snaps to the nearest stage.
+  - The stage pills at the bottom jump straight to a stage.
 - **Products.** Products travel along a rising helix: the next one arrives low, right and far back, sweeps to the front, and leaves high and left.
 - **Sculpture.** The sculpture is the particle engine from `components/ui/liquid-sculpture-hero.tsx`. Between stages, `setStir` draws the whole sculpture into a liquid spiral. It re-forms as each product lands. After the first stage it settles behind the products as a low liquid base.
 - **Cursor.** Moving the cursor scatters the sculpture locally and tilts the product orbit slightly.
