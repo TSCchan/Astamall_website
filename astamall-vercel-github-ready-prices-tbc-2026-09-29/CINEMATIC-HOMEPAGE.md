@@ -15,7 +15,8 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
   - A gesture is a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page or Space keys.
   - A trackpad's momentum counts as part of the same swipe.
   - A quick second scroll queues on, up to one product ahead.
-  - Past the first and last stage the page scrolls normally.
+  - The last product also takes two scrolls: the first holds on it (it settles back slightly), the second glides the page on to the sections below.
+  - From the sections below, one scroll up glides the hero back in.
   - Dragging the scrollbar snaps to the nearest half step.
 - **Sculpture.** On the first scroll the sculpture (the particle engine from `components/ui/liquid-sculpture-hero.tsx`) is drawn into a liquid spiral and fades away completely. Scrolling back re-forms it.
 - **Products.** Every product grows out of the sculpture's centre along a tightening spiral: small, turned and soft-focused, then settling sharp and upright. When the next one arrives, the current product drifts forward and dissolves while the new one grows behind it.

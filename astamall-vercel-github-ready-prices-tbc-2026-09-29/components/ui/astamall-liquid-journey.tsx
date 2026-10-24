@@ -17,6 +17,10 @@ const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeIn = (t: number) => t * t * t;
 /** Each scroll gesture moves half a stage: two scrolls bring in the next product. */
 const STEP = 0.5;
+/** The journey runs one half step past the last product, so it also takes two scrolls to move on. */
+const END = LAST + STEP;
+/** Virtual step past the end: the page glides on to the sections below. */
+const EXIT = END + STEP;
 
 type Layout = { w: number; h: number; wide: boolean; cx: number; cy: number; hero: Rect; boxes: Rect[] };
 
@@ -124,7 +128,10 @@ export default function AstamallLiquidJourney() {
   const paint = useCallback(() => {
     const L = layout.current;
     if (!L) return;
-    const p = progress.current.value;
+    const raw = progress.current.value;
+    const p = Math.min(raw, LAST);
+    // the half step past the last product: it settles back slightly before the page moves on
+    const hold = smooth(clamp01((raw - LAST) / STEP));
 
     // the first product grows from the sculpture's centre while the sculpture swirls apart and fades away
     const fade = smooth(clamp01((p - 0.08) / 0.62));
@@ -142,7 +149,7 @@ export default function AstamallLiquidJourney() {
       if (!s) { el.style.visibility = 'hidden'; return; }
       el.style.visibility = 'visible';
       el.style.opacity = String(s.opacity);
-      el.style.transform = s.transform;
+      el.style.transform = i === LAST && hold > 0 ? `${s.transform} translate3d(0,${-hold * 14}px,0) scale(${1 - hold * 0.05})` : s.transform;
       el.style.filter = s.blur > 0.2 ? `blur(${s.blur.toFixed(1)}px)` : 'none';
     });
     // copy changes hands just before each half-way point, so a resting half step always shows the incoming stage
@@ -291,12 +298,12 @@ export default function AstamallLiquidJourney() {
     const state = progress.current;
     const context = gsap.context(() => {
       const tween = gsap.to(state, {
-        value: LAST, ease: 'none', onUpdate: paint,
+        value: END, ease: 'none', onUpdate: paint,
         scrollTrigger: {
           trigger: root.current, start: 'top top',
-          end: () => `+=${Math.round(innerHeight * LAST * (innerWidth < 1024 ? 0.85 : 1.05))}`,
+          end: () => `+=${Math.round(innerHeight * END * (innerWidth < 1024 ? 0.85 : 1.05))}`,
           pin: true, pinSpacer: host.current!, scrub: 0.35, invalidateOnRefresh: true,
-          snap: { snapTo: STEP / LAST, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
+          snap: { snapTo: STEP / END, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
         },
       });
       trigger.current = tween.scrollTrigger!;
@@ -308,14 +315,22 @@ export default function AstamallLiquidJourney() {
     let lastWheel = 0;
     let used = false;
     let touchY: number | null = null;
-    const stageY = (stage: number) => { const t = trigger.current!; return t.start + (t.end - t.start) * stage / LAST; };
+    const stageY = (stage: number) => {
+      const t = trigger.current!;
+      // past the end: the top of the next section, with the hero scrolled fully away
+      return stage >= EXIT ? t.end + (root.current?.offsetHeight ?? innerHeight) : t.start + (t.end - t.start) * stage / END;
+    };
     // the resting half step nearest the scroll position (or the one already being eased to)
     const current = () => {
       if (moving) return target;
       const t = trigger.current!;
-      return Math.round(clamp01((scrollY - t.start) / (t.end - t.start)) * LAST / STEP) * STEP;
+      // between the end of the pin and the next section the hero is scrolling away: one step, END to EXIT
+      const at = scrollY <= t.end
+        ? clamp01((scrollY - t.start) / (t.end - t.start)) * END
+        : END + clamp01((scrollY - t.end) / (stageY(EXIT) - t.end)) * STEP;
+      return Math.round(at / STEP) * STEP;
     };
-    const inside = () => { const t = trigger.current; return !!t && scrollY >= t.start - 2 && scrollY <= t.end + 2; };
+    const inside = () => { const t = trigger.current; return !!t && scrollY >= t.start - 2 && scrollY <= stageY(EXIT) + 2; };
     const go = (stage: number) => {
       if (!trigger.current) return;
       const from = current();
@@ -333,12 +348,15 @@ export default function AstamallLiquidJourney() {
     const step = (dir: number) => {
       if (!inside()) return false;
       const next = current() + dir * STEP;
-      if (next < 0 || next > LAST) return false;
+      if (next < 0 || next > EXIT) return false;
       if (!moving || Math.abs(next - progress.current.value) <= 1.01) go(next);
       return true;
     };
+    // while gliding on to the sections below, input would fight the glide
+    const leaving = () => !!moving && target >= EXIT;
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX) || e.ctrlKey) return;
+      if (leaving()) { e.preventDefault(); return; }
       // a trackpad's momentum arrives as a stream of events: only a fresh gesture moves on.
       // Mouse-wheel notches are large and spaced out, so each notch counts as its own scroll.
       const now = performance.now();
@@ -349,7 +367,7 @@ export default function AstamallLiquidJourney() {
       const dir = Math.sign(e.deltaY);
       if (!dir || !inside()) return;
       const next = current() + dir * STEP;
-      if (next < 0 || next > LAST) return;
+      if (next < 0 || next > EXIT) return;
       e.preventDefault();
       if (used) return;
       used = true;
@@ -357,10 +375,11 @@ export default function AstamallLiquidJourney() {
     };
     const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0]?.clientY ?? null; };
     const onTouchMove = (e: TouchEvent) => {
+      if (leaving()) { e.preventDefault(); return; }
       if (touchY === null || !inside()) return;
       const dy = touchY - (e.touches[0]?.clientY ?? touchY);
       const next = current() + Math.sign(dy) * STEP;
-      if (!dy || next < 0 || next > LAST) return;
+      if (!dy || next < 0 || next > EXIT) return;
       e.preventDefault();
       if (Math.abs(dy) > 28) { touchY = null; step(Math.sign(dy)); }
     };
@@ -369,7 +388,7 @@ export default function AstamallLiquidJourney() {
       if (e.altKey || e.ctrlKey || e.metaKey || target?.closest('input,textarea,select,[contenteditable]')) return;
       const dir = ['ArrowDown', 'PageDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey) ? 1
         : ['ArrowUp', 'PageUp'].includes(e.key) || (e.key === ' ' && e.shiftKey) ? -1 : 0;
-      if (dir && step(dir)) e.preventDefault();
+      if (dir && (leaving() || step(dir))) e.preventDefault();
     };
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
