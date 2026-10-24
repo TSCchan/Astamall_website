@@ -1,25 +1,27 @@
 # ASTAMALL homepage hero
 
-The homepage opens on a liquid particle sculpture: `components/ui/liquid-sculpture-hero.tsx` (`SculptureHero`), configured in `app/page.tsx` and themed in the "Sculpture hero" section of `app/premium.css`.
+The homepage opens on a pinned scroll journey: `components/ui/astamall-liquid-journey.tsx`, with stage copy and images in `lib/hero-journey.ts` and styles in the "Liquid journey hero" section of `app/premium.css`.
 
-## The sculpture
+## Stages
 
-- The image is `public/assets/astamall-sculpture-cutout-v1.webp`, the crimson sculpture with a transparent background. A WebGL2 particle engine samples it, so the cutout is used directly with no backdrop colour.
-- Moving the cursor (or a finger) scatters the particles like liquid; they flow back into the sculpture when it stops.
-- "ASTAMALL" sits behind it in Cormorant Garamond with a wine gradient. The word is measured and fitted to the width once fonts load.
+1. **Origin.** The crimson liquid sculpture, large, beside the hero copy. "ASTAMALL" sits behind it in Cormorant Garamond with a wine gradient.
+2. **Skincare & Beauty, Health Foods, Health Supplements, Collection.** Each is a background-free product composition (`public/assets/journey-*-cutout-v1.webp`).
 
-## Layout
+To change a stage's photo, replace its file or point `image.src` in `lib/hero-journey.ts` at a new cutout. Set `aspect` to the new image's width / height.
 
-- `contentPlacement="left"`: from 1200px wide the copy sits on the left, vertically centred, and the sculpture takes the full height just right of centre.
-- Narrower screens fall back to the stacked layout, with the sculpture above the copy.
-- `topInset={84}` keeps the sculpture clear of the fixed site header (the built-in nav is off).
+## Motion
 
-## Fallbacks
+- **Scroll.** One viewport per stage, scrubbed and snapped one stage at a time. The stage pills at the bottom jump straight to a stage.
+- **Products.** Products travel along a rising helix: the next one arrives low, right and far back, sweeps to the front, and leaves high and left.
+- **Sculpture.** The sculpture is the particle engine from `components/ui/liquid-sculpture-hero.tsx`. Between stages, `setStir` draws the whole sculpture into a liquid spiral. It re-forms as each product lands. After the first stage it settles behind the products as a low liquid base.
+- **Cursor.** Moving the cursor scatters the sculpture locally and tilts the product orbit slightly.
 
-- Without WebGL2 the cutout image is shown as a static picture in the same place.
-- Rendering pauses offscreen and in background tabs.
-- Reduced motion halves the cursor effect, calms the turbulence and turns off the intro and ambient drift.
+## Fallbacks and performance
+
+- **Reduced motion.** The same five stages are shown as a static stacked list, with no pinning.
+- **No WebGL2.** The sculpture is shown as a still image in the same place; the product helix still runs.
+- **Rendering.** The engine sleeps when nothing moves, and pauses offscreen and in background tabs.
 
 ## Validation
 
-The production build runs TypeScript. Headless browsers render WebGL at a few frames per second; capture with Chrome virtual time (`Emulation.setVirtualTimePolicy`) to see motion at real speed.
+The production build runs TypeScript. Headless Chromium renders this page with a software GPU, which is far too slow for the particle simulation at full density. To check the motion there, lower the density from the console first (`engine.setOptions({ density: 0.15 })`).

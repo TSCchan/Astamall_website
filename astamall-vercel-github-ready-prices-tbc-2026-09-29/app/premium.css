@@ -507,17 +507,73 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   ::view-transition-old(root),::view-transition-new(root){animation:none!important}
 }
 
-/* ---------- Sculpture hero ---------- */
-/* Liquid particle sculpture (components/ui/liquid-sculpture-hero.tsx) in the ASTAMALL palette. */
-.astamall-sculpture-hero{min-height:620px;background:radial-gradient(ellipse at 50% 48%,#fffdf9 0,#f7f3ec 52%,#ece3d7 100%)!important}
-.astamall-sculpture-hero .sh-backdrop{font-family:var(--font-display);font-weight:500;letter-spacing:.06em;line-height:.78;padding-left:.06em;
-  background:linear-gradient(180deg,rgba(145,46,64,.11) 0%,rgba(100,28,43,.05) 62%,rgba(100,28,43,0) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.astamall-sculpture-hero .sh-eyebrow{font-weight:600;letter-spacing:.24em;font-size:11px;color:var(--maroon);opacity:1}
-.astamall-sculpture-hero .sh-h1{font-weight:500;line-height:.98;letter-spacing:-.035em;padding-bottom:.06em}
-.astamall-sculpture-hero .sh-accent{display:block;letter-spacing:-.025em}
-.astamall-sculpture-hero .sh-body{opacity:.74}
-.astamall-sculpture-hero .sh-btn{background:var(--wine);color:#fffaf6;box-shadow:0 14px 30px -18px rgba(100,28,43,.8);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
-.astamall-sculpture-hero .sh-btn:hover{background:var(--maroon);transform:translateY(-2px);box-shadow:0 18px 34px -16px rgba(100,28,43,.75)}
-.astamall-sculpture-hero .sh-txt{border-bottom-color:rgba(100,28,43,.35)}
-.astamall-sculpture-hero .sh-txt:hover{color:var(--maroon)}
-.astamall-sculpture-hero .sh-hint{color:var(--wine)}
+/* ---------- Liquid journey hero ---------- */
+/* Layers: backdrop word 0, particle sculpture 1, product helix 2, copy 3, controls 4. */
+.lj-root{position:relative;height:100svh;min-height:620px;overflow:hidden;isolation:isolate;color:var(--ink);touch-action:pan-y;
+  background:radial-gradient(ellipse at 63% 52%,#fffdf9 0,#f7f3ec 48%,#ebe1d4 100%)}
+.lj-backdrop{position:absolute;left:50%;top:50%;z-index:0;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;user-select:none;
+  font-family:var(--font-display);font-weight:500;font-size:16vw;letter-spacing:.06em;line-height:.78;padding-left:.06em;
+  background:linear-gradient(180deg,rgba(145,46,64,.12) 0%,rgba(100,28,43,.05) 62%,rgba(100,28,43,0) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lj-stage{position:absolute;inset:0;z-index:1;pointer-events:none}
+.lj-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity .6s ease}
+.lj-fallback{position:absolute;left:30%;top:14%;width:66%;height:auto;max-width:none;user-select:none;transition:opacity .6s ease}
+.lj-root[data-gl=on] .lj-canvas{opacity:1}
+.lj-root[data-gl=on] .lj-fallback{opacity:0}
+.lj-products{position:absolute;inset:0;z-index:2;pointer-events:none;perspective:1300px}
+.lj-orbit{position:absolute;inset:0;transform-style:preserve-3d}
+.lj-product{position:absolute;visibility:hidden;opacity:0;transform-style:preserve-3d;backface-visibility:hidden;will-change:transform,opacity}
+.lj-product img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;filter:drop-shadow(0 28px 36px rgba(54,35,38,.14))}
+.lj-hint{position:absolute;z-index:2;transform:translate(-50%,0);display:flex;align-items:center;gap:10px;white-space:nowrap;pointer-events:none;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--wine);opacity:.55;transition:opacity .8s ease}
+.lj-hint:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:lj-pulse 2.4s ease-in-out infinite}
+.lj-root[data-touched="1"] .lj-hint{visibility:hidden}
+@keyframes lj-pulse{0%,100%{transform:scale(.6);opacity:.45}50%{transform:scale(1);opacity:1}}
+.lj-copy{position:absolute;z-index:3;left:clamp(28px,4.4vw,72px);top:92px;bottom:72px;width:min(36vw,540px);display:grid;align-content:center;pointer-events:none}
+.lj-panel{grid-area:1/1;will-change:transform,opacity}
+.lj-eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 22px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--maroon)}
+.lj-eyebrow:before{content:"";width:28px;height:1px;background:currentColor;opacity:.7}
+.lj-title{margin:0;font-family:var(--font-display);font-weight:500;font-size:clamp(2.9rem,min(5vw,9.5vh),5.8rem);line-height:.98;letter-spacing:-.035em;color:var(--ink);text-wrap:balance}
+.lj-title em{display:block;font-style:italic;font-weight:400;letter-spacing:-.025em;color:var(--maroon);padding-bottom:.06em}
+.lj-desc{max-width:380px;margin:24px 0 0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--ink) 74%,transparent);text-wrap:pretty}
+.lj-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:24px;margin-top:30px}
+.lj-panel:not([inert]) .lj-ctas{pointer-events:auto}
+.lj-btn{display:inline-flex;align-items:center;gap:12px;height:48px;padding:0 24px;border-radius:999px;background:var(--wine);color:#fffaf6;font-size:14px;font-weight:500;text-decoration:none;
+  box-shadow:0 14px 30px -18px rgba(100,28,43,.8);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
+.lj-btn:hover{background:var(--maroon);transform:translateY(-2px);box-shadow:0 18px 34px -16px rgba(100,28,43,.75)}
+.lj-link{display:inline-flex;align-items:center;gap:8px;padding:4px 0;color:var(--ink);font-size:14px;font-weight:500;text-decoration:none;border-bottom:1px solid rgba(100,28,43,.35);transition:color .25s}
+.lj-link:hover{color:var(--maroon)}
+.lj-btn span,.lj-link span{transition:transform .35s var(--ease-out)}
+.lj-btn:hover span,.lj-link:hover span{transform:translateX(3px)}
+.lj-steps{position:absolute;z-index:4;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;border-radius:999px;
+  background:rgba(250,247,242,.72);border:1px solid rgba(54,35,38,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.lj-steps button{appearance:none;display:flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border:0;border-radius:999px;background:transparent;cursor:pointer;
+  font:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--ink) 62%,transparent);transition:background .4s var(--ease-out),color .3s}
+.lj-steps button:hover{color:var(--wine)}
+.lj-steps button[aria-current=step]{background:var(--wine);color:#fffaf6}
+.lj-step-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.lj-skip{position:absolute;z-index:5;left:clamp(28px,4.4vw,72px);top:96px;padding:8px 12px;border-radius:999px;background:var(--paper);color:var(--ink);font-size:12px;transform:translateY(-200%);opacity:0}
+.lj-skip:focus{transform:none;opacity:1}
+.lj-root a:focus-visible,.lj-root button:focus-visible{outline:2px solid var(--wine);outline-offset:4px}
+.lj-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:1023px){
+  .lj-copy{left:20px;right:20px;top:auto;bottom:68px;width:auto;align-content:end}
+  .lj-panel{align-self:end}
+  .lj-title{font-size:clamp(2.2rem,9.4vw,3.4rem)}
+  .lj-eyebrow{margin-bottom:14px;font-size:10px}
+  .lj-desc{margin-top:14px;font-size:14px;line-height:1.55}
+  .lj-ctas{margin-top:20px;gap:18px}
+  .lj-btn{height:46px;padding:0 20px;font-size:13.5px}
+  .lj-steps{bottom:14px}
+  .lj-steps button{padding:0 11px;min-height:34px}
+  .lj-step-name{display:none}
+  .lj-steps button[aria-current=step] .lj-step-name{display:inline}
+  .lj-hint{display:none}
+}
+@media (max-width:420px){.lj-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
+/* reduced motion: the same stages, stacked */
+.lj-static{padding:120px clamp(20px,5vw,72px) 40px;background:radial-gradient(ellipse at 70% 20%,#fffdf9 0,#f7f3ec 60%)}
+.lj-static-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:clamp(28px,5vw,80px);align-items:center;padding:clamp(28px,5vw,64px) 0;border-bottom:1px solid var(--line)}
+.lj-static-row:last-child{border-bottom:0}
+.lj-static-row img{width:100%;height:auto;max-height:70vh;object-fit:contain}
+.lj-static .lj-ctas{pointer-events:auto}
+@media (max-width:767px){.lj-static-row{grid-template-columns:1fr}.lj-static-row img{order:-1;max-height:46vh}}

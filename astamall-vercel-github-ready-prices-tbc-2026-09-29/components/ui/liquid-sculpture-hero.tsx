@@ -9,7 +9,9 @@
  * the crisp image. Without WebGL2 the static image is shown.
  *
  * ASTAMALL integration: `topInset` keeps the sculpture clear of a fixed site
- * header when the built-in nav is hidden.
+ * header when the built-in nav is hidden. The engine is exported, with
+ * `setStir` (the whole sculpture drawn into a liquid spiral) and `setRect`,
+ * for the scroll-driven homepage journey.
  */
 
 import * as React from "react"
@@ -18,9 +20,9 @@ import * as React from "react"
    Engine (WebGL2 GPGPU particles)
    ──────────────────────────────────────────────────────────────────── */
 
-type Rect = { x: number; y: number; w: number; h: number }
+export type Rect = { x: number; y: number; w: number; h: number }
 
-interface EngineOptions {
+export interface EngineOptions {
   interactive: boolean
   strength: number
   radius: number
@@ -150,6 +152,8 @@ uniform float uReturn;
 uniform float uTime;
 uniform float uDt;
 uniform float uIntro;
+uniform float uStir;
+uniform float uStirDir;
 ${NOISE}
 vec2 curl(vec2 p){
   const float e = 0.35;
@@ -188,12 +192,18 @@ void main(){
   vec2 q = p*0.0095 + vec2(uTime*0.35, -uTime*0.2);
   vec2 c = curl(q) + 0.5*curl(q*2.3 + 7.1);
   acc += c*(e*1.2*uSpread + uIntro*1.5)*uTurb*light;
-  // elastic return home
-  float k = (0.006 + 0.02*uReturn)*(0.65+sd*0.7)*(1.0 - uIntro*0.75);
+  // stirred: the whole sculpture is drawn into a liquid spiral around its centre
+  vec2 toC = p - uSize*0.5;
+  float rc = length(toC) + 1.0;
+  float reach = 0.6 + 0.4*smoothstep(0.0, 0.5*max(uSize.x, uSize.y), rc);
+  acc += (vec2(-toC.y, toC.x)*uStirDir*1.2 + toC*0.24)/rc*uStir*reach*(0.55 + sd*0.9);
+  acc += c*uStir*0.8*uTurb;
+  // elastic return home (loosened while stirred, so the material can travel)
+  float k = (0.006 + 0.02*uReturn)*(0.65+sd*0.7)*(1.0 - uIntro*0.75)*(1.0 - 0.9*uStir);
   acc -= off*k;
 
   vel += acc*uDt;
-  vel *= pow(mix(0.93, 0.955, e), uDt);
+  vel *= pow(mix(0.93, 0.958, max(e, uStir)), uDt);
   off += vel*uDt;
   if(dot(off,off) < 0.0004 && dot(vel,vel) < 0.0004){ off = vec2(0.0); vel = vec2(0.0); }
   o = vec4(off, vel);
@@ -220,6 +230,7 @@ uniform float uAmbient;
 uniform float uStreak;
 uniform float uIntroVis;
 uniform float uRest;
+uniform float uStirVis;
 uniform vec3 uTint;
 out vec2 vLocal;
 out float vHalfLen;
@@ -238,7 +249,7 @@ void main(){
   float wakeE = texture(uFlow, hm.xy).b;
   float E = energyAt(hm.xy*uRect.zw, uMouse, uRadius, uPresence, wakeE);
   float lift = smoothstep(0.35, 2.5, length(st.xy));
-  float a = max(max(E, lift), max(uRest, 1.0-uIntroVis));
+  float a = max(max(E, lift), max(max(uRest, 1.0-uIntroVis), uStirVis));
   if(a < 0.01 || hm.w <= 0.0){ gl_Position = vec4(2.0,2.0,2.0,1.0); return; }
 
   vec2 base = uRect.xy + hm.xy*uRect.zw + st.xy;
@@ -310,6 +321,7 @@ uniform float uAmbient;
 uniform float uIntroVis;
 uniform float uRest;
 uniform float uAlphaMode;
+uniform float uStirVis;
 ${NOISE}
 ${ENERGY}
 void main(){
@@ -332,7 +344,7 @@ void main(){
   float key = uAlphaMode > 0.5 ? tx.a : smoothstep(0.012, 0.05, length(col-uImgBg));
   float k = key*e.x*e.y;
   float E = energyAt(rp, uMouse, uRadius, uPresence, fl.b);
-  float show = (1.0 - max(E, uRest))*uIntroVis;
+  float show = (1.0 - max(max(E, uRest), uStirVis))*uIntroVis;
   vec3 mat = uAlphaMode > 0.5 ? col : col*(uBg/max(uImgBg, vec3(0.001)));
   // premultiplied: empty areas stay transparent so the page (and the backdrop word) shows through
   float A = k*show;
@@ -380,7 +392,7 @@ function compile(gl: WebGL2RenderingContext, vs: string, fs: string): Prog {
 const TEX_W = 1024
 const SETTLE_FRAMES = 270
 
-class LiquidEngine {
+export class LiquidEngine {
   lastImage: HTMLImageElement | null = null
   /** Called once, after the first frame has actually been drawn. */
   onFirstFrame: (() => void) | null = null
@@ -435,6 +447,9 @@ class LiquidEngine {
   private lastInput = -1e9
   private settle = 1e9
   private touchRelease = 0
+  private stir = 0
+  private stirDir = 1
+  private stirVis = 0
 
   private time = 0
   private introT = 1
@@ -727,6 +742,21 @@ class LiquidEngine {
     this.draw()
   }
 
+  /** Moves the sculpture without resizing the canvas. */
+  setRect(rect: Rect) {
+    this.rect = rect
+    if (!this.running) this.draw()
+  }
+
+  /** 0 – 1: draws the whole sculpture into a liquid spiral; it re-forms as the value falls back to 0. */
+  setStir(amount: number, dir = 1) {
+    // tiny residues (scroll positions a hair off a stage) must not keep the engine awake
+    this.stir = amount < 0.002 ? 0 : clamp(amount, 0, 1.5)
+    this.stirDir = dir < 0 ? -1 : 1
+    if (this.stir > 0) this.settle = 0
+    this.wake()
+  }
+
   setVisible(v: boolean) {
     this.visible = v
     if (v) this.wake()
@@ -810,7 +840,12 @@ class LiquidEngine {
     if (this.flowing < 0.002 && this.presenceTarget === 0) this.flowing = 0
     if (this.introT < 1) this.introT = Math.min(1, this.introT + Math.min(rawMs, 100) / 3200)
 
-    const interacting = this.presence > 0.001 || this.burst > 0
+    // the crisp image returns slowly, so it fades in under the particles still flowing home
+    const sv = this.stir > this.stirVis ? 0.3 : 0.022
+    this.stirVis += (this.stir - this.stirVis) * (1 - Math.pow(1 - sv, dt))
+    if (this.stirVis < 0.003 && this.stir === 0) this.stirVis = 0
+
+    const interacting = this.presence > 0.001 || this.burst > 0 || this.stir > 0 || this.stirVis > 0
     // settle is counted in simulated frames, so slow devices never snap mid-return
     this.settle = interacting ? 0 : this.settle + dt
     const active = interacting || this.settle < SETTLE_FRAMES || this.introT < 1
@@ -908,6 +943,8 @@ class LiquidEngine {
     gl.uniform1f(P.u.uTime, this.time)
     gl.uniform1f(P.u.uDt, dt)
     gl.uniform1f(P.u.uIntro, intro)
+    gl.uniform1f(P.u.uStir, this.stir * (o.reducedMotion ? 0.3 : 1))
+    gl.uniform1f(P.u.uStirDir, this.stirDir)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     this.stateIdx = dst
     this.stateDirty = true
@@ -929,6 +966,7 @@ class LiquidEngine {
     const pres = Math.max(this.presence, this.burst)
     const mx = this.mouse.x - r.x
     const my = this.mouse.y - r.y
+    const stirVis = Math.min(1, this.stirVis / 0.35)
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     gl.viewport(0, 0, this.canvas.width, this.canvas.height)
@@ -957,10 +995,11 @@ class LiquidEngine {
     gl.uniform1f(I.u.uIntroVis, introVis)
     gl.uniform1f(I.u.uRest, rest)
     gl.uniform1f(I.u.uAlphaMode, this.alphaMode ? 1 : 0)
+    gl.uniform1f(I.u.uStirVis, stirVis)
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 
     // particles are invisible at rest in "image" mode: skip them entirely
-    if (!this.n || (!this.stateDirty && rest === 0 && introVis >= 1)) return
+    if (!this.n || (!this.stateDirty && rest === 0 && introVis >= 1 && stirVis === 0)) return
 
     const P = this.pPart
     gl.useProgram(P.p)
@@ -991,6 +1030,7 @@ class LiquidEngine {
     gl.uniform1f(P.u.uStreak, (o.streaks ? 1 : 0) * (0.45 + 0.55 * introVis))
     gl.uniform1f(P.u.uIntroVis, introVis)
     gl.uniform1f(P.u.uRest, rest)
+    gl.uniform1f(P.u.uStirVis, stirVis)
     gl.uniform1f(P.u.uDpr, dpr)
     if (this.alphaMode) gl.uniform3f(P.u.uTint, 1, 1, 1)
     else gl.uniform3f(P.u.uTint, br / Math.max(ir, 0.001), bg / Math.max(ig, 0.001), bb / Math.max(ib, 0.001))

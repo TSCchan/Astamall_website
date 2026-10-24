@@ -4,7 +4,7 @@ import { ProductCard } from '@/components/brand';
 import { FaqList } from '@/components/forms';
 import { ProductRail, CategoryRow } from '@/components/home-motion';
 import { products, articles } from '@/lib/catalog';
-import SculptureHero from '@/components/ui/liquid-sculpture-hero';
+import AstamallLiquidJourney from '@/components/ui/astamall-liquid-journey';
 
 const categories = [
   { name: 'Skincare', label: 'Skincare & beauty', note: 'Your daily ritual, thoughtfully considered.' },
@@ -13,23 +13,11 @@ const categories = [
 ];
 const marquee = ['Skincare & beauty', 'Health foods', 'Health supplements', 'Asta-S® free-form astaxanthin', 'From Taiwan to Malaysia'];
 const serum = products.find(p => p.slug === 'asta-s-rejuvenating-serum')!;
-const sculpture = '/assets/astamall-sculpture-cutout-v1.webp';
 
 export default function Home() {
   return <main id="main-content" className="premium-home refined-home lux-home">
     <div id="top" />
-    <SculptureHero className="astamall-sculpture-hero"
-      src={sculpture} darkSrc={sculpture} mobileSrc={sculpture} mobileDarkSrc={sculpture}
-      imageAlt="Glossy crimson astaxanthin liquid sculpture"
-      showNav={false} topInset={84} contentPlacement="left" themeToggle={false} loadFonts={false} showCredit={false}
-      background="#f7f3ec" textColor="#362326" accentColor="#912e40"
-      headingFont="'Cormorant Garamond', Georgia, serif" accentFont="'Cormorant Garamond', Georgia, serif" bodyFont="'DM Sans', Arial, sans-serif"
-      sculptureScale={0.55} mobileSculptureScale={0.62} backdropText="ASTAMALL"
-      eyebrow="The essence of ASTAMALL"
-      headline={'One Powerful Ingredient.\nA World of Possibilities.'} headlineAccent="A World of Possibilities."
-      body="Discover beauty and wellness through thoughtfully selected products, inspired by astaxanthin."
-      primaryCta={{ label: 'Explore the Collection', href: '/shop' }} secondaryCta={{ label: 'Our story', href: '/about' }}
-      hint="Move across the sculpture" hintTouch="Touch the sculpture" />
+    <AstamallLiquidJourney />
 
     <div className="lux-marquee" aria-hidden="true"><div className="lux-marquee-track">{[0, 1].map(copy => <div className="lux-marquee-group" key={copy}>{marquee.map(item => <span key={item}>{item}<i>✦</i></span>)}</div>)}</div></div>
 
