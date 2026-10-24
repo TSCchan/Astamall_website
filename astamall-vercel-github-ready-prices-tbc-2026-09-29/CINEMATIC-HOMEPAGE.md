@@ -1,31 +1,35 @@
-# ASTAMALL cinematic homepage
+# ASTAMALL homepage hero
 
-The homepage now uses one React Three Fiber scene driven by a GSAP ScrollTrigger value: origin, skincare, health foods, supplements, and the full collection. The existing site header and all sections after the hero remain in place.
+The homepage opens on a pinned scroll journey: `components/ui/astamall-liquid-journey.tsx`, with stage copy and images in `lib/hero-journey.ts` and styles in the "Liquid journey hero" section of `app/premium.css`.
 
-## Catalog integration
+## Stages
 
-`lib/cinematic-catalog.ts` adapts the existing product catalog. Products may supply `active`, `featured`, `displayPriority`, `heroImage`, and `modelUrl` merchandising fields. No catalog prices, product detail images, first-image order, or product descriptions were changed.
+1. **Origin.** The crimson liquid sculpture, large, beside the hero copy. "ASTAMALL" sits behind it in Cormorant Garamond with a wine gradient.
+2. **Skincare & Beauty, Health Foods, Health Supplements, Collection.** Each is a background-free product composition (`public/assets/journey-*-cutout-v1.webp`).
 
-The five homepage stages use the user's supplied compositions as transparent PNGs: red sculpture, beauty products, collagen, supplements, and a mixed collection. `heroStageArt` maps these editorial images to stages. They are separate from the store catalog and do not change product listings or gallery images. The images retain their supplied branding. Each composition is mapped onto a subdivided surface for liquid deformation. Category URLs use the shop's actual category values.
+To change a stage's photo, replace its file or point `image.src` in `lib/hero-journey.ts` at a new cutout. Set `aspect` to the new image's width / height.
 
-`components/cinematic-hero.tsx` preserves the older hero. No `liquid-sculpture-hero.tsx` existed in the supplied checkout.
+## Motion
 
-## Motion and accessibility
+- **Scroll pacing.** Each scroll gesture eases the journey on by half a stage, so two scrolls bring in the next product.
+  - A gesture is a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page or Space keys.
+  - On a trackpad the journey follows the fingers live (at most half a stage per swipe), then settles on the half step when the swipe ends.
+  - A tiny accidental nudge springs back.
+  - A swipe's momentum counts as part of that swipe, but a new swipe made while momentum is still trailing off is recognised.
+  - A quick second scroll queues on, up to one product ahead.
+  - The last product also takes two scrolls: the first holds on it (it settles back slightly), the second glides the page on until the ingredient marquee sits just under the site header.
+  - From the sections below, one scroll up glides the hero back in.
+  - Dragging the scrollbar snaps to the nearest half step.
+- **Sculpture.** On the first scroll the sculpture (the particle engine from `components/ui/liquid-sculpture-hero.tsx`) is drawn into a liquid spiral and fades away completely. Scrolling back re-forms it.
+- **Products.** Every product grows out of the sculpture's centre along a tightening spiral: small, turned and soft-focused, then settling sharp and upright. When the next one arrives, the current product drifts forward and dissolves while the new one grows behind it.
+- **Cursor.** Moving the cursor scatters the sculpture and tilts the products slightly.
 
-- Continuous, reversible scroll timeline with no wheel interception.
-- Desktop scroll distance: 420vh; mobile: 300vh.
-- A pointer-responsive red sculpture: local silhouette stretching, travelling ripples, and a soft return when the pointer leaves. Frame-rate-independent input smoothing runs in refs and shader uniforms, without per-frame React state.
-- A continuous, reversible waterline joins outgoing and incoming images, with local refraction and folding at the crest. No particle field or grain dissolve. Settled product photography is undistorted and still.
-- Optional pause/resume control; static collection for reduced motion, unavailable WebGL, startup failure, or context loss.
-- Static server-rendered content remains usable before JavaScript loads.
-- Inactive copy is inert and hidden from assistive technology; navigation and category CTAs remain normal links.
-- Lazy scene module, next-category loading, capped device pixel ratio, lower mobile mesh subdivision and distortion, and offscreen/background render suspension. No extra lighting pass or external environment texture.
-- Synchronous ScrollTrigger cleanup before DOM removal; owned geometries/materials dispose on unmount. The renderer releases the WebGL context on unmount.
+## Fallbacks and performance
+
+- **Reduced motion.** The same five stages are shown as a static stacked list, with no pinning.
+- **No WebGL2.** The sculpture is shown as a still image that fades as the first product grows; the product motion still runs.
+- **Rendering.** The engine sleeps when nothing moves, stops once the sculpture has faded, and pauses offscreen and in background tabs.
 
 ## Validation
 
-Run `node --test tests/cinematic-motion.test.mjs` for phase continuity, clamping, reverse chapter stops and conserved scene weights. The Next.js production build also runs TypeScript validation.
-
-Browser QA covers desktop and mobile layouts, chapter navigation in both directions, pointer response, pause/resume, category links, and continuing into the rest of the homepage. Physical-device frame rate and GPU memory profiling have not been measured; performance depends on the device.
-
-October 22 motion refinement: preserve the premium editorial layout (variance 7, density 3), increase focal motion to 8. The sculpture's liquid response and the scroll waterline are the authored sequence; navigation and product details retain their existing behavior.
+The production build runs TypeScript. Headless Chromium renders this page with a software GPU, which is far too slow for the particle simulation at full density. To check the motion there, lower the density from the console first (`engine.setOptions({ density: 0.15 })`).

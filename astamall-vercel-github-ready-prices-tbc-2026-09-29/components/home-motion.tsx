@@ -44,3 +44,39 @@ export function CategoryRow({ children, images, href }: { children: ReactNode; i
     <span className="category-row-stack" aria-hidden="true">{images.map((src, i) => <img key={src} src={src} alt="" width="240" height="240" loading="lazy" style={{ ['--i' as string]: i }} />)}</span>
   </Link>;
 }
+
+// The ingredient marquee. Hovering eases it to a stop (and back); on touch screens a tap pauses or resumes it.
+export function Marquee({ items }: { items: string[] }) {
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = root.current;
+    const animation = node?.querySelector('.lux-marquee-track')?.getAnimations()[0];
+    if (!node || !animation) return;
+    node.dataset.js = '';
+    let rate = 1, aim = 1, frame = 0, held = false;
+    const ease = () => {
+      rate += (aim - rate) * 0.12;
+      if (Math.abs(aim - rate) < 0.004) rate = aim;
+      animation.playbackRate = rate;
+      frame = rate === aim ? 0 : requestAnimationFrame(ease);
+    };
+    const to = (value: number) => { aim = value; if (!frame) frame = requestAnimationFrame(ease); };
+    const enter = (e: PointerEvent) => { if (e.pointerType === 'mouse') to(0); };
+    const leave = (e: PointerEvent) => { if (e.pointerType === 'mouse' && !held) to(1); };
+    const tap = (e: PointerEvent) => { if (e.pointerType !== 'mouse') { held = !held; to(held ? 0 : 1); } };
+    node.addEventListener('pointerenter', enter);
+    node.addEventListener('pointerleave', leave);
+    node.addEventListener('pointerdown', tap);
+    // a page that glides under a resting cursor never fires pointerenter
+    if (node.matches(':hover')) to(0);
+    return () => {
+      cancelAnimationFrame(frame);
+      node.removeEventListener('pointerenter', enter);
+      node.removeEventListener('pointerleave', leave);
+      node.removeEventListener('pointerdown', tap);
+      animation.playbackRate = 1;
+    };
+  }, []);
+  return <div ref={root} className="lux-marquee" aria-hidden="true"><div className="lux-marquee-track">{[0, 1].map(copy =>
+    <div className="lux-marquee-group" key={copy}>{items.map(item => <span key={item}>{item}<i>✦</i></span>)}</div>)}</div></div>;
+}
