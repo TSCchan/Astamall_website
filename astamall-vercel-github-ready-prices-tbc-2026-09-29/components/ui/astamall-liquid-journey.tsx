@@ -13,10 +13,12 @@ const PAPER: [number, number, number] = [247 / 255, 243 / 255, 236 / 255];
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (t: number) => t * t * (3 - 2 * t);
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-const mixRect = (a: Rect, b: Rect, t: number): Rect => ({ x: mix(a.x, b.x, t), y: mix(a.y, b.y, t), w: mix(a.w, b.w, t), h: mix(a.h, b.h, t) });
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeIn = (t: number) => t * t * t;
+/** Each scroll gesture moves half a stage: two scrolls bring in the next product. */
+const STEP = 0.5;
 
-type Layout = { w: number; h: number; wide: boolean; cx: number; cy: number; hero: Rect; held: Rect; boxes: Rect[]; radius: number; rise: number };
+type Layout = { w: number; h: number; wide: boolean; cx: number; cy: number; hero: Rect; boxes: Rect[] };
 
 function fit(maxW: number, maxH: number, aspect: number, x: number, y: number): Rect {
   const w = Math.min(maxW, maxH * aspect);
@@ -36,23 +38,31 @@ function measure(w: number, h: number, copyHeight: number): Layout {
   return {
     w, h, wide, cx, cy,
     hero: fit(wide ? w * 0.74 : w * 1.06, band * (wide ? 1.02 : 1), a, cx, cy),
-    // behind the products the sculpture becomes a low liquid plinth
-    held: fit(wide ? w * 0.5 : w * 0.92, band * 0.66, a, cx, cy + band * 0.16),
-    boxes: journeyStages.map(stage => stage.image ? fit(wide ? w * 0.46 : w * 0.86, band * 0.84, stage.image.aspect, cx, cy - band * 0.02) : { x: 0, y: 0, w: 0, h: 0 }),
-    radius: wide ? w * 0.3 : w * 0.62,
-    rise: band * 0.36,
+    // every product grows from the sculpture's centre
+    boxes: journeyStages.map(stage => stage.image ? fit(wide ? w * 0.48 : w * 0.88, band * 0.86, stage.image.aspect, cx, cy) : { x: 0, y: 0, w: 0, h: 0 }),
   };
 }
 
-/** Position on a rising helix: d = 1 is the next product (low, right, far), 0 the focus, -1 the previous (high, left, far). */
-function helix(d: number, L: Layout) {
-  const a = d * 1.75;
-  const x = Math.sin(a) * L.radius;
-  const z = (Math.cos(a) - 1) * L.radius * 1.15;
-  const y = d * L.rise;
-  const fade = 1 - smooth(clamp01((Math.abs(d) - 0.28) / 0.6));
-  const blur = L.wide ? Math.abs(d) * 6 : 0;
-  return { transform: `translate3d(${x}px,${y}px,${z}px) rotateY(${-d * 58}deg) rotateZ(${d * 7}deg)`, opacity: fade, blur };
+/**
+ * Product i, at progress p. It grows out of the centre along a tightening spiral over [i - 0.85, i],
+ * then drifts forward and dissolves over [i, i + 0.6] while the next one grows behind it.
+ */
+function productMotion(i: number, p: number, box: Rect, wide: boolean) {
+  const grow = clamp01((p - (i - 0.85)) / 0.85);
+  const leave = i < LAST ? clamp01((p - i) / 0.6) : 0;
+  if (grow <= 0 || leave >= 1) return null;
+  if (leave > 0) {
+    const o = easeIn(leave);
+    return { transform: `translate3d(0,${-o * box.h * 0.06}px,0) scale(${1 + o * 0.4}) rotate(${o * 14}deg)`, opacity: 1 - smooth(leave), blur: wide ? o * 8 : 0 };
+  }
+  const e = easeOut(grow);
+  const turn = (1 - e) * Math.PI * 2.4;
+  const r = (1 - e) * box.h * 0.16;
+  return {
+    transform: `translate3d(${Math.cos(turn) * r}px,${Math.sin(turn) * r * 0.7}px,0) scale(${0.05 + 0.95 * e}) rotate(${-(1 - e) * 150}deg)`,
+    opacity: smooth(clamp01(grow / 0.35)),
+    blur: wide ? (1 - e) * 10 : 0,
+  };
 }
 
 function StageCopy({ stage, index, active }: { stage: JourneyStage; index: number; active: boolean }) {
@@ -97,6 +107,8 @@ export default function AstamallLiquidJourney() {
   const progress = useRef({ value: 0 });
   const trigger = useRef<ScrollTrigger | null>(null);
   const goTo = useRef<((stage: number) => void) | null>(null);
+  // the engine renders only while the hero is on screen and the sculpture has not dissolved
+  const view = useRef({ inView: true, dissolved: false });
   const activeRef = useRef(0);
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<'animated' | 'static'>('animated');
@@ -114,37 +126,39 @@ export default function AstamallLiquidJourney() {
     const L = layout.current;
     if (!L) return;
     const p = progress.current.value;
-    const seg = Math.min(Math.floor(p), LAST - 1);
-    const f = p - seg;
 
-    const rect = mixRect(L.hero, L.held, smooth(clamp01(p)));
-    engine.current?.setRect(rect);
-    const img = fallback.current;
-    if (img) Object.assign(img.style, { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.w}px`, height: `${rect.h}px` });
-    // between stages the sculpture turns liquid and spirals, re-forming as each product lands
-    engine.current?.setStir(p >= LAST ? 0 : Math.pow(Math.sin(Math.PI * f), 1.3), seg % 2 ? -1 : 1);
+    // the first product grows from the sculpture's centre while the sculpture swirls apart and fades away
+    const fade = smooth(clamp01((p - 0.08) / 0.62));
+    if (stageEl.current) stageEl.current.style.opacity = String(1 - fade);
+    const dissolved = fade >= 0.999;
+    if (dissolved !== view.current.dissolved) {
+      view.current.dissolved = dissolved;
+      engine.current?.setVisible(view.current.inView && !document.hidden && !dissolved);
+    }
+    if (!dissolved) engine.current?.setStir(smooth(clamp01(p / 0.45)), 1);
 
     products.current.forEach((el, i) => {
       if (!el) return;
-      const d = i - p;
-      if (Math.abs(d) > 0.9) { el.style.visibility = 'hidden'; return; }
-      const s = helix(d, L);
+      const s = productMotion(i, p, L.boxes[i], L.wide);
+      if (!s) { el.style.visibility = 'hidden'; return; }
       el.style.visibility = 'visible';
       el.style.opacity = String(s.opacity);
       el.style.transform = s.transform;
       el.style.filter = s.blur > 0.2 ? `blur(${s.blur.toFixed(1)}px)` : 'none';
     });
+    // copy changes hands just before each half-way point, so a resting half step always shows the incoming stage
     panels.current.forEach((el, i) => {
       if (!el) return;
-      const d = p - i;
-      const visible = clamp01(1 - Math.abs(d) * 2.3);
+      const enter = i === 0 ? 1 : smooth(clamp01((p - (i - 0.62)) / 0.1));
+      const exit = i === LAST ? 1 : 1 - smooth(clamp01((p - (i + 0.28)) / 0.1));
+      const visible = enter * exit;
       el.style.opacity = String(visible);
-      el.style.transform = `translate3d(0,${-d * 34}px,0)`;
+      el.style.transform = `translate3d(0,${(1 - enter) * 26 - (1 - exit) * 26}px,0)`;
       el.style.visibility = visible > 0.01 ? 'visible' : 'hidden';
     });
     if (hint.current) hint.current.style.opacity = String(clamp01(1 - p * 4) * 0.55);
-    if (backdrop.current) backdrop.current.style.opacity = String(1 - smooth(clamp01(p)) * 0.35);
-    const current = Math.round(p);
+    if (backdrop.current) backdrop.current.style.opacity = String(1 - fade * 0.35);
+    const current = Math.min(LAST, Math.floor(p + 0.62));
     if (current !== activeRef.current) { activeRef.current = current; setActive(current); }
   }, []);
 
@@ -161,6 +175,8 @@ export default function AstamallLiquidJourney() {
       if (el) Object.assign(el.style, { left: `${box.x}px`, top: `${box.y}px`, width: `${box.w}px`, height: `${box.h}px` });
     });
     if (orbit.current) orbit.current.style.transformOrigin = `${L.cx}px ${L.cy}px`;
+    const img = fallback.current;
+    if (img) Object.assign(img.style, { left: `${L.hero.x}px`, top: `${L.hero.y}px`, width: `${L.hero.w}px`, height: `${L.hero.h}px` });
     const word = backdrop.current;
     if (word) {
       let size = Math.min(h * 0.42, (w * 0.94) / 5.2);
@@ -208,9 +224,10 @@ export default function AstamallLiquidJourney() {
     resize.observe(section);
     if (copy.current) resize.observe(copy.current);
     document.fonts?.ready.then(() => { if (!cancelled) relayout(); });
-    const seen = new IntersectionObserver(([entry]) => liquid?.setVisible(entry.isIntersecting && !document.hidden));
+    const sync = () => liquid?.setVisible(view.current.inView && !document.hidden && !view.current.dissolved);
+    const seen = new IntersectionObserver(([entry]) => { view.current.inView = entry.isIntersecting; sync(); });
     seen.observe(section);
-    const onVisibility = () => liquid?.setVisible(!document.hidden);
+    const onVisibility = sync;
     document.addEventListener('visibilitychange', onVisibility);
 
     // the cursor stirs the sculpture and tilts the product orbit
@@ -266,8 +283,8 @@ export default function AstamallLiquidJourney() {
     };
   }, [mode, relayout]);
 
-  // Pinned scroll: one viewport per stage. Each scroll gesture (wheel, trackpad, swipe, key) plays one
-  // full transition to the next stage; the scrollbar still works and snaps to the nearest stage.
+  // Pinned scroll: one viewport per stage. Each scroll gesture (wheel, trackpad, swipe, key) eases the
+  // journey on by half a stage, so two scrolls bring in the next product; the scrollbar snaps to half stages.
   // Reverted synchronously, before React removes the section.
   useLayoutEffect(() => {
     if (mode !== 'animated' || !root.current || !host.current) return;
@@ -280,7 +297,7 @@ export default function AstamallLiquidJourney() {
           trigger: root.current, start: 'top top',
           end: () => `+=${Math.round(innerHeight * LAST * (innerWidth < 1024 ? 0.85 : 1.05))}`,
           pin: true, pinSpacer: host.current!, scrub: 0.35, invalidateOnRefresh: true,
-          snap: { snapTo: 1 / LAST, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
+          snap: { snapTo: STEP / LAST, inertia: false, duration: { min: 0.5, max: 1 }, delay: 0.1, ease: 'power2.inOut' },
         },
       });
       trigger.current = tween.scrollTrigger!;
@@ -288,43 +305,55 @@ export default function AstamallLiquidJourney() {
 
     const scroller = { y: 0 };
     let moving: gsap.core.Tween | null = null;
+    let target = 0;
     let lastWheel = 0;
     let used = false;
     let touchY: number | null = null;
     const stageY = (stage: number) => { const t = trigger.current!; return t.start + (t.end - t.start) * stage / LAST; };
-    const current = () => { const t = trigger.current!; return Math.round(clamp01((scrollY - t.start) / (t.end - t.start)) * LAST); };
+    // the resting half step nearest the scroll position (or the one already being eased to)
+    const current = () => {
+      if (moving) return target;
+      const t = trigger.current!;
+      return Math.round(clamp01((scrollY - t.start) / (t.end - t.start)) * LAST / STEP) * STEP;
+    };
     const inside = () => { const t = trigger.current; return !!t && scrollY >= t.start - 2 && scrollY <= t.end + 2; };
     const go = (stage: number) => {
       if (!trigger.current) return;
+      const from = current();
+      target = stage;
       moving?.kill();
       scroller.y = scrollY;
       moving = gsap.to(scroller, {
-        y: stageY(stage), duration: 1.15 + Math.min(Math.abs(stage - current()) - 1, 3) * 0.25, ease: 'power2.inOut',
+        y: stageY(stage), duration: 1.1 + Math.min(Math.abs(stage - from) / STEP - 1, 4) * 0.2, ease: 'power2.out',
         onUpdate: () => window.scrollTo({ top: scroller.y, behavior: 'instant' }),
         onComplete: () => { moving = null; },
       });
     };
     goTo.current = go;
     // Returns true when the gesture belongs to the journey (and so must not scroll the page natively).
+    // A second scroll while the first is still easing queues on, up to one full stage ahead.
     const step = (dir: number) => {
       if (!inside()) return false;
-      const next = current() + dir;
+      const next = current() + dir * STEP;
       if (next < 0 || next > LAST) return false;
-      if (!moving) go(next);
+      if (!moving || Math.abs(next - progress.current.value) <= 1.01) go(next);
       return true;
     };
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < Math.abs(e.deltaX) || e.ctrlKey) return;
-      // a trackpad's momentum arrives as a stream of events: only a fresh gesture moves on
+      // a trackpad's momentum arrives as a stream of events: only a fresh gesture moves on.
+      // Mouse-wheel notches are large and spaced out, so each notch counts as its own scroll.
       const now = performance.now();
-      if (now - lastWheel > 220) used = false;
+      const gap = now - lastWheel;
+      const notch = e.deltaMode === 1 || Math.abs(e.deltaY) >= 80;
+      if (gap > 220 || (notch && gap > 90)) used = false;
       lastWheel = now;
       const dir = Math.sign(e.deltaY);
       if (!dir || !inside()) return;
-      const next = current() + dir;
+      const next = current() + dir * STEP;
       if (next < 0 || next > LAST) return;
       e.preventDefault();
-      if (used || moving) return;
+      if (used) return;
       used = true;
       step(dir);
     };
@@ -332,10 +361,10 @@ export default function AstamallLiquidJourney() {
     const onTouchMove = (e: TouchEvent) => {
       if (touchY === null || !inside()) return;
       const dy = touchY - (e.touches[0]?.clientY ?? touchY);
-      const next = current() + Math.sign(dy);
+      const next = current() + Math.sign(dy) * STEP;
       if (!dy || next < 0 || next > LAST) return;
       e.preventDefault();
-      if (Math.abs(dy) > 28 && !moving) { touchY = null; step(Math.sign(dy)); }
+      if (Math.abs(dy) > 28) { touchY = null; step(Math.sign(dy)); }
     };
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;

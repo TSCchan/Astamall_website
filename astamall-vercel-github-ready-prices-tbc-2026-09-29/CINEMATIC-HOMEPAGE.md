@@ -11,14 +11,16 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
 
 ## Motion
 
-- **Scroll.** One viewport per stage. Each scroll gesture plays one full transition (about a second) to the next or previous stage: a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page and Space keys.
-  - A trackpad's momentum is counted as part of the same gesture, so it never skips a product.
+- **Scroll pacing.** Each scroll gesture eases the journey on by half a stage, so two scrolls bring in the next product.
+  - A gesture is a wheel notch, a trackpad swipe, a touch swipe, or the arrow, Page or Space keys.
+  - A trackpad's momentum counts as part of the same swipe.
+  - A quick second scroll queues on, up to one product ahead.
   - Past the first and last stage the page scrolls normally.
-  - Dragging the scrollbar snaps to the nearest stage.
-  - The stage pills at the bottom jump straight to a stage.
-- **Products.** Products travel along a rising helix: the next one arrives low, right and far back, sweeps to the front, and leaves high and left.
-- **Sculpture.** The sculpture is the particle engine from `components/ui/liquid-sculpture-hero.tsx`. Between stages, `setStir` draws the whole sculpture into a liquid spiral. It re-forms as each product lands. After the first stage it settles behind the products as a low liquid base.
-- **Cursor.** Moving the cursor scatters the sculpture locally and tilts the product orbit slightly.
+  - Dragging the scrollbar snaps to the nearest half step.
+  - The stage pills jump straight to a stage.
+- **Sculpture.** On the first scroll the sculpture (the particle engine from `components/ui/liquid-sculpture-hero.tsx`) is drawn into a liquid spiral and fades away completely. Scrolling back re-forms it.
+- **Products.** Every product grows out of the sculpture's centre along a tightening spiral: small, turned and soft-focused, then settling sharp and upright. When the next one arrives, the current product drifts forward and dissolves while the new one grows behind it.
+- **Cursor.** Moving the cursor scatters the sculpture and tilts the products slightly.
 
 ## Fallbacks and performance
 
