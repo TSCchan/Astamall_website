@@ -17,7 +17,6 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
   - A quick second scroll queues on, up to one product ahead.
   - Past the first and last stage the page scrolls normally.
   - Dragging the scrollbar snaps to the nearest half step.
-  - The stage pills jump straight to a stage.
 - **Sculpture.** On the first scroll the sculpture (the particle engine from `components/ui/liquid-sculpture-hero.tsx`) is drawn into a liquid spiral and fades away completely. Scrolling back re-forms it.
 - **Products.** Every product grows out of the sculpture's centre along a tightening spiral: small, turned and soft-focused, then settling sharp and upright. When the next one arrives, the current product drifts forward and dissolves while the new one grows behind it.
 - **Cursor.** Moving the cursor scatters the sculpture and tilts the products slightly.

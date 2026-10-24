@@ -508,7 +508,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 }
 
 /* ---------- Liquid journey hero ---------- */
-/* Layers: backdrop word 0, particle sculpture 1, product helix 2, copy 3, controls 4. */
+/* Layers: backdrop word 0, particle sculpture 1, products 2, copy 3, skip link 5. */
 .lj-root{position:relative;height:100svh;min-height:620px;overflow:hidden;isolation:isolate;color:var(--ink);touch-action:pan-y;
   background:radial-gradient(ellipse at 63% 52%,#fffdf9 0,#f7f3ec 48%,#ebe1d4 100%)}
 .lj-backdrop{position:absolute;left:50%;top:50%;z-index:0;transform:translate(-50%,-50%);white-space:nowrap;pointer-events:none;user-select:none;
@@ -528,7 +528,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lj-hint:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:lj-pulse 2.4s ease-in-out infinite}
 .lj-root[data-touched="1"] .lj-hint{visibility:hidden}
 @keyframes lj-pulse{0%,100%{transform:scale(.6);opacity:.45}50%{transform:scale(1);opacity:1}}
-.lj-copy{position:absolute;z-index:3;left:clamp(28px,4.4vw,72px);top:92px;bottom:72px;width:min(36vw,540px);display:grid;align-content:center;pointer-events:none}
+.lj-copy{position:absolute;z-index:3;left:clamp(28px,4.4vw,72px);top:92px;bottom:40px;width:min(36vw,540px);display:grid;align-content:center;pointer-events:none}
 .lj-panel{grid-area:1/1;will-change:transform,opacity}
 .lj-eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 22px;font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--maroon)}
 .lj-eyebrow:before{content:"";width:28px;height:1px;background:currentColor;opacity:.7}
@@ -544,29 +544,18 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lj-link:hover{color:var(--maroon)}
 .lj-btn span,.lj-link span{transition:transform .35s var(--ease-out)}
 .lj-btn:hover span,.lj-link:hover span{transform:translateX(3px)}
-.lj-steps{position:absolute;z-index:4;left:50%;bottom:20px;transform:translateX(-50%);display:flex;gap:4px;padding:5px;border-radius:999px;
-  background:rgba(250,247,242,.72);border:1px solid rgba(54,35,38,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.lj-steps button{appearance:none;display:flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border:0;border-radius:999px;background:transparent;cursor:pointer;
-  font:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--ink) 62%,transparent);transition:background .4s var(--ease-out),color .3s}
-.lj-steps button:hover{color:var(--wine)}
-.lj-steps button[aria-current=step]{background:var(--wine);color:#fffaf6}
-.lj-step-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
 .lj-skip{position:absolute;z-index:5;left:clamp(28px,4.4vw,72px);top:96px;padding:8px 12px;border-radius:999px;background:var(--paper);color:var(--ink);font-size:12px;transform:translateY(-200%);opacity:0}
 .lj-skip:focus{transform:none;opacity:1}
 .lj-root a:focus-visible,.lj-root button:focus-visible{outline:2px solid var(--wine);outline-offset:4px}
 .lj-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:1023px){
-  .lj-copy{left:20px;right:20px;top:auto;bottom:68px;width:auto;align-content:end}
+  .lj-copy{left:20px;right:20px;top:auto;bottom:32px;width:auto;align-content:end}
   .lj-panel{align-self:end}
   .lj-title{font-size:clamp(2.2rem,9.4vw,3.4rem)}
   .lj-eyebrow{margin-bottom:14px;font-size:10px}
   .lj-desc{margin-top:14px;font-size:14px;line-height:1.55}
   .lj-ctas{margin-top:20px;gap:18px}
   .lj-btn{height:46px;padding:0 20px;font-size:13.5px}
-  .lj-steps{bottom:14px}
-  .lj-steps button{padding:0 11px;min-height:34px}
-  .lj-step-name{display:none}
-  .lj-steps button[aria-current=step] .lj-step-name{display:inline}
   .lj-hint{display:none}
 }
 @media (max-width:420px){.lj-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}

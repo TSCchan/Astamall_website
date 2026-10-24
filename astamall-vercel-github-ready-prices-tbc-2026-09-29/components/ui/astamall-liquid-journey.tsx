@@ -30,7 +30,7 @@ function fit(maxW: number, maxH: number, aspect: number, x: number, y: number): 
 function measure(w: number, h: number, copyHeight: number): Layout {
   const wide = w >= 1024;
   const top = HEADER + 8;
-  const bottom = wide ? h - 70 : Math.max(top + 220, h - copyHeight);
+  const bottom = wide ? h - 40 : Math.max(top + 220, h - copyHeight);
   const band = bottom - top;
   const cx = wide ? w * 0.635 : w * 0.5;
   const cy = top + band / 2;
@@ -106,7 +106,6 @@ export default function AstamallLiquidJourney() {
   const layout = useRef<Layout | null>(null);
   const progress = useRef({ value: 0 });
   const trigger = useRef<ScrollTrigger | null>(null);
-  const goTo = useRef<((stage: number) => void) | null>(null);
   // the engine renders only while the hero is on screen and the sculpture has not dissolved
   const view = useRef({ inView: true, dissolved: false });
   const activeRef = useRef(0);
@@ -167,7 +166,7 @@ export default function AstamallLiquidJourney() {
     if (!section) return;
     const w = section.clientWidth;
     const h = section.clientHeight;
-    const copyHeight = w >= 1024 ? 0 : (copy.current?.offsetHeight ?? 0) + 76;
+    const copyHeight = w >= 1024 ? 0 : (copy.current?.offsetHeight ?? 0) + 40;
     const L = measure(w, h, copyHeight);
     layout.current = L;
     L.boxes.forEach((box, i) => {
@@ -329,7 +328,6 @@ export default function AstamallLiquidJourney() {
         onComplete: () => { moving = null; },
       });
     };
-    goTo.current = go;
     // Returns true when the gesture belongs to the journey (and so must not scroll the page natively).
     // A second scroll while the first is still easing queues on, up to one full stage ahead.
     const step = (dir: number) => {
@@ -383,7 +381,6 @@ export default function AstamallLiquidJourney() {
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('keydown', onKey);
       moving?.kill();
-      goTo.current = null;
       context.revert(); trigger.current = null; state.value = 0;
     };
   }, [mode, paint]);
@@ -411,11 +408,6 @@ export default function AstamallLiquidJourney() {
           {stage.image && <span className="lj-sr">{stage.image.alt}</span>}
         </div>)}
       </div>
-      <nav className="lj-steps" aria-label="Collection journey">
-        {journeyStages.map((stage, i) => <button key={stage.label} type="button" onClick={() => goTo.current?.(i)} aria-current={active === i ? 'step' : undefined}>
-          <span className="lj-step-dot" aria-hidden="true" /><span className="lj-step-name">{stage.label}</span>
-        </button>)}
-      </nav>
     </section>
   </div>;
 }
