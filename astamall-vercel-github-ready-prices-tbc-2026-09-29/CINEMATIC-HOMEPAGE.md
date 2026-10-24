@@ -25,8 +25,8 @@ To change a stage's photo, replace its file or point `image.src` in `lib/hero-jo
 ## Fallbacks and performance
 
 - **Reduced motion.** The same five stages are shown as a static stacked list, with no pinning.
-- **No WebGL2.** The sculpture is shown as a still image in the same place; the product helix still runs.
-- **Rendering.** The engine sleeps when nothing moves, and pauses offscreen and in background tabs.
+- **No WebGL2.** The sculpture is shown as a still image that fades as the first product grows; the product motion still runs.
+- **Rendering.** The engine sleeps when nothing moves, stops once the sculpture has faded, and pauses offscreen and in background tabs.
 
 ## Validation
 
