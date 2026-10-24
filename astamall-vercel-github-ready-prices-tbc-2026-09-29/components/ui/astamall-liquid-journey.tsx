@@ -317,8 +317,11 @@ export default function AstamallLiquidJourney() {
     let touchY: number | null = null;
     const stageY = (stage: number) => {
       const t = trigger.current!;
-      // past the end: the top of the next section, with the hero scrolled fully away
-      return stage >= EXIT ? t.end + (root.current?.offsetHeight ?? innerHeight) : t.start + (t.end - t.start) * stage / END;
+      if (stage < EXIT) return t.start + (t.end - t.start) * stage / END;
+      // past the end: the next section (the marquee) lands just under the fixed site header
+      const next = host.current?.nextElementSibling;
+      const header = document.querySelector('.site-header')?.getBoundingClientRect().height ?? 0;
+      return next ? scrollY + next.getBoundingClientRect().top - header : t.end + (root.current?.offsetHeight ?? innerHeight);
     };
     // the resting half step nearest the scroll position (or the one already being eased to)
     const current = () => {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Reveal from '@/components/reveal';
 import { ProductCard } from '@/components/brand';
 import { FaqList } from '@/components/forms';
-import { ProductRail, CategoryRow } from '@/components/home-motion';
+import { ProductRail, CategoryRow, Marquee } from '@/components/home-motion';
 import { products, articles } from '@/lib/catalog';
 import AstamallLiquidJourney from '@/components/ui/astamall-liquid-journey';
 
@@ -19,7 +19,7 @@ export default function Home() {
     <div id="top" />
     <AstamallLiquidJourney />
 
-    <div className="lux-marquee" aria-hidden="true"><div className="lux-marquee-track">{[0, 1].map(copy => <div className="lux-marquee-group" key={copy}>{marquee.map(item => <span key={item}>{item}<i>✦</i></span>)}</div>)}</div></div>
+    <Marquee items={marquee} />
 
     <section className="home-introduction section-pad" id="about"><Reveal stagger>
       <h2>From Taiwan.<br /><em>Thoughtfully brought home.</em></h2>
