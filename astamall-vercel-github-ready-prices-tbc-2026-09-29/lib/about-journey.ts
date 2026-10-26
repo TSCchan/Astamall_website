@@ -35,13 +35,13 @@ export const chapters: Chapter[] = [
   },
 ];
 
-/** Featured ingredients shown as orbs in the 3D scene, with the colour used for each. */
+/** Featured ingredients, shown as crystals in the 3D scene: each has a body colour and a lighter inner glow. */
 export const journeyIngredients = [
-  { slug: 'asta-s', color: '#9e1b32' },
-  { slug: 'fermented-yeast', color: '#d9b77e' },
-  { slug: 'collagen', color: '#efe2da' },
-  { slug: 'hexapeptide', color: '#d58a98' },
-  { slug: 'sea-fennel', color: '#8ea486' },
+  { slug: 'asta-s', color: '#c0122f', glow: '#ff6b7f' },
+  { slug: 'fermented-yeast', color: '#dc9a14', glow: '#ffd56b' },
+  { slug: 'collagen', color: '#e98fa6', glow: '#ffd3de' },
+  { slug: 'hexapeptide', color: '#8656c8', glow: '#c9a8ff' },
+  { slug: 'sea-fennel', color: '#178f63', glow: '#7ff0c0' },
 ].map(item => ({ ...item, name: ingredients.find(i => i.slug === item.slug)!.name.replace(' Free-Form Astaxanthin', '') }));
 
 /** Every product in the shop, for the closing chapter. */

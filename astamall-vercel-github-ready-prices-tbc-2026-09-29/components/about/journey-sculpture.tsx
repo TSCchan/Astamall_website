@@ -15,13 +15,14 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t;
  * swirl as they merge (formulation), re-forms, then dissolves into the droplet that travels to Malaysia.
  */
 function pose(p: number) {
-  let scale = mix(0.18, 1, band(p, 0.35, 0.95));
-  if (p > 1) scale = mix(1, 0.72, band(p, 1.0, 1.6));
-  if (p > 2) scale = mix(0.72, 0.95, band(p, 2.2, 2.95));
-  if (p > 3) scale = mix(0.95, 0.12, band(p, 3.0, 3.45));
+  // smaller than on the landing page, and smaller again while the ingredients circle it
+  let scale = mix(0.14, 0.74, band(p, 0.35, 0.95));
+  if (p > 1) scale = mix(0.74, 0.48, band(p, 1.0, 1.6));
+  if (p > 2) scale = mix(0.48, 0.66, band(p, 2.2, 2.95));
+  if (p > 3) scale = mix(0.66, 0.1, band(p, 3.0, 3.45));
   const visible = band(p, 0.35, 0.8) * (1 - band(p, 3.2, 3.5));
   // a gentler swirl than the landing page: the sculpture is smaller here and sits beside the copy
-  const stir = 0.55 * (p < 3 ? band(p, 2.1, 2.55) * (1 - band(p, 2.7, 3.0)) : band(p, 3.0, 3.3));
+  const stir = 0.42 * (p < 3 ? band(p, 2.1, 2.55) * (1 - band(p, 2.7, 3.0)) : band(p, 3.0, 3.3));
   return { scale, visible, stir };
 }
 

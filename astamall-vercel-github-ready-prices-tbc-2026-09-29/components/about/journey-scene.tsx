@@ -5,13 +5,14 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Image as ImagePlane, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { journeyIngredients, journeyProducts, places } from '@/lib/about-journey';
 
 /*
  * The About journey in one scene, driven by `progress` (0 = Taiwan ... 5 = ASTAMALL):
  * 0 Taiwan       a dotted globe turned to Taiwan
  * 1 Astaxanthin  the camera dives into Taiwan; the landing-page sculpture grows in its place (journey-sculpture.tsx)
- * 2 Ingredients  the featured ingredients orbit it
+ * 2 Ingredients  the featured ingredients circle it as glowing crystals
  * 3 Formulation  they spiral in and merge, and the sculpture swirls to liquid and re-forms
  * 4 Malaysia     it dissolves into a droplet that travels the arc from Taiwan to Malaysia
  * 5 ASTAMALL     the droplet opens into the whole collection, every product in the shop
@@ -238,34 +239,89 @@ function Globe({ progress, onLoaded }: { progress: RefObject<number>; onLoaded: 
   </group>;
 }
 
-/** The featured ingredients orbit the sculpture (drawn beneath this canvas), then spiral into it. */
+/** A rough-cut crystal: an icosphere with every vertex pushed in or out, then flat-shaded so each facet catches light. */
+function crystalGeometry(seed: number) {
+  let state = seed * 9301 + 49297;
+  const rand = () => { state = (state * 9301 + 49297) % 233280; return state / 233280; };
+  const base = mergeVertices(new THREE.IcosahedronGeometry(1, 1));
+  const pos = base.attributes.position as THREE.BufferAttribute;
+  const v = new THREE.Vector3();
+  const stretch = new THREE.Vector3(0.82 + rand() * 0.2, 1.05 + rand() * 0.3, 0.8 + rand() * 0.2);
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i).multiplyScalar(0.74 + rand() * 0.42).multiply(stretch);
+    pos.setXYZ(i, v.x, v.y, v.z);
+  }
+  const faceted = base.toNonIndexed();
+  base.dispose();
+  faceted.computeVertexNormals();
+  return faceted;
+}
+
+/** A soft radial glow, shared by every crystal. */
+function glowTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d')!;
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255,255,255,1)');
+  grad.addColorStop(0.35, 'rgba(255,255,255,.45)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  const texture = new THREE.CanvasTexture(c);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+/**
+ * The featured ingredients as glowing crystals in a wide ring around the sculpture (drawn beneath this canvas).
+ * The ring always clears the sculpture; in the formulation chapter the crystals spiral in and merge with it.
+ */
 function Ingredients({ progress, mobile }: { progress: RefObject<number>; mobile: boolean }) {
-  const orbs = useRef<(THREE.Mesh | null)[]>([]);
+  const stones = useRef<(THREE.Group | null)[]>([]);
+  const shells = useRef<(THREE.Mesh | null)[]>([]);
   const anchors = useMemo(() => journeyIngredients.map(() => ({ current: null as THREE.Object3D | null })), []);
   const alphas = useMemo(() => journeyIngredients.map(() => ({ current: 0 })), []);
-  useFrame(({ clock }) => {
+  const geometries = useMemo(() => journeyIngredients.map((_, i) => crystalGeometry(i + 3)), []);
+  const glow = useMemo(() => glowTexture(), []);
+  useEffect(() => () => { geometries.forEach(g => g.dispose()); glow.dispose(); }, [geometries, glow]);
+  useFrame(({ clock, viewport }, dt) => {
     const p = progress.current ?? 0;
     const t = clock.elapsedTime;
     const emerge = easeOut(band(p, 1.05, 1.65));
-    const merge = band(p, 2.05, 2.85);
-    const radius = mix(0.45, mobile ? 1.55 : 2.05, emerge) * (1 - merge);
-    const size = 0.3 * emerge * (1 - band(p, 2.5, 2.95));
+    const merge = band(p, 2.05, 2.8);
+    // the ring is sized to the stage, comfortably outside the sculpture
+    const rx = viewport.width * (mobile ? 0.31 : 0.38) * mix(0.35, 1, emerge) * (1 - merge);
+    const ry = viewport.height * (mobile ? 0.24 : 0.29) * mix(0.35, 1, emerge) * (1 - merge);
+    const size = (mobile ? 0.26 : 0.3) * emerge * (1 - band(p, 2.5, 2.9));
     journeyIngredients.forEach((_, i) => {
-      const orb = orbs.current[i];
-      if (!orb) return;
-      const a = (i / journeyIngredients.length) * Math.PI * 2 + t * 0.3 + merge * 4.5;
-      orb.visible = size > 0.004;
-      orb.scale.setScalar(Math.max(size, 0.001));
-      orb.position.set(Math.cos(a) * radius, Math.sin(a) * radius * 0.32, Math.sin(a) * radius * 0.75);
-      alphas[i].current = emerge * (1 - band(p, 1.95, 2.35)) * (0.45 + 0.55 * (Math.sin(a) * 0.5 + 0.5));
+      const stone = stones.current[i];
+      if (!stone) return;
+      const a = (i / journeyIngredients.length) * Math.PI * 2 + t * 0.22 + merge * 4;
+      const depth = Math.sin(a);
+      stone.visible = size > 0.004;
+      stone.scale.setScalar(Math.max(size * (0.88 + 0.12 * (depth * 0.5 + 0.5)), 0.001));
+      stone.position.set(Math.cos(a) * rx, Math.sin(a) * ry + Math.sin(t * 1.1 + i) * 0.05, depth * 0.6);
+      const shell = shells.current[i];
+      if (shell) { shell.rotation.y += dt * (0.35 + i * 0.06); shell.rotation.x = Math.sin(t * 0.4 + i) * 0.35; }
+      alphas[i].current = emerge * (1 - band(p, 1.95, 2.3));
     });
   });
-  return <>{journeyIngredients.map((item, i) => <mesh key={item.slug} ref={el => { orbs.current[i] = el; }} visible={false}>
-    <sphereGeometry args={[1, 64, 48]} />
-    <meshPhysicalMaterial color={item.color} roughness={0.18} clearcoat={1} clearcoatRoughness={0.1} sheen={0.6} sheenColor="#ffffff" envMapIntensity={1.1} />
-    <group ref={el => { anchors[i].current = el; }} position={[0, -1.55, 0]} />
+  return <>{journeyIngredients.map((item, i) => <group key={item.slug} ref={el => { stones.current[i] = el; }} visible={false}>
+    <sprite scale={3.4} renderOrder={1}>
+      <spriteMaterial map={glow} color={item.color} transparent opacity={0.32} depthWrite={false} />
+    </sprite>
+    <mesh scale={0.5} renderOrder={2}>
+      <icosahedronGeometry args={[1, 1]} />
+      <meshBasicMaterial color={item.glow} />
+    </mesh>
+    <mesh ref={el => { shells.current[i] = el; }} geometry={geometries[i]} renderOrder={3}>
+      <meshPhysicalMaterial color={item.color} emissive={item.color} emissiveIntensity={0.35} roughness={0.12} metalness={0.05}
+        clearcoat={1} clearcoatRoughness={0.05} specularIntensity={1} envMapIntensity={1.6} flatShading transparent opacity={0.86} />
+    </mesh>
+    <group ref={el => { anchors[i].current = el; }} position={[0, -1.6, 0]} />
     <Label text={item.name} className="ab-orb-label" anchor={anchors[i]} opacity={alphas[i]} />
-  </mesh>)}</>;
+  </group>)}</>;
 }
 
 /** Every product in the shop, opening out of Malaysia into a slow carousel. */
