@@ -7,6 +7,8 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { journeyIngredients, journeyProducts, places } from '@/lib/about-journey';
+import { journeySculpture } from '@/lib/hero-journey';
+import { INGREDIENTS_SCALE, sculptureWidth } from '@/components/about/journey-sculpture';
 
 /*
  * The About journey in one scene, driven by `progress` (0 = Taiwan ... 5 = ASTAMALL):
@@ -285,15 +287,18 @@ function Ingredients({ progress, mobile }: { progress: RefObject<number>; mobile
   const geometries = useMemo(() => journeyIngredients.map((_, i) => crystalGeometry(i + 3)), []);
   const glow = useMemo(() => glowTexture(), []);
   useEffect(() => () => { geometries.forEach(g => g.dispose()); glow.dispose(); }, [geometries, glow]);
-  useFrame(({ clock, viewport }, dt) => {
+  useFrame(({ clock, viewport, size: stage }, dt) => {
     const p = progress.current ?? 0;
     const t = clock.elapsedTime;
     const emerge = easeOut(band(p, 1.05, 1.65));
     const merge = band(p, 2.05, 2.8);
-    // the ring is sized to the stage, comfortably outside the sculpture
-    const rx = viewport.width * (mobile ? 0.31 : 0.38) * mix(0.35, 1, emerge) * (1 - merge);
-    const ry = viewport.height * (mobile ? 0.24 : 0.29) * mix(0.35, 1, emerge) * (1 - merge);
-    const size = (mobile ? 0.26 : 0.3) * emerge * (1 - band(p, 2.5, 2.9));
+    // the ring hugs the sculpture: its half-size on screen (px to scene units), plus a small margin
+    const unit = viewport.height / stage.height;
+    const half = (sculptureWidth(stage.width, stage.height, mobile) * INGREDIENTS_SCALE * unit) / 2;
+    const open = mix(0.35, 1, emerge) * (1 - merge);
+    const rx = (half + (mobile ? 0.34 : 0.42)) * open;
+    const ry = (half / journeySculpture.aspect + (mobile ? 0.36 : 0.42)) * open;
+    const size = (mobile ? 0.22 : 0.25) * emerge * (1 - band(p, 2.5, 2.9));
     journeyIngredients.forEach((_, i) => {
       const stone = stones.current[i];
       if (!stone) return;
@@ -308,7 +313,7 @@ function Ingredients({ progress, mobile }: { progress: RefObject<number>; mobile
     });
   });
   return <>{journeyIngredients.map((item, i) => <group key={item.slug} ref={el => { stones.current[i] = el; }} visible={false}>
-    <sprite scale={3.4} renderOrder={1}>
+    <sprite scale={3} renderOrder={1}>
       <spriteMaterial map={glow} color={item.color} transparent opacity={0.32} depthWrite={false} />
     </sprite>
     <mesh scale={0.5} renderOrder={2}>
@@ -329,7 +334,7 @@ function Collection({ progress, mobile }: { progress: RefObject<number>; mobile:
   const ring = useRef<THREE.Group>(null);
   const cards = useRef<(THREE.Mesh | null)[]>([]);
   const n = journeyProducts.length;
-  useFrame(({ clock }) => {
+  useFrame(({ clock, viewport }) => {
     const g = ring.current;
     if (!g) return;
     const p = progress.current ?? 0;
@@ -337,13 +342,14 @@ function Collection({ progress, mobile }: { progress: RefObject<number>; mobile:
     g.visible = appear > 0.003;
     if (!g.visible) return;
     const spin = clock.elapsedTime * 0.09 + p * 0.9;
-    const radius = mix(0.15, mobile ? 1.9 : 2.15, easeOut(appear));
+    // stays inside the stage: half its width, less half a card
+    const radius = mix(0.15, Math.min(mobile ? 1.9 : 2.15, viewport.width / 2 - 0.75), easeOut(appear));
     const size = (mobile ? 0.9 : 1.05) * (0.35 + 0.65 * appear);
     cards.current.forEach((card, i) => {
       if (!card) return;
       const a = (i / n) * Math.PI * 2 + spin;
       const depth = Math.cos(a) * 0.5 + 0.5;
-      card.position.set(Math.sin(a) * radius + (mobile ? 0 : 0.2), Math.cos(a * 2) * 0.12 + (depth - 0.5) * -0.35 * appear, Math.cos(a) * radius * 0.55 - 0.5);
+      card.position.set(Math.sin(a) * radius, Math.cos(a * 2) * 0.12 + (depth - 0.5) * -0.35 * appear, Math.cos(a) * radius * 0.55 - 0.5);
       card.scale.set(size, size, 1);
       card.renderOrder = 10 + Math.round(depth * 100);
       (card.material as THREE.Material & { opacity: number }).opacity = appear * (0.3 + 0.7 * depth);

@@ -9,6 +9,13 @@ const smooth = (t: number) => t * t * (3 - 2 * t);
 const band = (p: number, a: number, b: number) => smooth(clamp01((p - a) / (b - a)));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
+/** Width of the sculpture at scale 1 on a stage of w x h px; the 3D scene sizes the ingredient ring from it. */
+export function sculptureWidth(w: number, h: number, mobile: boolean) {
+  return Math.min(w * (mobile ? 0.9 : 0.8), h * (mobile ? 0.72 : 0.62) * journeySculpture.aspect);
+}
+/** Sculpture scale while the ingredients circle it. */
+export const INGREDIENTS_SCALE = 0.48;
+
 /**
  * How the landing-page sculpture plays through the About journey (p: 0 Taiwan ... 5 ASTAMALL):
  * it grows out of Taiwan as the red ingredient, makes room for the orbiting ingredients, turns to a liquid
@@ -17,8 +24,8 @@ const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 function pose(p: number) {
   // smaller than on the landing page, and smaller again while the ingredients circle it
   let scale = mix(0.14, 0.74, band(p, 0.35, 0.95));
-  if (p > 1) scale = mix(0.74, 0.48, band(p, 1.0, 1.6));
-  if (p > 2) scale = mix(0.48, 0.66, band(p, 2.2, 2.95));
+  if (p > 1) scale = mix(0.74, INGREDIENTS_SCALE, band(p, 1.0, 1.6));
+  if (p > 2) scale = mix(INGREDIENTS_SCALE, 0.66, band(p, 2.2, 2.95));
   if (p > 3) scale = mix(0.66, 0.1, band(p, 3.0, 3.45));
   const visible = band(p, 0.35, 0.8) * (1 - band(p, 3.2, 3.5));
   // a gentler swirl than the landing page: the sculpture is smaller here and sits beside the copy
@@ -51,9 +58,7 @@ export default function JourneySculpture({ register, mobile }: { register: (upda
 
     let last = 0, inView = true, w = 1, h = 1;
     const rectFor = (scale: number): Rect => {
-      const a = journeySculpture.aspect;
-      const base = Math.min(w * (mobile ? 0.9 : 0.8), h * (mobile ? 0.72 : 0.62) * a);
-      const rw = base * scale, rh = rw / a;
+      const rw = sculptureWidth(w, h, mobile) * scale, rh = rw / journeySculpture.aspect;
       return { x: (w - rw) / 2, y: (h - rh) / 2, w: rw, h: rh };
     };
     const update = (p: number) => {

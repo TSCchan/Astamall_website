@@ -599,7 +599,8 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .ab-journey-host{position:relative}
 .ab-journey{position:relative;height:100svh;min-height:640px;overflow:hidden;isolation:isolate;touch-action:pan-y;
   background:radial-gradient(ellipse at 68% 52%,#fffdf9 0,var(--paper) 52%,#efe6dc 100%);border-top:1px solid var(--line)}
-.ab-stage{position:absolute;z-index:1;top:76px;bottom:0;left:40%;right:0;opacity:0;transition:opacity 1s ease}
+/* the stage starts where the copy column ends, so nothing in 3D ever crosses the text */
+.ab-stage{position:absolute;z-index:1;top:76px;bottom:0;left:max(40%,calc(clamp(24px,3.6vw,60px) + 216px + min(30vw,440px)));right:0;opacity:0;transition:opacity 1s ease}
 .ab-journey[data-ready=true] .ab-stage{opacity:1}
 .ab-canvas{position:absolute!important;inset:0}
 .ab-sculpture{position:absolute;inset:0;pointer-events:none;will-change:opacity}
