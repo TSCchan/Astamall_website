@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { chapters, journeyIngredients, journeyProducts, type Chapter } from '@/lib/about-journey';
+import JourneySculpture from '@/components/about/journey-sculpture';
 
 const Scene = lazy(() => import('@/components/about/journey-scene'));
 const LAST = chapters.length - 1;
@@ -55,6 +56,9 @@ export default function AboutJourney() {
   const [mobile, setMobile] = useState(false);
   const fail = useCallback(() => setMode('static'), []);
   const sceneReady = useCallback(() => setReady(true), []);
+  // the landing-page sculpture plays the red ingredient; it moves on the same scroll frame as the 3D scene
+  const sculpture = useRef<((p: number) => void) | null>(null);
+  const registerSculpture = useCallback((update: ((p: number) => void) | null) => { sculpture.current = update; update?.(progress.current); }, []);
 
   useEffect(() => {
     const motion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -88,6 +92,7 @@ export default function AboutJourney() {
   const paint = useCallback(() => {
     const p = progress.current;
     if (fill.current) fill.current.style.transform = `scaleY(${p / LAST})`;
+    sculpture.current?.(p);
     panels.current.forEach((el, i) => {
       if (!el) return;
       const d = p - i;
@@ -140,6 +145,7 @@ export default function AboutJourney() {
         </li>)}</ol>
       </nav>
       <div className="ab-stage" aria-hidden="true">
+        {near && <JourneySculpture register={registerSculpture} mobile={mobile} />}
         {near && <SceneBoundary onFailure={fail}><Suspense fallback={null}>
           <Scene progress={progress} running={running} mobile={mobile} onReady={sceneReady} />
         </Suspense></SceneBoundary>}

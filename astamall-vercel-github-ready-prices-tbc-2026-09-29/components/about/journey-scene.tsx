@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Image as ImagePlane, Line, MeshDistortMaterial } from '@react-three/drei';
+import { Image as ImagePlane, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { journeyIngredients, journeyProducts, places } from '@/lib/about-journey';
@@ -10,10 +10,10 @@ import { journeyIngredients, journeyProducts, places } from '@/lib/about-journey
 /*
  * The About journey in one scene, driven by `progress` (0 = Taiwan ... 5 = ASTAMALL):
  * 0 Taiwan       a dotted globe turned to Taiwan
- * 1 Astaxanthin  the camera dives into Taiwan; a red liquid core grows in its place
- * 2 Ingredients  the featured ingredients orbit the core
- * 3 Formulation  they spiral in and merge into the core, which turns to liquid
- * 4 Malaysia     the core becomes a droplet that travels the arc from Taiwan to Malaysia
+ * 1 Astaxanthin  the camera dives into Taiwan; the landing-page sculpture grows in its place (journey-sculpture.tsx)
+ * 2 Ingredients  the featured ingredients orbit it
+ * 3 Formulation  they spiral in and merge, and the sculpture swirls to liquid and re-forms
+ * 4 Malaysia     it dissolves into a droplet that travels the arc from Taiwan to Malaysia
  * 5 ASTAMALL     the droplet opens into the whole collection, every product in the shop
  */
 
@@ -111,6 +111,8 @@ function Globe({ progress, onLoaded }: { progress: RefObject<number>; onLoaded: 
   const line = useRef<THREE.Object3D & { material: { dashOffset: number; opacity: number } }>(null);
   const drop = useRef<THREE.Mesh>(null);
   const twMark = useRef<THREE.Group>(null);
+  const twPin = useRef<THREE.Group>(null);
+  const myPin = useRef<THREE.Group>(null);
   const myMark = useRef<THREE.Group>(null);
   const twAnchor = useRef<THREE.Group>(null);
   const myAnchor = useRef<THREE.Group>(null);
@@ -177,10 +179,17 @@ function Globe({ progress, onLoaded }: { progress: RefObject<number>; onLoaded: 
     const drift = p < 0.3 ? Math.sin(t * 0.25) * 2.5 : 0;
     g.rotation.set(view.lat * D2R, -(view.lon + drift) * D2R, 0, 'XYZ');
     // dive into Taiwan, come back out for the journey, dive into Malaysia
-    const zoom = p < 2 ? 0.86 + 2.7 * band(p, 0.15, 0.9) : p < 4 ? 3.56 - 2.7 * band(p, 3.0, 3.7) : 0.86 + 2.3 * band(p, 4.3, 4.95);
+    // dive in from Taiwan; come back from a gentle zoom (never from deep inside); dive into Malaysia
+    const zoom = p < 2 ? 0.86 + 2.7 * band(p, 0.15, 0.9) : p < 4 ? 1.5 - 0.64 * band(p, 3.0, 3.7) : 0.86 + 2.3 * band(p, 4.3, 4.95);
     g.scale.setScalar(zoom);
     const u = dotMaterial.current?.uniforms;
-    if (u) { u.uScale.value = zoom; u.uOpacity.value = vis; }
+    if (u) { u.uScale.value = Math.min(zoom, 1.7); u.uOpacity.value = vis; }
+    // markers keep a steady size on screen and fade with the globe
+    for (const pin of [twPin.current, myPin.current]) {
+      if (!pin) continue;
+      pin.scale.setScalar(1 / Math.pow(zoom, 0.85));
+      pin.traverse(o => { const m = (o as THREE.Mesh).material as THREE.Material | undefined; if (m) m.opacity = (o.userData.alpha ?? 1) * vis; });
+    }
     if (base.current) base.current.opacity = vis * 0.92;
 
     const travel = band(p, 3.45, 4.15);
@@ -214,14 +223,14 @@ function Globe({ progress, onLoaded }: { progress: RefObject<number>; onLoaded: 
       <sphereGeometry args={[0.055, 24, 16]} />
       <meshPhysicalMaterial color="#a3122e" roughness={0.15} clearcoat={1} />
     </mesh>
-    <group position={tw} quaternion={twOrient}>
-      <group ref={twMark}><mesh><ringGeometry args={[0.05, 0.075, 40]} /><meshBasicMaterial color="#9e1b32" transparent opacity={0.85} side={THREE.DoubleSide} /></mesh></group>
-      <mesh><circleGeometry args={[0.032, 24]} /><meshBasicMaterial color="#9e1b32" side={THREE.DoubleSide} /></mesh>
+    <group ref={twPin} position={tw} quaternion={twOrient}>
+      <group ref={twMark}><mesh userData={{ alpha: 0.85 }}><ringGeometry args={[0.05, 0.075, 40]} /><meshBasicMaterial color="#9e1b32" transparent opacity={0.85} side={THREE.DoubleSide} /></mesh></group>
+      <mesh><circleGeometry args={[0.032, 24]} /><meshBasicMaterial color="#9e1b32" transparent side={THREE.DoubleSide} /></mesh>
       <group ref={twAnchor} position={[0.1, 0.04, 0]} />
     </group>
-    <group position={my} quaternion={myOrient}>
-      <group ref={myMark}><mesh><ringGeometry args={[0.05, 0.075, 40]} /><meshBasicMaterial color="#9e1b32" transparent opacity={0.85} side={THREE.DoubleSide} /></mesh></group>
-      <mesh><circleGeometry args={[0.032, 24]} /><meshBasicMaterial color="#9e1b32" side={THREE.DoubleSide} /></mesh>
+    <group ref={myPin} position={my} quaternion={myOrient}>
+      <group ref={myMark}><mesh userData={{ alpha: 0.85 }}><ringGeometry args={[0.05, 0.075, 40]} /><meshBasicMaterial color="#9e1b32" transparent opacity={0.85} side={THREE.DoubleSide} /></mesh></group>
+      <mesh><circleGeometry args={[0.032, 24]} /><meshBasicMaterial color="#9e1b32" transparent side={THREE.DoubleSide} /></mesh>
       <group ref={myAnchor} position={[0.1, 0.04, 0]} />
     </group>
     <Label text="Taiwan" className="ab-geo-label" anchor={twAnchor} opacity={twAlpha} />
@@ -229,31 +238,7 @@ function Globe({ progress, onLoaded }: { progress: RefObject<number>; onLoaded: 
   </group>;
 }
 
-/** The red ingredient: grows out of Taiwan, receives the ingredients, turns to liquid, then leaves as a droplet. */
-function Core({ progress }: { progress: RefObject<number> }) {
-  const mesh = useRef<THREE.Mesh>(null);
-  const material = useRef<THREE.MeshPhysicalMaterial & { distort: number }>(null);
-  useFrame((_, dt) => {
-    const m = mesh.current;
-    if (!m) return;
-    const p = progress.current ?? 0;
-    let s = 0.95 * band(p, 0.45, 1.05);
-    if (p > 1) s = mix(0.95, 0.6, band(p, 1.0, 1.6));
-    if (p > 2) s = mix(0.6, 1.12, band(p, 2.25, 3.0));
-    if (p > 3) s = mix(1.12, 0, band(p, 3.0, 3.45));
-    m.visible = s > 0.003;
-    m.scale.setScalar(Math.max(s, 0.001));
-    m.rotation.y += dt * 0.3;
-    m.rotation.x = Math.sin(m.rotation.y * 0.5) * 0.25;
-    if (material.current) material.current.distort = 0.2 + 0.3 * band(p, 2.15, 2.9) - 0.25 * band(p, 3.0, 3.4);
-  });
-  return <mesh ref={mesh} visible={false}>
-    <sphereGeometry args={[1, 128, 96]} />
-    <MeshDistortMaterial ref={material as never} color="#8f0f26" roughness={0.1} metalness={0.05} clearcoat={1} clearcoatRoughness={0.08} envMapIntensity={1.3} distort={0.2} speed={1.6} />
-  </mesh>;
-}
-
-/** The featured ingredients orbit the core, then spiral into it. */
+/** The featured ingredients orbit the sculpture (drawn beneath this canvas), then spiral into it. */
 function Ingredients({ progress, mobile }: { progress: RefObject<number>; mobile: boolean }) {
   const orbs = useRef<(THREE.Mesh | null)[]>([]);
   const anchors = useMemo(() => journeyIngredients.map(() => ({ current: null as THREE.Object3D | null })), []);
@@ -355,7 +340,6 @@ export default function JourneyScene({ progress, running, mobile, onReady }: Sce
     <Studio />
     <Rig />
     <Globe progress={progress} onLoaded={markLoaded} />
-    <Core progress={progress} />
     <Ingredients progress={progress} mobile={mobile} />
     {/* the product photos stream in on their own, so the globe never waits for them */}
     <Suspense fallback={null}><Collection progress={progress} mobile={mobile} /></Suspense>
