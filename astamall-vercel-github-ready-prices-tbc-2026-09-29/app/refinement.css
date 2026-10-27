@@ -99,10 +99,6 @@ h1,h2,h3,h4{text-wrap:balance}
 .product-card h3,.shop-product-card h3{font-size:clamp(1.4rem,1.8vw,1.75rem);line-height:1.15;min-height:0;max-width:none}
 .product-bottom{margin-top:14px}
 .product-card .card-price-pending,.shop-product-card .card-price-pending{font-size:12px;color:var(--muted)}
-.card-discover{font-size:12px;color:var(--wine);display:flex;gap:10px;align-items:center}
-.card-discover>span{transition:transform .25s}
-.card-discover:hover>span{transform:translate(3px,-3px)}
-.product-card-size{font-size:12px;color:var(--muted);margin-top:7px}
 .quick-view-trigger{position:absolute;bottom:14px;left:14px;right:14px;min-height:44px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;border:1px solid #d7ccc6;border-radius:5px;background:rgba(250,247,242,.96);color:var(--ink);font-size:12px;opacity:0;transform:translateY(7px);transition:transform .3s var(--ease-editorial),opacity .25s;z-index:3}
 .product-image-frame:hover .quick-view-trigger,.product-image-frame:focus-within .quick-view-trigger{opacity:1;transform:none}
 .quick-view-trigger:hover{background:var(--wine);color:var(--paper);border-color:var(--wine)}
@@ -304,8 +300,7 @@ details[open]>summary>span[aria-hidden]{transform:rotate(45deg)}
  .product-card h3,.shop-product-card h3{font-size:21px;line-height:1.15}
  .product-card .product-caption{font-size:9px;line-height:1.6;margin-top:13px}
  .product-bottom{align-items:flex-start;flex-wrap:wrap;gap:8px}
- .product-card .card-price-pending{font-size:11px}.card-discover{font-size:11px}
- .product-card-size{font-size:11px}
+ .product-card .card-price-pending{font-size:11px}
  .quick-view-trigger{opacity:1;transform:none;position:relative;bottom:auto;left:auto;right:auto;width:100%;border:0;border-radius:0;min-height:42px;padding:10px;font-size:11px}
  .product-image-frame{background:var(--surface)}
  .product-quick-dialog{grid-template-columns:1fr;width:92vw!important;max-height:90dvh}

@@ -159,7 +159,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lux-card-light{position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px circle at var(--mx) var(--my),rgba(255,250,245,.28),transparent 45%);opacity:0;transition:opacity .5s;mix-blend-mode:soft-light;z-index:1}
 .lux-card .product-image-frame:hover .lux-card-light{opacity:1}
 .lux-card-badge{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:999px;font-size:10.5px;font-weight:500;letter-spacing:.04em;color:var(--wine);background:rgba(250,247,242,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
-.lux-card-actions{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;display:grid;grid-template-columns:auto 1fr;gap:8px;opacity:0;transform:translateY(14px);transition:opacity .45s var(--ease-out),transform .55s var(--ease-out)}
+.lux-card-actions{position:absolute;left:12px;right:12px;bottom:12px;z-index:3;display:grid;grid-template-columns:1fr;gap:8px;opacity:0;transform:translateY(14px);transition:opacity .45s var(--ease-out),transform .55s var(--ease-out)}
 .lux-card .product-image-frame:hover .lux-card-actions,.lux-card .product-image-frame:focus-within .lux-card-actions{opacity:1;transform:none}
 .lux-card-action,.lux-card .quick-add{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.55);font-size:12.5px;font-weight:500;letter-spacing:.01em;white-space:nowrap;overflow:hidden;isolation:isolate;transition:background .3s,color .3s,transform .3s var(--ease-out)}
 .lux-card-action{background:rgba(250,247,242,.88);color:var(--ink);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -167,10 +167,8 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lux-card .quick-add{position:relative;inset:auto;width:auto;background:var(--wine);color:var(--paper);border-color:var(--wine);opacity:1;transform:none}
 .lux-card .quick-add:hover{background:var(--maroon)}
 .lux-card .quick-add:active,.lux-card-action:active{transform:scale(.97)}
-.lux-card-view span{display:none}
 .lux-card-body{padding-top:18px}
 .lux-card .product-caption{display:flex;justify-content:space-between;gap:12px;margin:0 0 8px}
-.lux-card .product-card-size{margin:0;font-size:10px;letter-spacing:.06em;text-transform:none}
 .lux-card h3{font-size:clamp(1.35rem,1.7vw,1.65rem);line-height:1.18}
 .lux-card h3 a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .5s var(--ease-out)}
 .lux-card h3 a:hover{background-size:100% 1px}
@@ -465,7 +463,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 @media (max-width:640px){
   .lux-marquee{padding:16px 0}
   .product-rail{grid-auto-columns:78%;gap:16px}
-  .lux-card-actions{opacity:1;transform:none;left:8px;right:8px;bottom:8px;grid-template-columns:auto 1fr}
+  .lux-card-actions{opacity:1;transform:none;left:8px;right:8px;bottom:8px;grid-template-columns:1fr}
   .lux-card-action,.lux-card .quick-add{min-height:38px;padding:0 12px;font-size:11.5px}
   .lux-card-badge{top:8px;left:8px;font-size:9.5px;padding:5px 9px}
   .product-grid .lux-card .quick-add span.add-button-label{display:none}
