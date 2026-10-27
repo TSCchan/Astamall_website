@@ -1,39 +1,59 @@
-'use client';
-
 import Link from 'next/link';
-import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react';
 import Reveal from '@/components/reveal';
+import AboutJourney from '@/components/about/about-journey';
 import { products, categories } from '@/lib/catalog';
 
-const stops = ['Malaysia', 'Taiwan', 'Ingredients', 'Formulation', 'ASTAMALL'];
+const collections = [
+  { name: 'Skincare', label: 'Skincare & beauty', note: 'Your daily ritual, thoughtfully considered.' },
+  { name: 'Health Foods', label: 'Health foods', note: 'Everyday nourishment, from within.' },
+  { name: 'Health Supplements', label: 'Health supplements', note: 'Find the right addition to your routine.' },
+].map(c => {
+  const items = products.filter(p => p.category === c.name);
+  return { ...c, count: items.length, images: items.slice(0, 3).map(p => ({ src: p.image!, alt: p.name })), href: `/shop?category=${encodeURIComponent(c.name)}` };
+});
 
 export default function AboutStory() {
-  const journey=useRef<HTMLElement>(null); const opening=useRef<HTMLElement>(null); const reduce=useReducedMotion();
-  const {scrollYProgress}=useScroll({target:journey,offset:['start 80%','end 40%']});
-  const routeScale=useTransform(scrollYProgress,[0,1],[0,1]);
-  const {scrollYProgress:openingProgress}=useScroll({target:opening,offset:['start start','end start']});
-  const archY=useTransform(openingProgress,[0,1],['0%','12%']);
-  const facts=[
-    {value:String(products.length),label:'Products in the collection'},
-    {value:String(categories.length-1),label:'Collections: skincare, health foods and health supplements'},
-    {value:'1',label:'Founding ingredient: astaxanthin'},
+  const figures = [
+    { value: String(products.length), label: 'products in the collection' },
+    { value: String(categories.length - 1), label: 'collections, from skincare to supplements' },
+    { value: '3,000+', label: 'kilometres from Taiwan to Malaysia' },
   ];
-  return <article className="about-film lux-about">
-    <section className="about-opening" ref={opening}>
-      <Reveal stagger><p className="eyebrow">Our story</p><h1>Beauty, powered by Astaxanthin.</h1><p>ASTAMALL is a beauty and wellness destination bringing thoughtfully selected products from Taiwan to Malaysia, beginning with skincare, health foods and health supplements.</p></Reveal>
-      <motion.div className="about-arch" style={reduce?undefined:{y:archY}}><img src="/assets/astamall-asta-s-serum-v3.webp" alt="Asta-S Rejuvenating Serum on a deep red surface" width="800" height="800" /></motion.div>
+  return <article className="ab-page">
+    <section className="ab-hero">
+      <Reveal className="ab-hero-copy" stagger>
+        <p className="ab-eyebrow">Our story</p>
+        <h1>Beauty, powered by <em>astaxanthin.</em></h1>
+        <p>A beauty and wellness destination bringing thoughtfully selected products from Taiwan to Malaysia.</p>
+        <a className="ab-link" href="#journey">Follow the journey <span aria-hidden="true">↓</span></a>
+      </Reveal>
+      <div className="ab-hero-media"><img src="/assets/astamall-asta-s-serum-v3.webp" alt="Asta-S Rejuvenating Serum on a deep red surface" width="800" height="800" /></div>
     </section>
-    <section className="about-understanding">
-      <Reveal className="about-facts" stagger>{facts.map(fact=><div key={fact.label}><strong>{fact.value}</strong><span>{fact.label}</span></div>)}</Reveal>
-      <Reveal stagger><h2>We want you to understand what you use.</h2><p>ASTAMALL makes ingredient stories and product purposes easier to understand, so every choice begins with clearer information.</p><Link href="/ingredients" className="text-link">Explore ingredients <span aria-hidden="true">↗</span></Link></Reveal>
-    </section>
-    <section className="about-route" id="journey" ref={journey}><div className="about-route-heading"><h2>From Taiwan to Malaysia.</h2><p>We travelled to understand the ingredient technology, formulations and people behind the collection before bringing it home.</p></div><div className="route-track"><motion.div className="route-progress" style={reduce?{scaleX:1}:{scaleX:routeScale}}/><div className="route-stops">{stops.map((stop,i)=><RouteStop key={stop} label={stop} at={i/(stops.length-1)} progress={routeScale} reduce={!!reduce}/>)}</div></div><div className="about-route-media"><div><h3>A journey with purpose.</h3><p>Our selection connects science, beauty and wellness through products developed in Taiwan and introduced thoughtfully for Malaysia.</p></div></div></section>
-    <section className="about-closing"><Reveal stagger><h2>Better understanding.<br />Better choices.<br />Better care.</h2><Link href="/shop" className="button">Explore the Collection</Link></Reveal></section>
-  </article>;
-}
 
-function RouteStop({label,at,progress,reduce}:{label:string;at:number;progress:MotionValue<number>;reduce:boolean}) {
-  const lit=useTransform(progress,value=>value>=at-.02?1:.35);
-  return <motion.span style={reduce?undefined:{opacity:lit}}>{label}</motion.span>;
+    <section className="ab-mission">
+      <Reveal className="ab-mission-copy" stagger>
+        <h2>We want you to understand what you use.</h2>
+        <p>ASTAMALL makes ingredient stories and product purposes easier to understand, so every choice begins with clearer information.</p>
+      </Reveal>
+      <Reveal className="ab-figures" stagger>{figures.map(f => <div key={f.label}><strong>{f.value}</strong><span>{f.label}</span></div>)}</Reveal>
+    </section>
+
+    <AboutJourney />
+
+    <section className="ab-collections" aria-labelledby="collections-title">
+      <h2 id="collections-title">Three collections, one standard.</h2>
+      <Reveal className="ab-collection-list" stagger>{collections.map(c => <Link key={c.name} href={c.href} className="ab-collection">
+        <span className="ab-collection-name">{c.label}</span>
+        <span className="ab-collection-note">{c.note}</span>
+        <span className="ab-collection-images" aria-hidden="true">{c.images.map(img => <img key={img.src} src={img.src} alt="" width="120" height="120" loading="lazy" />)}</span>
+        <span className="ab-collection-count">{c.count} products <span aria-hidden="true">→</span></span>
+      </Link>)}</Reveal>
+    </section>
+
+    <section className="ab-closing">
+      <Reveal stagger>
+        <h2>Better understanding.<br />Better choices.<br /><em>Better care.</em></h2>
+        <Link href="/shop" className="ab-btn">Explore the Collection <span aria-hidden="true">→</span></Link>
+      </Reveal>
+    </section>
+  </article>;
 }
