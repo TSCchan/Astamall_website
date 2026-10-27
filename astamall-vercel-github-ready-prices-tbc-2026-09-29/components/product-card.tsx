@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useRef, useState, type PointerEvent } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Eye, Medal } from '@phosphor-icons/react';
+import { Medal } from '@phosphor-icons/react';
 import { ProductArt } from '@/components/brand-assets';
 import { AddButton } from '@/components/commerce-motion';
 import { money, productOptions, type Product } from '@/lib/catalog';
@@ -16,7 +16,7 @@ function trackLight(event: PointerEvent<HTMLElement>) {
   event.currentTarget.style.setProperty('--my', `${((event.clientY - box.top) / box.height) * 100}%`);
 }
 
-export function ProductCard({product,presentation='default',index=0,minimal=false}:{product:Product;presentation?:'default'|'shop';index?:number;minimal?:boolean}) {
+export function ProductCard({product,presentation='default',index=0}:{product:Product;presentation?:'default'|'shop';index?:number;minimal?:boolean}) {
  const reduce=useReducedMotion();
  const options=productOptions(product);
  const shop=presentation==='shop';
@@ -30,15 +30,14 @@ export function ProductCard({product,presentation='default',index=0,minimal=fals
    <span className="lux-card-light" aria-hidden="true"/>
    {product.award&&<span className="lux-card-badge"><Medal size={13} weight="fill" aria-hidden="true"/>Award-winning</span>}
    <div className="lux-card-actions">
-    <button className="lux-card-action lux-card-view" onClick={event=>{opener.current=event.currentTarget;setQuickOpen(true);}} aria-label={`Quick view ${product.name}`}><Eye size={17} aria-hidden="true"/><span>Quick view</span></button>
     {multiple?<button className="quick-add choose-option" onClick={event=>{opener.current=event.currentTarget;setQuickOpen(true);}}>Choose {options.label.toLowerCase()}</button>:<AddButton slug={product.slug} quick variant={options.options[0].label} label="Add to bag"/>}
    </div>
   </div>
   <div className="lux-card-body">
-   <div className="product-caption"><span>{product.category}</span>{!minimal&&product.size&&<span className="product-card-size">{product.size}</span>}</div>
+   <div className="product-caption"><span>{product.category}</span></div>
    <h3><Link href={`/shop/${product.slug}`}>{product.name}</Link></h3>
    {swatches.length>0&&<div className="lux-card-swatches" aria-label={`${swatches.length} ${options.label.toLowerCase()}s available`}>{swatches.map(option=><span key={option.label} style={{background:option.color}} title={option.label}/>)}</div>}
-   <div className="product-bottom"><span className={`card-price ${product.price===null?'card-price-pending':''}`}>{money(product.price)}</span><Link href={`/shop/${product.slug}`} className="card-discover" aria-label={`Discover ${product.name}`}>Discover <span aria-hidden="true">↗</span></Link></div>
+   <div className="product-bottom"><span className={`card-price ${product.price===null?'card-price-pending':''}`}>{money(product.price)}</span></div>
   </div>
   <ProductQuickView product={product} open={quickOpen} onOpenChange={setQuickOpen} returnFocus={opener}/>
  </motion.article>;
