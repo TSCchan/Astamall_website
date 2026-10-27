@@ -3,10 +3,10 @@ import { createContext, useContext, useEffect, useRef, useState, type Dispatch, 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion, type PanInfo } from 'motion/react';
-import { Minus, Plus, ArrowUpRight, ArrowLeft, ArrowRight, MagnifyingGlassPlus, X, MagnifyingGlass, Globe, Medal, EnvelopeSimple, Translate } from '@phosphor-icons/react';
+import { Minus, Plus, ArrowUpRight, ArrowLeft, ArrowRight, MagnifyingGlassPlus, X, MagnifyingGlass } from '@phosphor-icons/react';
 import { AddButton, AnimatedNumber } from '@/components/commerce-motion';
 import { OptionPicker } from '@/components/product-option-picker';
-import { products, categories, money, productOptions, productBrand, type Product } from '@/lib/catalog';
+import { products, categories, money, productOptions, type Product } from '@/lib/catalog';
 import { ProductCard, ProductArt } from '@/components/brand';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 
@@ -82,12 +82,7 @@ export function ProductPurchase({product}:{product:Product}) {
   <div className="purchase-controls" ref={controls}><QuantityStepper quantity={quantity} setQuantity={setQuantity}/><AddButton key={variant} slug={product.slug} quantity={quantity} variant={variant}/></div>
   <Link href={enquiry} className="button button-outline enquiry-button">Enquire about availability <ArrowUpRight size={18}/></Link>
   <p className="purchase-status">{pending?'Malaysian pricing and availability are being finalised. Add to your bag and send an order request to confirm.':'Demo shopping only. No payment will be taken.'}</p>
-  <ul className="purchase-assurance">
-   <li><Globe size={18} weight="light" aria-hidden="true"/><span>Developed in Taiwan</span></li>
-   {product.award?<li><Medal size={18} weight="light" aria-hidden="true"/><span>Award-recognised formula</span></li>:product.sourceUrl?<li><Translate size={18} weight="light" aria-hidden="true"/><span>Translated product details</span></li>:null}
-   <li><EnvelopeSimple size={18} weight="light" aria-hidden="true"/><span>Questions answered by email</span></li>
-  </ul>
-  <div className="purchase-help"><Link href="/shipping">Delivery information <ArrowUpRight size={13}/></Link><Link href="/returns">Returns & care <ArrowUpRight size={13}/></Link></div>
+  <a className="purchase-help" href="#info-support">Delivery, returns &amp; support <ArrowUpRight size={13} aria-hidden="true"/></a>
   <AnimatePresence>{barVisible&&<motion.div className="buy-bar" role="region" aria-label="Quick purchase" initial={reduce?{opacity:0}:{y:'110%'}} animate={reduce?{opacity:1}:{y:0}} exit={reduce?{opacity:0}:{y:'110%'}} transition={{type:'spring',stiffness:260,damping:30}}>
    <div className="buy-bar-product"><ProductArt product={product}/><div><strong>{product.name}</strong><span>{variant} · {money(product.price)}</span></div></div>
    <div className="buy-bar-actions"><QuantityStepper quantity={quantity} setQuantity={setQuantity}/><AddButton key={variant} slug={product.slug} quantity={quantity} variant={variant}/></div>
@@ -143,48 +138,4 @@ export function ProductGallery({product}:{product:Product}) {
 }
 
 // Product information as tabs: one subject at a time, with every detail still on the page.
-export function ProductDetailTabs({product,children}:{product:Product;children?:ReactNode}) {
- const reduce=useReducedMotion();
- const tabs=[
-  {id:'details',label:'Details'},
-  {id:'benefits',label:'Benefits'},
-  {id:'use',label:'How to use'},
-  {id:'ingredients',label:'Ingredients'},
-  ...(product.cautions?[{id:'care',label:'Care & storage'}]:[]),
- ];
- const [active,setActive]=useState('benefits');
- const focusTab=(offset:number)=>{const i=tabs.findIndex(t=>t.id===active);const next=tabs[(i+offset+tabs.length)%tabs.length];setActive(next.id);document.getElementById(`tab-${next.id}`)?.focus();};
- return <section className="pdp-tabs" aria-label="Product information">
-  <div className="pdp-tablist" role="tablist" aria-label="Product information" onKeyDown={event=>{if(event.key==='ArrowRight'){event.preventDefault();focusTab(1);}if(event.key==='ArrowLeft'){event.preventDefault();focusTab(-1);}}}>
-   {tabs.map(tab=><button key={tab.id} id={`tab-${tab.id}`} role="tab" aria-selected={active===tab.id} aria-controls={`panel-${tab.id}`} tabIndex={active===tab.id?0:-1} onClick={()=>setActive(tab.id)}>
-    <span>{tab.label}</span>{active===tab.id&&<motion.span className="pdp-tab-line" layoutId="pdp-tab-line" transition={{type:'spring',stiffness:420,damping:36}}/>}
-   </button>)}
-  </div>
-  <AnimatePresence mode="wait" initial={false}>
-   <motion.div key={active} id={`panel-${active}`} role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0} className="pdp-tabpanel" initial={reduce?false:{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={reduce?{}:{opacity:0,y:-6}} transition={{duration:.3,ease:[.16,1,.3,1]}}>
-    {active==='details'&&<dl className="pdp-attribute-list">
-     <div><dt>Brand</dt><dd>{product.sourceUrl?'NAFU LIFE':productBrand}</dd></div>
-     <div><dt>Origin</dt><dd>Taiwan</dd></div>
-     <div><dt>Category</dt><dd>{product.category}</dd></div>
-     <div><dt>Featured ingredient</dt><dd>{product.ingredient}</dd></div>
-     <div><dt>Size</dt><dd>{product.size||'Refer to product packaging'}</dd></div>
-     {product.purpose&&<div><dt>Purpose</dt><dd>{product.purpose}</dd></div>}
-     {product.shelfLife&&<div><dt>Shelf life</dt><dd>{product.shelfLife}</dd></div>}
-     {product.storage&&<div><dt>Storage</dt><dd>{product.storage}</dd></div>}
-     {product.slug==='asta-s-rejuvenating-serum'&&<div><dt>Texture</dt><dd>Fresh, lightweight oil serum</dd></div>}
-    </dl>}
-    {active==='benefits'&&<div className="pdp-panel-copy"><h3>{product.benefit}</h3>
-     <ul className="pdp-benefit-list">{(product.functions??['Thoughtfully developed for ASTAMALL','Designed for an everyday beauty or wellness routine','Clear product guidance before launch']).map((item,i)=><motion.li key={item} initial={reduce?false:{opacity:0,x:-8}} animate={{opacity:1,x:0}} transition={{delay:reduce?0:.05*i}}>{item}</motion.li>)}</ul>
-     {product.official&&<p className="product-claim">These cosmetic functions refer to appearance and skin feel.</p>}</div>}
-    {active==='use'&&<div className="pdp-panel-copy"><h3>A simple place in your routine.</h3>
-     {product.howToUse?<ol className="usage-steps">{product.howToUse.map((step,index)=><li key={step}><span>{String(index+1).padStart(2,'0')}</span><p>{step}</p></li>)}</ol>:<p>{product.routine}</p>}</div>}
-    {active==='ingredients'&&<div className="pdp-panel-copy"><h3>Understand what goes in.</h3>
-     {product.keyIngredients?<div className="key-ingredient-list">{product.keyIngredients.map(item=><div key={item.name}><h4>{item.name}</h4><p>{item.description}</p></div>)}</div>:<><p>Featured ingredient: {product.ingredient}. The complete ingredient list will be published when the final product label is confirmed.</p><Link href="/ingredients" className="text-link">Explore the ingredient library <span aria-hidden="true">↗</span></Link></>}</div>}
-    {active==='care'&&product.cautions&&<div className="pdp-panel-copy"><h3>Use with care.</h3><ul className="pdp-benefit-list">{product.cautions.map(item=><li key={item}>{item}</li>)}</ul></div>}
-   </motion.div>
-  </AnimatePresence>
-  {product.sourceUrl&&<p className="small-text pdp-source-note">Product information translated from <a href={product.sourceUrl} target="_blank" rel="noreferrer">NAFU LIFE</a>. Refer to the product packaging for complete ingredients and directions.</p>}
-  {children}
- </section>;
-}
 
