@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeading, ProductCard, IngredientMark } from '@/components/brand';
-import { Shop, ProductPurchase, ProductGallery, ProductSelectionProvider, ProductDetailTabs } from '@/components/shop';
+import { Shop, ProductPurchase, ProductGallery, ProductSelectionProvider } from '@/components/shop';
+import { ProductInformation } from '@/components/product-information';
 import Reveal from '@/components/reveal';
 import { CartContents } from '@/components/store-shell';
 import { FaqList, ContactForm } from '@/components/forms';
@@ -58,14 +59,12 @@ export default async function ContentPage({ params }: Props) {
     return <main id="main-content" className="inner-page premium-detail lux-detail">
       <div className="breadcrumbs"><Link href="/shop">Shop</Link><span>/</span><Link href={`/shop?category=${encodeURIComponent(p.category)}`}>{p.category}</Link><span>/</span><span>{p.short}</span></div>
       <ProductSelectionProvider key={p.slug}><section className="pdp-hero" id="overview"><ProductGallery product={p}/><div className="pdp-copy"><p className="product-category-label">{p.category}</p><h1>{p.name}</h1><p className="intro-text">{p.description}</p><ProductPurchase product={p}/></div></section></ProductSelectionProvider>
-      <nav className="pdp-section-nav" aria-label="Product sections"><a href="#overview">Overview</a><a href="#product-details">Product details</a><a href="#product-reviews">Reviews</a>{p.longFormImages&&<a href="#product-references">Guides &amp; references</a>}</nav>
-      <div className="pdp-information" id="product-details">
-        <ProductDetailTabs product={p}>
-          {p.usageGuideImage&&<details className="pdp-usage-guide"><summary>Application guide <span aria-hidden="true">+</span></summary><img src={p.usageGuideImage} alt={p.usageGuideImageAlt || ''} width="537" height="2170" loading="lazy" /></details>}
-        </ProductDetailTabs>
+      <div className="pdp-information">
+        <ProductInformation product={p}
+          usageGuide={p.usageGuideImage&&<details className="pdp-usage-guide"><summary>Application guide <span aria-hidden="true">+</span></summary><img src={p.usageGuideImage} alt={p.usageGuideImageAlt || ''} width="537" height="2170" loading="lazy" /></details>}
+          references={p.longFormImages&&<>{p.longFormImages.map(item=><details className="reference-item" key={item.src}><summary>{item.caption}<span aria-hidden="true">+</span></summary><figure><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" /><figcaption>{item.caption} · <a href={item.src} target="_blank" rel="noreferrer">Open full size ↗</a></figcaption></figure></details>)}</>} />
         {p.award&&<Reveal><section className={`pdp-recognition ${p.recognitionImage?'pdp-recognition-with-image':''}`}>{p.recognitionImage&&<div className="pdp-recognition-media"><img src={p.recognitionImage} alt={p.recognitionImageAlt || ''} width="1254" height="1254" loading="lazy" /></div>}<div className="pdp-recognition-copy"><p>Recognition</p><h2>{p.award.split(';').map(award=><span key={award}>{award.trim()}</span>)}</h2></div></section></Reveal>}
         <div id="product-reviews"><ProductReviews productName={p.name} reviews={p.reviews??[]}/></div>
-        {p.longFormImages&&<section className="pdp-longform" id="product-references" aria-label="Product visual guides and reference images"><header><h2>Product guides &amp; references</h2><p>Translated source material, kept together for a closer look.</p></header>{p.longFormImages.map(item=><details className="reference-item" key={item.src}><summary>{item.caption}<span aria-hidden="true">+</span></summary><figure><img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" /><figcaption>{item.caption} · <a href={item.src} target="_blank" rel="noreferrer">Open full size ↗</a></figcaption></figure></details>)}</section>}
       </div>
       {related.length>0&&<section className="related-section"><div className="section-heading"><h2>Related products</h2><Link href="/shop" className="text-link">Continue discovering the collection <span aria-hidden="true">↗</span></Link></div><div className="product-grid related-product-grid">{related.map((p,index)=><ProductCard key={p.slug} product={p} presentation="shop" index={index} minimal />)}</div></section>}
     </main>;
