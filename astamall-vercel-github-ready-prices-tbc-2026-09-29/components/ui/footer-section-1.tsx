@@ -20,7 +20,7 @@ const social = [
   { label: 'Facebook', href: 'https://www.facebook.com/share/1HWHkT7DHX/?mibextid=wwXIfr', Icon: FacebookLogo },
 ];
 
-/** A quiet, centred footer: logo, one row of links, social icons, then the copyright line. */
+/** A quiet, centred footer: logo, one row of links, social icons, the copyright line, then the large wordmark. */
 export default function Footer1() {
   const reducedMotion = useReducedMotion();
   return (
@@ -41,6 +41,7 @@ export default function Footer1() {
         </div>
         <p className="ft-copy">© {new Date().getFullYear()} ASTAMALL, Malaysia. Beauty, powered by astaxanthin.</p>
       </motion.div>
+      <div className="ft-wordmark" aria-hidden="true">ASTAMALL</div>
     </footer>
   );
 }
