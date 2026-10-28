@@ -28,7 +28,7 @@ export default function ProductQuickView({ product, open, onOpenChange, returnFo
         </AnimatePresence>
       </div>
       <div className="quick-view-copy">
-        <span className="product-category-label">{product.category}</span>
+        <span className="product-category-label"><span className="category-tag" data-category={product.category}>{product.category}</span></span>
         <DialogTitle>{product.name}</DialogTitle>
         <p className="quick-view-price">{money(product.price)}</p>
         <DialogDescription>{product.description}</DialogDescription>

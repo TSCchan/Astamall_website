@@ -34,7 +34,7 @@ export function ProductCard({product,presentation='default',index=0}:{product:Pr
    </div>
   </div>
   <div className="lux-card-body">
-   <div className="product-caption"><span>{product.category}</span></div>
+   <div className="product-caption"><span className="category-tag" data-category={product.category}>{product.category}</span></div>
    <h3><Link href={`/shop/${product.slug}`}>{product.name}</Link></h3>
    {swatches.length>0&&<div className="lux-card-swatches" aria-label={`${swatches.length} ${options.label.toLowerCase()}s available`}>{swatches.map(option=><span key={option.label} style={{background:option.color}} title={option.label}/>)}</div>}
    <div className="product-bottom"><span className={`card-price ${product.price===null?'card-price-pending':''}`}>{money(product.price)}</span></div>

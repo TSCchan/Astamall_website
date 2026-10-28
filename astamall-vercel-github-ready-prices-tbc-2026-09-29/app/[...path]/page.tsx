@@ -58,7 +58,7 @@ export default async function ContentPage({ params }: Props) {
       .slice(0, 4);
     return <main id="main-content" className="inner-page premium-detail lux-detail">
       <div className="breadcrumbs"><Link href="/shop">Shop</Link><span>/</span><Link href={`/shop?category=${encodeURIComponent(p.category)}`}>{p.category}</Link><span>/</span><span>{p.short}</span></div>
-      <ProductSelectionProvider key={p.slug}><section className="pdp-hero" id="overview"><ProductGallery product={p}/><div className="pdp-copy"><p className="product-category-label">{p.category}</p><h1>{p.name}</h1><p className="intro-text">{p.description}</p><ProductPurchase product={p}/></div></section></ProductSelectionProvider>
+      <ProductSelectionProvider key={p.slug}><section className="pdp-hero" id="overview"><ProductGallery product={p}/><div className="pdp-copy"><p className="product-category-label"><span className="category-tag" data-category={p.category}>{p.category}</span></p><h1>{p.name}</h1><p className="intro-text">{p.description}</p><ProductPurchase product={p}/></div></section></ProductSelectionProvider>
       <div className="pdp-information">
         <ProductInformation product={p}
           usageGuide={p.usageGuideImage&&<details className="pdp-usage-guide"><summary>Application guide <span aria-hidden="true">+</span></summary><img src={p.usageGuideImage} alt={p.usageGuideImageAlt || ''} width="537" height="2170" loading="lazy" /></details>}
