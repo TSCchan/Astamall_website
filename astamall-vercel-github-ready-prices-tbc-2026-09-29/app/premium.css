@@ -670,3 +670,16 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .pi-index{display:none}
   .pi-facts,.pi-checks,.pi-ingredients,.pi-support{grid-template-columns:1fr}
 }
+
+/* Homepage FAQ: three questions, the rest on request */
+.faq-preview{min-width:0}
+.faq-more{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .55s var(--ease-out),opacity .4s var(--ease-out)}
+.faq-more[data-open=true]{grid-template-rows:1fr;opacity:1}
+.faq-more>div{overflow:hidden;min-height:0}
+.faq-more>div>:last-child{border-bottom-width:1px}
+.faq-toggle{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 22px;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:14px;letter-spacing:.02em;cursor:pointer;transition:border-color .3s,background .3s}
+.faq-toggle:hover{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.faq-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.faq-toggle svg{transition:transform .45s var(--ease-out)}
+.faq-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+@media (prefers-reduced-motion:reduce){.faq-more,.faq-toggle svg{transition:none}}

@@ -68,7 +68,7 @@ export default function Home() {
 
     <section className="home-journal section-pad"><Reveal className="section-heading"><h2>Stories behind the selection.</h2><Link href="/journal" className="text-link">The journal <span aria-hidden="true">↗</span></Link></Reveal><Reveal className="editorial-stories" stagger>{articles.slice(0, 3).map((article, i) => <Link href={`/journal/${article.slug}`} key={article.slug}><span className="story-index">{String(i + 1).padStart(2, '0')}</span><span>{article.category}</span><h3>{article.title}</h3><p>{article.excerpt}</p><span className="story-read">Read story <span aria-hidden="true">↗</span></span></Link>)}</Reveal></section>
 
-    <section className="faq-section section-pad"><div><h2>A little clarity.</h2><Link className="text-link" href="/faq">All questions <span aria-hidden="true">↗</span></Link></div><FaqList compact /></section>
+    <section className="faq-section section-pad"><div><h2>A little clarity.</h2></div><div className="faq-preview"><FaqList compact /></div></section>
 
     <section className="home-closing section-pad"><Reveal><h2>Find your everyday ritual.</h2><div><Link href="/shop" className="button button-light">Explore the collection <span aria-hidden="true">↗</span></Link><Link href="/contact" className="text-link">Talk to us</Link></div></Reveal></section>
   </main>;
