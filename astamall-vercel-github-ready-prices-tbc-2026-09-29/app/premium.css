@@ -671,9 +671,13 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .faq-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.faq-more,.faq-toggle svg{transition:none}}
 
-/* Category tags: one colour per collection so products read at a glance */
-.category-tag{--tag-ink:var(--maroon);--tag-bg:#f6e4e6;display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 9px;border-radius:999px;background:var(--tag-bg);color:var(--tag-ink);font-weight:600;letter-spacing:.09em;text-transform:uppercase;line-height:1.2;white-space:nowrap}
+/* Collection colours: one per category, shared by the shop tags and the category rows */
+[data-category="Skincare"]{--cat-ink:#8c2a3d;--cat-bg:#f6e3e5}
+[data-category="Health Foods"]{--cat-ink:#8a5310;--cat-bg:#f5e9d4}
+[data-category="Health Supplements"]{--cat-ink:#2c6450;--cat-bg:#e0eee6}
+.category-tag{--tag-ink:var(--cat-ink,var(--maroon));--tag-bg:var(--cat-bg,#f6e4e6);display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 9px;border-radius:999px;background:var(--tag-bg);color:var(--tag-ink);font-weight:600;letter-spacing:.09em;text-transform:uppercase;line-height:1.2;white-space:nowrap}
 .category-tag:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
-.category-tag[data-category="Skincare"]{--tag-ink:#8c2a3d;--tag-bg:#f6e3e5}
-.category-tag[data-category="Health Foods"]{--tag-ink:#8a5310;--tag-bg:#f5e9d4}
-.category-tag[data-category="Health Supplements"]{--tag-ink:#2c6450;--tag-bg:#e0eee6}
+/* Homepage rows and About collections: each name in its collection colour, the hover wash in its tint */
+.category-row[data-category] .category-row-copy h3,.category-row[data-category]:hover .category-row-copy h3,.category-row[data-category] .category-row-index,.category-row[data-category] .category-row-arrow{color:var(--cat-ink)}
+.category-row[data-category]:before{background:var(--cat-bg)}
+.ab-collection[data-category] .ab-collection-name,.ab-collection[data-category]:hover .ab-collection-name{color:var(--cat-ink)}

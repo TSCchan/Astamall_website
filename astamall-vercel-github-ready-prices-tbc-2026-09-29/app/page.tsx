@@ -50,7 +50,7 @@ export default function Home() {
     <section className="section-pad home-categories" id="categories" aria-label="Shop by category">
       <nav className="category-rows" aria-label="Shop by category">{categories.map((c, i) => {
         const items = products.filter(p => p.category === c.name);
-        return <CategoryRow key={c.name} href={`/shop?category=${encodeURIComponent(c.name)}`} images={items.slice(0, 3).map(p => p.image!).filter(Boolean)}>
+        return <CategoryRow key={c.name} category={c.name} href={`/shop?category=${encodeURIComponent(c.name)}`} images={items.slice(0, 3).map(p => p.image!).filter(Boolean)}>
           <span className="category-row-index">{String(i + 1).padStart(2, '0')}</span>
           <span className="category-row-copy"><h3>{c.label}</h3><p>{c.note}</p></span>
           <span className="category-row-count">{items.length} products</span>

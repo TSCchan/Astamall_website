@@ -33,9 +33,9 @@ export function ProductRail({ children, label }: { children: ReactNode; label: s
 }
 
 // The category row reveals a stack of product photographs that drifts with the pointer.
-export function CategoryRow({ children, images, href }: { children: ReactNode; images: string[]; href: string }) {
+export function CategoryRow({ children, images, href, category }: { children: ReactNode; images: string[]; href: string; category: string }) {
   const row = useRef<HTMLAnchorElement>(null);
-  return <Link ref={row} href={href} className="category-row" onPointerMove={event => {
+  return <Link ref={row} href={href} className="category-row" data-category={category} onPointerMove={event => {
     if (event.pointerType !== 'mouse' || !row.current) return;
     const box = row.current.getBoundingClientRect();
     row.current.style.setProperty('--cx', `${event.clientX - box.left}px`);
