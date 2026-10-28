@@ -70,7 +70,7 @@ export function ProductPurchase({product}:{product:Product}) {
  },[]);
  const enquiry='/contact?'+new URLSearchParams({product:product.name,option:variant,quantity:String(quantity)}).toString();
  return <div className="purchase simple-purchase lux-purchase" id="product-selection">
-  <div className="purchase-price-row"><p className="product-price">{money(product.price)}</p><span>{product.size}</span></div>
+  <div className="purchase-price-row"><p className="product-price">{money(product.price)}</p></div>
   {options.options.length>1?<OptionPicker name={`variant-${product.slug}`} label={options.label} options={options.options} value={variant} onChange={selectVariant}/>:<OptionPicker name={`variant-${product.slug}`} label={options.label} options={options.options} value={variant} onChange={selectVariant} compact/>}
   {!product.official&&<p className="small-text">Sample options and imagery; final specifications may differ.</p>}
   <div className="purchase-controls" ref={controls}><QuantityStepper quantity={quantity} setQuantity={setQuantity}/><AddButton key={variant} slug={product.slug} quantity={quantity} variant={variant}/></div>
