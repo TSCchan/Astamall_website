@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useRef, useState, type Dispatch, 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion, useReducedMotion, type PanInfo } from 'motion/react';
-import { Minus, Plus, ArrowUpRight, ArrowLeft, ArrowRight, MagnifyingGlassPlus, X, MagnifyingGlass } from '@phosphor-icons/react';
+import { Minus, Plus, ArrowUpRight, ArrowLeft, ArrowRight, MagnifyingGlassPlus, X } from '@phosphor-icons/react';
 import { AddButton, AnimatedNumber } from '@/components/commerce-motion';
 import { OptionPicker } from '@/components/product-option-picker';
 import { products, categories, money, productOptions, type Product } from '@/lib/catalog';
@@ -23,20 +23,14 @@ export function Shop() {
  return <ShopFilters key={initial} initial={initial && categories.includes(initial) ? initial : 'All'} />;
 }
 function ShopFilters({ initial }: { initial: string }) {
- const [category,setCategory]=useState(initial); const [query,setQuery]=useState(''); const [sort,setSort]=useState('featured'); const reduce=useReducedMotion();
- const shown=products.filter(p=>(category==='All'||p.category===category)&&`${p.name} ${p.sourceName ?? ''} ${p.ingredient}`.toLowerCase().includes(query.toLowerCase())).sort((a,b)=>sort==='name'?a.name.localeCompare(b.name):sort==='name-desc'?b.name.localeCompare(a.name):0);
- const reset=()=>{setCategory('All');setQuery('');};
+ const [category,setCategory]=useState(initial); const reduce=useReducedMotion();
+ const shown=products.filter(p=>category==='All'||p.category===category);
  return <section className="shop-editorial" aria-label="Products">
   <motion.div className="shop-toolbar lux-toolbar" initial={reduce?false:{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:.6,ease:[.16,1,.3,1]}}>
    <div className="category-filters motion-filters" aria-label="Product categories">{categories.map(c=><button key={c} aria-pressed={c===category} onClick={()=>setCategory(c)}>{c===category&&<motion.span className="filter-selection" layoutId="active-category" transition={{type:'spring',stiffness:380,damping:32}}/>}<span>{c}</span><small>{c==='All'?products.length:products.filter(p=>p.category===c).length}</small></button>)}</div>
-   <div className="shop-utilities">
-    <label className="shop-search"><span className="sr-only">Search</span><MagnifyingGlass size={18} aria-hidden="true"/><input type="search" placeholder="Search products or ingredients" value={query} onChange={e=>setQuery(e.target.value)}/>{query&&<button type="button" className="shop-search-clear" onClick={()=>setQuery('')} aria-label="Clear search"><X size={14}/></button>}</label>
-    <label className="shop-sort"><span>Sort</span><select value={sort} onChange={e=>setSort(e.target.value)}><option value="featured">Featured</option><option value="name">Name: A-Z</option><option value="name-desc">Name: Z-A</option></select></label>
-   </div>
   </motion.div>
-  <div className="shop-status shop-status-compact"><p aria-live="polite"><AnimatedNumber value={shown.length}/> {shown.length===1?'product':'products'}{category!=='All'&&` in ${category}`}</p>{(category!=='All'||query)&&<button className="text-link" onClick={reset}>Reset filters</button>}</div>
+  <div className="shop-status shop-status-compact"><p aria-live="polite"><AnimatedNumber value={shown.length}/> {shown.length===1?'product':'products'}{category!=='All'&&` in ${category}`}</p>{category!=='All'&&<button className="text-link" onClick={()=>setCategory('All')}>Show all</button>}</div>
   <motion.div layout={!reduce} className="product-grid shop-grid"><AnimatePresence initial={false} mode="popLayout">{shown.map((p,index)=><ProductCard key={p.slug} product={p} presentation="shop" index={index}/>)}</AnimatePresence></motion.div>
-  <AnimatePresence>{!shown.length&&<motion.div className="empty-state shop-empty-state" initial={reduce?false:{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0}}><span className="empty-bag-icon"><MagnifyingGlass size={30} weight="thin"/></span><h2>No products found</h2><p>Try another category or clear your search.</p><button className="button" onClick={reset}>Clear filters</button></motion.div>}</AnimatePresence>
  </section>;
 }
 
