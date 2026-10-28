@@ -53,7 +53,6 @@ export default function Home() {
         return <CategoryRow key={c.name} href={`/shop?category=${encodeURIComponent(c.name)}`} images={items.slice(0, 3).map(p => p.image!).filter(Boolean)}>
           <span className="category-row-index">{String(i + 1).padStart(2, '0')}</span>
           <span className="category-row-copy"><h3>{c.label}</h3><p>{c.note}</p></span>
-          <span className="category-row-count">{items.length} products</span>
           <span className="category-row-arrow" aria-hidden="true">↗</span>
         </CategoryRow>;
       })}</nav>
