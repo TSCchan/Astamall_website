@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FacebookLogo, InstagramLogo, TiktokLogo, ArrowUp } from '@phosphor-icons/react';
 import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { Logo } from '@/components/brand-assets';
-import { Newsletter } from '@/components/forms';
 
 const navigation = [
   { label: 'Shop', href: '/shop' },
@@ -62,11 +61,6 @@ export default function Footer1() {
           {legal.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
           <a href="mailto:astamall92@gmail.com">astamall92@gmail.com</a>
         </motion.nav>
-
-        <motion.div variants={itemVariants} className="lux-footer-column lux-footer-news">
-          <h2>Launch updates</h2>
-          <Newsletter />
-        </motion.div>
       </motion.div>
 
       <div className="lux-footer-wordmark" aria-hidden="true">ASTAMALL</div>
