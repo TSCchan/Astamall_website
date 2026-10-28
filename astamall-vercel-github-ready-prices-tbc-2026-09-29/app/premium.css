@@ -481,10 +481,8 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lj-btn{display:inline-flex;align-items:center;gap:12px;height:48px;padding:0 24px;border-radius:999px;background:var(--wine);color:#fffaf6;font-size:14px;font-weight:500;text-decoration:none;
   box-shadow:0 14px 30px -18px rgba(100,28,43,.8);transition:transform .45s var(--ease-out),background .3s,box-shadow .45s var(--ease-out)}
 .lj-btn:hover{background:var(--maroon);transform:translateY(-2px);box-shadow:0 18px 34px -16px rgba(100,28,43,.75)}
-.lj-link{display:inline-flex;align-items:center;gap:8px;padding:4px 0;color:var(--ink);font-size:14px;font-weight:500;text-decoration:none;border-bottom:1px solid rgba(100,28,43,.35);transition:color .25s}
-.lj-link:hover{color:var(--maroon)}
-.lj-btn span,.lj-link span{transition:transform .35s var(--ease-out)}
-.lj-btn:hover span,.lj-link:hover span{transform:translateX(3px)}
+.lj-btn span{transition:transform .35s var(--ease-out)}
+.lj-btn:hover span{transform:translateX(3px)}
 .lj-skip{position:absolute;z-index:5;left:clamp(28px,4.4vw,72px);top:96px;padding:8px 12px;border-radius:999px;background:var(--paper);color:var(--ink);font-size:12px;transform:translateY(-200%);opacity:0}
 .lj-skip:focus{transform:none;opacity:1}
 .lj-root a:focus-visible,.lj-root button:focus-visible{outline:2px solid var(--wine);outline-offset:4px}
