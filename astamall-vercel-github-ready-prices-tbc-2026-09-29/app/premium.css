@@ -107,7 +107,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 
 .home-categories{padding-block:0 clamp(80px,8vw,120px)}
 .category-rows{max-width:1400px;margin-inline:auto;border-top:1px solid var(--line)}
-.category-row{position:relative;display:grid;grid-template-columns:70px minmax(0,1fr) auto 50px;align-items:center;gap:24px;padding:clamp(26px,3vw,40px) 0;border-bottom:1px solid var(--line);isolation:isolate;--cx:60%}
+.category-row{position:relative;display:grid;grid-template-columns:70px minmax(0,1fr) 50px;align-items:center;gap:24px;padding:clamp(26px,3vw,40px) 0;border-bottom:1px solid var(--line);isolation:isolate;--cx:60%}
 .category-row:before{content:"";position:absolute;inset:0;z-index:-1;background:var(--blush);transform:scaleY(0);transform-origin:bottom;transition:transform .6s var(--ease-out)}
 .category-row:hover:before{transform:scaleY(1)}
 .category-row-index{font-size:12px;color:var(--muted);letter-spacing:.12em;padding-left:14px}
@@ -115,7 +115,6 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .category-row:hover .category-row-copy h3{transform:translateX(14px);color:var(--wine)}
 .category-row-copy p{font-size:13px;color:var(--muted);margin-top:10px;transition:transform .6s var(--ease-out) .04s}
 .category-row:hover .category-row-copy p{transform:translateX(14px)}
-.category-row-count{font-size:12px;color:var(--muted);letter-spacing:.06em}
 .category-row-arrow{font-size:26px;justify-self:end;padding-right:14px;transition:transform .5s var(--ease-out)}
 .category-row:hover .category-row-arrow{transform:translate(4px,-4px) rotate(0deg)}
 .category-row-stack{position:absolute;top:50%;left:var(--cx);width:170px;height:170px;pointer-events:none;transform:translate(-50%,-50%);transition:left .5s var(--ease-out)}
@@ -365,7 +364,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .spotlight-grid{grid-template-columns:1fr}
   .product-rail-controls{display:none}
   .category-row{grid-template-columns:44px minmax(0,1fr) 30px;gap:14px}
-  .category-row-count,.category-row-stack{display:none}
+  .category-row-stack{display:none}
   .lux-detail .pdp-hero{grid-template-columns:1fr}
   .lux-gallery{position:relative;top:auto}
   .lux-gallery .gallery-stage{grid-template-columns:1fr}
