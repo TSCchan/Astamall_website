@@ -357,14 +357,14 @@ form>.notice[role=status]{margin-top:24px}
 
 @media (min-width:1600px){.cinema-copy{left:max(6.2%,calc((100vw - 1400px)/2))}}
 @media (max-width:1100px){
- .desktop-nav{gap:16px;font-size:12px}.site-header{gap:16px;padding-inline:25px}.account-action{display:none}
+ .desktop-nav{gap:16px;font-size:12px}.site-header{gap:16px;padding-inline:25px}
  .cinema-copy h1,.cinema-copy h2{font-size:6.7vw}.cinema-copy .button-row{gap:18px}
  .why-chapters{gap:5%}.product-bottom{align-items:flex-start;flex-direction:column;gap:3px}
  .ingredient-index>a{grid-template-columns:80px 1fr;gap:16px}.ingredient-index>a>span:last-child{display:none}.ingredient-index-visual{width:80px}
  .shop-tools{grid-template-columns:1fr 1fr}.ingredient-index h2{font-size:27px}
 }
 @media (max-width:900px){
- .desktop-nav{display:none}.mobile-menu-button{display:inline-flex}.account-action{display:inline-flex}
+ .desktop-nav{display:none}.mobile-menu-button{display:inline-flex}
  .cinema-copy{left:6%;width:63%}.cinema-copy h1,.cinema-copy h2{font-size:7.5vw}.cinema-copy p{max-width:335px;font-size:15px}
  .cinema-droplet{left:44%;width:65%;opacity:.78}
  .cinema-products{left:35%}.cinema-product{opacity:.9}.release-copy{width:50%}
