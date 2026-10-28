@@ -41,7 +41,7 @@ export default function AboutStory() {
 
     <section className="ab-collections" aria-labelledby="collections-title">
       <h2 id="collections-title">Three collections, one standard.</h2>
-      <Reveal className="ab-collection-list" stagger>{collections.map(c => <Link key={c.name} href={c.href} className="ab-collection">
+      <Reveal className="ab-collection-list" stagger>{collections.map(c => <Link key={c.name} href={c.href} className="ab-collection" data-category={c.name}>
         <span className="ab-collection-name">{c.label}</span>
         <span className="ab-collection-note">{c.note}</span>
         <span className="ab-collection-images" aria-hidden="true">{c.images.map(img => <img key={img.src} src={img.src} alt="" width="120" height="120" loading="lazy" />)}</span>
