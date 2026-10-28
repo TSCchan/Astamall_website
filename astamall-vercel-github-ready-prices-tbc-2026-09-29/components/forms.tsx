@@ -6,10 +6,24 @@ import { CaretDown, ArrowUpRight } from '@phosphor-icons/react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { faqs } from '@/lib/catalog';
 
+const PREVIEW = 3;
+
 export function FaqList({ compact = false }: { compact?: boolean }) {
   const [category, setCategory] = useState('All');
-  const visible = compact ? faqs.slice(0, 4) : faqs.filter(f => category === 'All' || f.category === category);
-  return <>{!compact && <div className="category-filters">{['All', ...faqs.map(f => f.category)].map(c => <button key={c} onClick={() => setCategory(c)} aria-pressed={c === category}>{c}</button>)}</div>}<Accordion type="single" collapsible className="faq-list">{visible.map(f => <AccordionItem key={f.q} value={f.q}><AccordionTrigger className="faq-trigger">{f.q}<span aria-hidden="true"><CaretDown size={20} weight="light" /></span></AccordionTrigger><AccordionContent className="faq-answer">{f.a}</AccordionContent></AccordionItem>)}</Accordion></>;
+  const [expanded, setExpanded] = useState(false);
+  const item = (f: typeof faqs[number]) => <AccordionItem key={f.q} value={f.q}><AccordionTrigger className="faq-trigger">{f.q}<span aria-hidden="true"><CaretDown size={20} weight="light" /></span></AccordionTrigger><AccordionContent className="faq-answer">{f.a}</AccordionContent></AccordionItem>;
+  // the homepage shows the three most asked questions, and the rest on request
+  if (compact) return <>
+    <Accordion type="single" collapsible className="faq-list">
+      {faqs.slice(0, PREVIEW).map(item)}
+      <div id="faq-more" className="faq-more" data-open={expanded} inert={!expanded}><div>{faqs.slice(PREVIEW).map(item)}</div></div>
+    </Accordion>
+    <button type="button" className="faq-toggle" aria-expanded={expanded} aria-controls="faq-more" onClick={() => setExpanded(v => !v)}>
+      {expanded ? 'See less' : 'See more'}<CaretDown size={16} weight="light" aria-hidden="true" />
+    </button>
+  </>;
+  const visible = faqs.filter(f => category === 'All' || f.category === category);
+  return <><div className="category-filters">{['All', ...faqs.map(f => f.category)].map(c => <button key={c} onClick={() => setCategory(c)} aria-pressed={c === category}>{c}</button>)}</div><Accordion type="single" collapsible className="faq-list">{visible.map(item)}</Accordion></>;
 }
 
 const contactFields = [
