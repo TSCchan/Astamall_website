@@ -13,6 +13,8 @@ const categories = [
 ];
 const marquee = ['Skincare & beauty', 'Health foods', 'Health supplements', 'Asta-S® free-form astaxanthin', 'From Taiwan to Malaysia'];
 const serum = products.find(p => p.slug === 'asta-s-rejuvenating-serum')!;
+// The serum has its own spotlight; award-winning products lead the rest of the collection.
+const collection = products.filter(p => p.slug !== serum.slug).sort((a, b) => Number(!!b.award) - Number(!!a.award));
 
 export default function Home() {
   return <main id="main-content" className="premium-home refined-home lux-home">
@@ -42,7 +44,7 @@ export default function Home() {
 
     <section className="section-pad home-collection" id="collection">
       <Reveal className="section-heading"><h2>A considered collection.</h2><Link className="text-link" href="/shop">Explore all products <span aria-hidden="true">↗</span></Link></Reveal>
-      <ProductRail label="featured products">{products.filter(p => p.slug !== serum.slug).map((product, index) => <div className="product-rail-item" key={product.slug}><ProductCard product={product} presentation="shop" index={index} minimal /></div>)}</ProductRail>
+      <ProductRail label="featured products">{collection.map((product, index) => <div className="product-rail-item" key={product.slug}><ProductCard product={product} presentation="shop" index={index} minimal /></div>)}</ProductRail>
     </section>
 
     <section className="section-pad home-categories" id="categories" aria-label="Shop by category">
