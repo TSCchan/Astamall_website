@@ -684,3 +684,10 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .faq-toggle svg{transition:transform .45s var(--ease-out)}
 .faq-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
 @media (prefers-reduced-motion:reduce){.faq-more,.faq-toggle svg{transition:none}}
+
+/* Category tags: one colour per collection so products read at a glance */
+.category-tag{--tag-ink:var(--maroon);--tag-bg:#f6e4e6;display:inline-flex;align-items:center;gap:7px;padding:5px 11px 5px 9px;border-radius:999px;background:var(--tag-bg);color:var(--tag-ink);font-weight:600;letter-spacing:.09em;text-transform:uppercase;line-height:1.2;white-space:nowrap}
+.category-tag:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.category-tag[data-category="Skincare"]{--tag-ink:#8c2a3d;--tag-bg:#f6e3e5}
+.category-tag[data-category="Health Foods"]{--tag-ink:#8a5310;--tag-bg:#f5e9d4}
+.category-tag[data-category="Health Supplements"]{--tag-ink:#2c6450;--tag-bg:#e0eee6}
