@@ -78,7 +78,6 @@ function StageCopy({ stage, index, active }: { stage: JourneyStage; index: numbe
     <p className="lj-desc">{stage.description}</p>
     <div className="lj-ctas">
       <Link className="lj-btn" href={stage.href} tabIndex={active ? undefined : -1}>{stage.cta} <span aria-hidden="true">→</span></Link>
-      {(index === 0 || index === LAST) && <Link className="lj-link" href="/about" tabIndex={active ? undefined : -1}>Our story <span aria-hidden="true">→</span></Link>}
     </div>
   </>;
 }
