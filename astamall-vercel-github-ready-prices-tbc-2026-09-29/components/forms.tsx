@@ -12,12 +12,6 @@ export function FaqList({ compact = false }: { compact?: boolean }) {
   return <>{!compact && <div className="category-filters">{['All', ...faqs.map(f => f.category)].map(c => <button key={c} onClick={() => setCategory(c)} aria-pressed={c === category}>{c}</button>)}</div>}<Accordion type="single" collapsible className="faq-list">{visible.map(f => <AccordionItem key={f.q} value={f.q}><AccordionTrigger className="faq-trigger">{f.q}<span aria-hidden="true"><CaretDown size={20} weight="light" /></span></AccordionTrigger><AccordionContent className="faq-answer">{f.a}</AccordionContent></AccordionItem>)}</Accordion></>;
 }
 
-export function Newsletter() {
-  const [email, setEmail] = useState('');
-  const [sent, setSent] = useState(false);
-  return <form className="newsletter-form" onSubmit={event => { event.preventDefault(); window.location.href = `mailto:astamall92@gmail.com?subject=${encodeURIComponent('ASTAMALL launch updates')}&body=${encodeURIComponent(`Please send me ASTAMALL launch updates at ${email}.`)}`; setSent(true); }}><label htmlFor="newsletter-email">Your email address</label><div><input id="newsletter-email" name="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required /><button className="icon-button" aria-label="Request launch updates by email" type="submit"><ArrowUpRight size={24} weight="light" /></button></div><p className="small-text">Opens your email app to request updates. You are not subscribed automatically.</p>{sent && <p role="status">Send the draft in your email app to request updates. If it did not open, email astamall92@gmail.com.</p>}</form>;
-}
-
 const contactFields = [
   { name: 'name', label: 'Name', type: 'text', required: true, auto: 'name' },
   { name: 'email', label: 'Email', type: 'email', required: true, auto: 'email' },

@@ -353,32 +353,6 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .faq-trigger[data-state=open] svg{transform:rotate(180deg)}
 
 /* ---------- Footer ---------- */
-.lux-footer,.inner-shell .lux-footer.astamall-footer,.lux-footer.astamall-footer{position:relative;overflow:hidden;background:var(--blush);border-top:0;padding:clamp(70px,8vw,110px) clamp(24px,6vw,100px) 26px;color:var(--ink);text-align:left}
-.lux-footer-main{max-width:1400px;margin-inline:auto;display:grid;grid-template-columns:1.3fr .8fr .9fr 1.3fr;gap:clamp(30px,4vw,70px)}
-.lux-footer-brand .brand-logo{width:72px}
-.lux-footer-brand p{font-family:var(--font-display);font-size:26px;line-height:1.2;margin-top:20px;max-width:280px}
-.lux-footer-social{display:flex;gap:8px;margin-top:24px}
-.lux-footer-social a{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);transition:background .3s,color .3s,border-color .3s,transform .4s var(--ease-out)}
-.lux-footer-social a:hover{background:var(--wine);color:var(--paper);border-color:var(--wine);transform:translateY(-3px)}
-.lux-footer-column{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
-.lux-footer-column h2{font-family:var(--font-body);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--maroon);margin-bottom:8px}
-.lux-footer-column a{font-size:14px;position:relative;transition:color .25s,transform .4s var(--ease-out)}
-.lux-footer-column a:hover{color:var(--wine);transform:translateX(4px)}
-.lux-footer-news .newsletter-form{width:100%}
-.lux-footer-news .newsletter-form label{font-size:13px;color:var(--muted)}
-.lux-footer-news .newsletter-form>div{display:flex;align-items:center;margin-top:10px;border-bottom:1px solid var(--ink);transition:border-color .3s}
-.lux-footer-news .newsletter-form>div:focus-within{border-color:var(--wine)}
-.lux-footer-news .newsletter-form input{flex:1;min-width:0;border:0;background:transparent;padding:12px 0;font-size:15px;outline:none}
-.lux-footer-news .newsletter-form .icon-button{transition:transform .4s var(--ease-out)}
-.lux-footer-news .newsletter-form .icon-button:hover{transform:translate(3px,-3px)}
-.lux-footer-news .small-text{margin-top:12px;font-size:11.5px}
-.lux-footer-wordmark{max-width:1400px;margin:clamp(50px,6vw,90px) auto 0;font-family:var(--font-display);font-size:clamp(4rem,17.5vw,17rem);line-height:.8;letter-spacing:-.05em;text-align:center;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--wine) 35%,transparent);user-select:none;white-space:nowrap}
-.lux-footer .astamall-footer-bottom{max-width:1400px;margin:28px auto 0;padding:22px 0 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:20px;font-size:12px;color:var(--muted)}
-.lux-footer-top{display:inline-flex;align-items:center;gap:8px;transition:color .25s}
-.lux-footer-top svg{transition:transform .4s var(--ease-out)}
-.lux-footer-top:hover{color:var(--wine)}
-.lux-footer-top:hover svg{transform:translateY(-3px)}
-.astamall-footer-divider{display:none}
 
 /* ---------- Forms (contact, checkout) ---------- */
 .field input,.field textarea,.field select{transition:border-color .3s,box-shadow .3s,background .3s}
@@ -393,7 +367,6 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 /* ---------- Responsive ---------- */
 @media (max-width:1100px){
   .product-rail{grid-auto-columns:calc((100% - 2*22px)/2.3);gap:22px}
-  .lux-footer-main{grid-template-columns:1fr 1fr}
 }
 @media (max-width:900px){
   .site-header,.cinematic-home-shell .site-header{height:68px}
@@ -438,8 +411,6 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .buy-bar-product strong{font-size:16px}
   .buy-bar-actions .quantity{display:none}
   .buy-bar-actions .add-button{padding-inline:18px;min-height:44px}
-  .lux-footer-main{grid-template-columns:1fr}
-  .lux-footer .astamall-footer-bottom{flex-direction:column;align-items:flex-start}
 }
 @media (prefers-reduced-motion:reduce){
   .js [data-reveal],.js [data-reveal=stagger]>*{opacity:1!important;transform:none!important;transition:none!important}
@@ -631,6 +602,20 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 @media (prefers-reduced-motion:reduce){
   .ab-collection-name,.ab-collection-images img,.ab-btn,.ab-rail-dot{transition:none}
 }
+
+/* ---------- Footer: centred and quiet ---------- */
+.ft{background:var(--blush);color:var(--ink);padding:clamp(56px,7vw,84px) clamp(24px,6vw,100px) clamp(28px,3vw,36px)}
+.ft-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center}
+.ft .ft-logo{display:inline-flex;width:76px}
+.ft .ft-logo img{width:100%;height:auto}
+.ft-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px clamp(22px,3vw,40px);margin-top:clamp(28px,3vw,38px)}
+.ft-links a{font-size:15px;color:color-mix(in srgb,var(--ink) 72%,transparent);text-decoration:none;transition:color .25s}
+.ft-links a:hover{color:var(--wine)}
+.ft-social{display:flex;gap:12px;margin-top:clamp(26px,3vw,34px)}
+.ft-social a{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:rgba(255,253,249,.6);color:var(--wine);transition:background .3s,color .3s,border-color .3s,transform .4s var(--ease-out)}
+.ft-social a:hover{background:var(--wine);border-color:var(--wine);color:var(--paper);transform:translateY(-3px)}
+.ft-copy{width:100%;margin-top:clamp(30px,3.4vw,40px);padding-top:clamp(22px,2.6vw,30px);border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.ft a:focus-visible{outline:2px solid var(--wine);outline-offset:4px;border-radius:4px}
 
 /* ---------- Product information: one section, every group visible ---------- */
 .lux-detail .pdp-information{margin:0 auto;max-width:none}

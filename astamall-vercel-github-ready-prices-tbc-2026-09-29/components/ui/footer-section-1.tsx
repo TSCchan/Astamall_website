@@ -1,21 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { FacebookLogo, InstagramLogo, TiktokLogo, ArrowUp } from '@phosphor-icons/react';
-import { motion, useReducedMotion, type Variants } from 'motion/react';
+import { FacebookLogo, InstagramLogo, TiktokLogo } from '@phosphor-icons/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Logo } from '@/components/brand-assets';
-import { Newsletter } from '@/components/forms';
 
-const navigation = [
-  { label: 'Shop', href: '/shop' },
+const links = [
   { label: 'Astaxanthin', href: '/astaxanthin' },
   { label: 'About', href: '/about' },
-  { label: 'Journal', href: '/journal' },
-  { label: 'FAQ', href: '/faq' },
-  { label: 'Contact', href: '/contact' },
-];
-
-const legal = [
   { label: 'Shipping', href: '/shipping' },
   { label: 'Returns', href: '/returns' },
   { label: 'Privacy', href: '/privacy' },
@@ -28,53 +20,27 @@ const social = [
   { label: 'Facebook', href: 'https://www.facebook.com/share/1HWHkT7DHX/?mibextid=wwXIfr', Icon: FacebookLogo },
 ];
 
+/** A quiet, centred footer: logo, one row of links, social icons, then the copyright line. */
 export default function Footer1() {
   const reducedMotion = useReducedMotion();
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: reducedMotion ? 0 : 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: reducedMotion ? 0 : 0.7, ease: [0.16, 1, 0.3, 1] } },
-  };
-
   return (
-    <footer className="footer astamall-footer lux-footer">
+    <footer className="ft">
       <motion.div
-        className="lux-footer-main"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.15 }}
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: reducedMotion ? 0 : 0.08 } } }}
+        className="ft-inner"
+        initial={reducedMotion ? false : { opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        <motion.div variants={itemVariants} className="lux-footer-brand">
-          <Logo />
-          <p>Beauty, powered by Astaxanthin.</p>
-          <div className="lux-footer-social" aria-label="Social media">
-            {social.map(({ label, href, Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`ASTAMALL on ${label}`}><Icon size={20} weight="regular" aria-hidden="true" /></a>)}
-          </div>
-        </motion.div>
-
-        <motion.nav variants={itemVariants} className="lux-footer-column" aria-label="Footer navigation">
-          <h2>Explore</h2>
-          {navigation.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
-        </motion.nav>
-
-        <motion.nav variants={itemVariants} className="lux-footer-column" aria-label="Policies and support">
-          <h2>Support</h2>
-          {legal.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
-          <a href="mailto:astamall92@gmail.com">astamall92@gmail.com</a>
-        </motion.nav>
-
-        <motion.div variants={itemVariants} className="lux-footer-column lux-footer-news">
-          <h2>Launch updates</h2>
-          <Newsletter />
-        </motion.div>
+        <Logo className="ft-logo" />
+        <nav className="ft-links" aria-label="Footer">
+          {links.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
+        </nav>
+        <div className="ft-social" aria-label="Social media">
+          {social.map(({ label, href, Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`ASTAMALL on ${label}`}><Icon size={20} aria-hidden="true" /></a>)}
+        </div>
+        <p className="ft-copy">© {new Date().getFullYear()} ASTAMALL, Malaysia. Beauty, powered by astaxanthin.</p>
       </motion.div>
-
-      <div className="lux-footer-wordmark" aria-hidden="true">ASTAMALL</div>
-
-      <div className="astamall-footer-bottom">
-        <p>© {new Date().getFullYear()} ASTAMALL, Malaysia. All rights reserved.</p>
-        <a href="#top" className="lux-footer-top" onClick={event => { event.preventDefault(); window.scrollTo({ top: 0, behavior: reducedMotion ? 'auto' : 'smooth' }); }}>Back to top <ArrowUp size={14} aria-hidden="true" /></a>
-      </div>
     </footer>
   );
 }
