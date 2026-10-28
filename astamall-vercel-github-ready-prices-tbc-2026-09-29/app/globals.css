@@ -303,7 +303,6 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 .faq-page .faq-list{max-width:1000px;margin:45px auto}
 .contact-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:9%}
 .contact-layout aside h2{font-size:36px;margin-bottom:25px}
-.contact-social{display:flex;gap:25px;margin-top:30px;font-size:14px}
 .contact-form .small-text{margin:20px 0}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .full-field{grid-column:1/-1}
