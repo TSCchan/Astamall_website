@@ -6,10 +6,16 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { chapters, journeyIngredients, journeyProducts, type Chapter } from '@/lib/about-journey';
 import JourneySculpture from '@/components/about/journey-sculpture';
+import { steppedScroll } from '@/lib/stepped-scroll';
 
 const Scene = lazy(() => import('@/components/about/journey-scene'));
 const LAST = chapters.length - 1;
+/** As on the landing page, each scroll gesture moves half a chapter: two scrolls bring in the next one. */
+const STEP = 0.5;
+/** The journey runs one half step past the last chapter, so it also takes two scrolls to move on. */
+const END = LAST + STEP;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+const smooth = (t: number) => t * t * (3 - 2 * t);
 
 class SceneBoundary extends Component<{ children: ReactNode; onFailure: () => void }, { failed: boolean }> {
   state = { failed: false };
@@ -93,43 +99,51 @@ export default function AboutJourney() {
     const p = progress.current;
     if (fill.current) fill.current.style.transform = `scaleY(${p / LAST})`;
     sculpture.current?.(p);
+    // A chapter's copy holds through the first scroll after it; on the second it hands over to the next chapter.
     panels.current.forEach((el, i) => {
       if (!el) return;
       const d = p - i;
-      const visible = clamp01(1 - Math.abs(d) * 2.2);
+      const fadeIn = smooth(clamp01((d + 0.4) / 0.3));
+      const fadeOut = 1 - smooth(clamp01((d - 0.5) / 0.2));
+      const visible = fadeIn * fadeOut;
       el.style.opacity = String(visible);
-      el.style.transform = `translate3d(0,${-d * 28}px,0)`;
+      el.style.transform = `translate3d(0,${d < 0 ? (1 - fadeIn) * 28 : -(1 - fadeOut) * 28}px,0)`;
       el.style.visibility = visible > 0.01 ? 'visible' : 'hidden';
     });
-    const current = Math.min(LAST, Math.round(p));
+    const current = Math.min(LAST, Math.floor(p + 0.3));
     if (current !== activeRef.current) { activeRef.current = current; setActive(current); }
   }, []);
 
-  // Pinned for one viewport per chapter, scrubbed and settled on each chapter. Reverted before React removes the section.
+  // Pinned for one viewport per chapter and scrubbed. Scroll gestures step it on half a chapter at a time, then
+  // past the last chapter on to the sections below; the scrollbar snaps to half chapters.
+  // Reverted before React removes the section.
   useLayoutEffect(() => {
     if (mode !== 'animated' || !root.current || !host.current) return;
     gsap.registerPlugin(ScrollTrigger);
     const state = { value: 0 };
     const context = gsap.context(() => {
       const tween = gsap.to(state, {
-        value: LAST, ease: 'none',
-        onUpdate: () => { progress.current = state.value; paint(); },
+        value: END, ease: 'none',
+        // the half step past the last chapter holds it in place
+        onUpdate: () => { progress.current = Math.min(state.value, LAST); paint(); },
         scrollTrigger: {
           trigger: root.current, start: 'top top',
-          end: () => `+=${Math.round(innerHeight * LAST * (innerWidth < 900 ? 0.8 : 0.95))}`,
-          pin: true, pinSpacer: host.current!, scrub: 0.8, invalidateOnRefresh: true,
-          snap: { snapTo: 1 / LAST, inertia: false, directional: false, delay: 0.2, duration: { min: 0.45, max: 0.9 }, ease: 'power2.inOut' },
+          end: () => `+=${Math.round(innerHeight * END * (innerWidth < 900 ? 0.8 : 0.95))}`,
+          pin: true, pinSpacer: host.current!, scrub: 0.3, invalidateOnRefresh: true,
+          // the delay outlasts a gesture's settle, so snapping only ever handles the scrollbar
+          snap: { snapTo: STEP / END, inertia: false, directional: false, delay: 0.3, duration: { min: 0.5, max: 1 }, ease: 'power2.inOut' },
         },
       });
       trigger.current = tween.scrollTrigger!;
     }, root);
     paint();
-    return () => { context.revert(); trigger.current = null; progress.current = 0; };
+    const release = steppedScroll({ trigger: () => trigger.current, host: host.current, root: root.current, end: END, step: STEP, progress: () => state.value });
+    return () => { release(); context.revert(); trigger.current = null; progress.current = 0; };
   }, [mode, paint]);
 
   function jump(i: number) {
     const t = trigger.current;
-    if (t) window.scrollTo({ top: t.start + (t.end - t.start) * i / LAST, behavior: 'smooth' });
+    if (t) window.scrollTo({ top: t.start + (t.end - t.start) * i / END, behavior: 'smooth' });
   }
 
   if (mode === 'static') return <StaticJourney />;
