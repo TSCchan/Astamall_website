@@ -10,8 +10,10 @@ export function OptionPicker({ name, label, options, value, onChange, compact = 
   const reduce = useReducedMotion();
   const pill = useId();
   const swatches = options.some(option => option.color);
+  // with a single option the pill already names it, so the legend shows only the label
+  const single = options.length === 1;
   return <fieldset className={`option-picker ${swatches ? 'option-picker-swatches' : ''} ${compact ? 'option-picker-compact' : ''}`}>
-    <legend><span>{label}</span><motion.strong key={value} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 26 }}>{value}</motion.strong></legend>
+    <legend><span>{label}</span>{!single && <motion.strong key={value} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 26 }}>{value}</motion.strong>}</legend>
     <div className="option-picker-list">{options.map(option => {
       const selected = option.label === value;
       return <label key={option.label} className={selected ? 'selected' : ''} title={option.label}>
