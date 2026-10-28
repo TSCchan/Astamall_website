@@ -193,14 +193,6 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .lux-toolbar{position:sticky!important;top:66px!important;z-index:6!important;padding:14px 0!important;background:rgba(250,247,242,.97)!important;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex!important;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px!important}
 .lux-toolbar .motion-filters button{border-radius:999px!important;min-height:42px!important;padding:9px 18px!important;transition:border-color .3s,color .3s}
 .lux-toolbar .filter-selection{border-radius:999px!important}
-.lux-toolbar .shop-utilities{display:flex!important;gap:12px!important;align-items:center;flex:1 1 380px;justify-content:flex-end}
-.shop-search{position:relative;display:flex!important;align-items:center;flex:1 1 260px;max-width:380px}
-.shop-search>svg{position:absolute;left:16px;color:var(--muted);pointer-events:none}
-.shop-search input{width:100%;padding-left:44px!important;border-radius:999px!important;background:var(--surface)!important;transition:background .3s,box-shadow .3s}
-.shop-search input:focus{background:var(--paper)!important;box-shadow:0 0 0 1px var(--line),0 12px 30px -22px rgba(100,28,43,.4)}
-.shop-search-clear{position:absolute;right:8px;width:30px;height:30px;border-radius:50%;border:0;background:var(--line);display:grid;place-items:center}
-.shop-sort{display:flex!important;align-items:center;gap:10px!important}
-.shop-sort select{border-radius:999px!important;padding-inline:16px 34px!important}
 .shop-grid{gap:56px 28px!important}
 
 /* ---------- Product detail ---------- */
@@ -396,16 +388,11 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .product-grid .lux-card .quick-add span.add-button-label{display:none}
   .product-grid .lux-card .choose-option{font-size:0}
   .product-grid .lux-card .choose-option:after{content:"Choose";font-size:11.5px}
-  .lux-toolbar .shop-utilities{flex-wrap:wrap}
-  .shop-sort select{min-width:150px}
   .shop-grid{gap:34px 14px!important}
   .lux-card h3{font-size:1.15rem}
   .lux-toolbar{position:relative!important;top:auto!important}
-  .lux-toolbar .shop-utilities{flex-basis:100%}
-  .shop-search{max-width:none;flex-basis:100%}
   .lux-toolbar .motion-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;width:100%}
   .lux-toolbar .motion-filters button{flex-shrink:0}
-  .shop-sort>span{display:none}
   .buy-bar{bottom:10px;border-radius:20px;padding:8px;gap:10px}
   .buy-bar-product .product-visual{width:44px;height:44px}
   .buy-bar-product strong{font-size:16px}
