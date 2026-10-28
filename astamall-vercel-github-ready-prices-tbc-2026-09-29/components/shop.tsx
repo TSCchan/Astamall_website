@@ -122,7 +122,6 @@ export function ProductGallery({product}:{product:Product}) {
     <div className="gallery-progress" aria-hidden="true">{Array.from({length:total},(_,i)=><span key={i} className={i===index?'active':''}/>)}</div>
    </div>
   </div>
-  {product.sourceUrl&&<p className="gallery-credit">Product photography from NAFU LIFE. {product.longFormImages?.length?'English guides and references below.':''}</p>}
   <Dialog open={open} onOpenChange={setOpen}><DialogContent className="gallery-lightbox" showCloseButton={false} onCloseAutoFocus={event=>{event.preventDefault();trigger.current?.focus();}}>
    <DialogTitle>{product.short} · {label}</DialogTitle><DialogDescription>Click the image to zoom. Use the arrow buttons to explore.</DialogDescription><DialogClose className="icon-button panel-close" aria-label="Close image viewer"><X size={22}/></DialogClose>
    <div className="lightbox-canvas"><button className={zoom?'lightbox-picture zoomed':'lightbox-picture'} onClick={()=>setZoom(v=>!v)} aria-label={zoom?'Zoom out':'Zoom in'} aria-pressed={zoom}>{picture()}</button></div>
