@@ -1,16 +1,15 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { FacebookLogo, InstagramLogo, TiktokLogo } from '@phosphor-icons/react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Logo } from '@/components/brand-assets';
+import { legalLinks, localeForPath } from '@/lib/legal';
 
 const links = [
   { label: 'Astaxanthin', href: '/astaxanthin' },
   { label: 'About', href: '/about' },
-  { label: 'Shipping', href: '/shipping' },
-  { label: 'Returns', href: '/returns' },
-  { label: 'Privacy', href: '/privacy' },
   { label: 'Terms', href: '/terms' },
 ];
 
@@ -23,6 +22,8 @@ const social = [
 /** A quiet, centred footer: logo, one row of links, social icons, the copyright line, then the large wordmark. */
 export default function Footer1() {
   const reducedMotion = useReducedMotion();
+  // the policy links follow the language of the page being read
+  const footerLinks = [...links.slice(0, 2), ...legalLinks[localeForPath(usePathname())], ...links.slice(2)];
   return (
     <footer className="ft">
       <motion.div
@@ -34,7 +35,7 @@ export default function Footer1() {
       >
         <Logo className="ft-logo" />
         <nav className="ft-links" aria-label="Footer">
-          {links.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
+          {footerLinks.map(({ label, href }) => <Link key={href} href={href}>{label}</Link>)}
         </nav>
         <div className="ft-social" aria-label="Social media">
           {social.map(({ label, href, Icon }) => <a key={label} href={href} target="_blank" rel="noopener noreferrer" aria-label={`ASTAMALL on ${label}`}><Icon size={20} aria-hidden="true" /></a>)}
