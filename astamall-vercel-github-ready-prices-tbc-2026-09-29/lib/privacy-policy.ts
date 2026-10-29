@@ -1,56 +1,12 @@
 /**
- * The ASTAMALL Privacy Policy, in English and Bahasa Malaysia.
- *
- * The legal text lives here and nowhere else: the page component only lays it out. Keep both languages in step.
+ * The ASTAMALL Privacy Policy, in English and Bahasa Malaysia. Layout and conventions: see lib/legal.ts.
  * Section and subsection numbers drive the anchor IDs (#section-3, #section-3-2), so a reader who switches
  * language lands on the matching section; the same number must mean the same section in both languages.
- *
- * Text conventions: **bold** marks emphasis or a label, and the contact email address and website address become
- * links wherever they appear.
  */
 
-export type PolicyLocale = 'en' | 'ms';
+import { checkLegalDocument, company, type LegalDocuments } from '@/lib/legal';
 
-/** A paragraph, a list of points, or a short table of labelled details. */
-export type PolicyBlock = string | { list: string[] } | { title: string; facts: [string, string][] };
-
-export type PolicySubsection = { number: string; title: string; blocks: PolicyBlock[] };
-
-/** `closing` holds text that follows a section's subsections. */
-export type PolicySection = { number: number; title: string; blocks: PolicyBlock[]; subsections?: PolicySubsection[]; closing?: PolicyBlock[] };
-
-export type PrivacyPolicy = {
-  /** BCP 47 language tag, used for the lang attribute. */
-  lang: string;
-  /** Open Graph locale. */
-  ogLocale: string;
-  path: string;
-  title: string;
-  description: string;
-  updatedLabel: string;
-  updated: string;
-  /** Operator and contact details shown under the heading. */
-  meta: [string, string][];
-  contentsLabel: string;
-  languageLabel: string;
-  languageName: string;
-  sections: PolicySection[];
-  /** Closing lines after the last section. */
-  colophon: string[];
-};
-
-export const company = {
-  legalName: 'ASTA MALL PLT',
-  registration: '202604002255',
-  website: 'https://www.astamall.com.my',
-  email: 'astamall92@gmail.com',
-  /** ISO date of the last update, for machine-readable metadata. */
-  updated: '2026-10-01',
-};
-
-export const POLICY_SECTION_COUNT = 21;
-
-export const privacyPolicy: Record<PolicyLocale, PrivacyPolicy> = {
+export const privacyPolicy: LegalDocuments = {
   en: {
     lang: 'en-MY',
     ogLocale: 'en_MY',
@@ -59,6 +15,7 @@ export const privacyPolicy: Record<PolicyLocale, PrivacyPolicy> = {
     description: 'How ASTA MALL PLT collects, uses, discloses and protects personal data when you use ASTAMALL.',
     updatedLabel: 'Last updated',
     updated: '1 October 2026',
+    updatedDate: '2026-10-01',
     meta: [
       ['Operated by', company.legalName],
       ['Business Registration Number', company.registration],
@@ -743,6 +700,7 @@ export const privacyPolicy: Record<PolicyLocale, PrivacyPolicy> = {
     description: 'Bagaimana ASTA MALL PLT mengumpul, menggunakan, mendedahkan dan melindungi data peribadi apabila anda menggunakan ASTAMALL.',
     updatedLabel: 'Tarikh kemas kini terakhir',
     updated: '1 Oktober 2026',
+    updatedDate: '2026-10-01',
     meta: [
       ['Dikendalikan Oleh', company.legalName],
       ['Nombor Pendaftaran Perniagaan', company.registration],
@@ -1325,21 +1283,4 @@ export const privacyPolicy: Record<PolicyLocale, PrivacyPolicy> = {
   },
 };
 
-export const sectionId = (number: number | string) => `section-${String(number).replace(/\./g, '-')}`;
-
-export const localeForPath = (pathname: string): PolicyLocale => (pathname === '/ms' || pathname.startsWith('/ms/') ? 'ms' : 'en');
-
-// Both languages must carry every section, numbered alike, with no unfilled placeholders, or the build stops.
-{
-  const blocksText = (blocks: PolicyBlock[] = []) => blocks.map(b => typeof b === 'string' ? b : 'list' in b ? b.list.join(' ') : b.facts.flat().join(' ')).join(' ');
-  const outline = (locale: PolicyLocale) => privacyPolicy[locale].sections.map(s => [s.number, ...(s.subsections ?? []).map(sub => sub.number)].join(',')).join(' | ');
-  for (const locale of ['en', 'ms'] as const) {
-    const { sections, meta } = privacyPolicy[locale];
-    if (sections.length !== POLICY_SECTION_COUNT || sections.some((s, i) => s.number !== i + 1))
-      throw new Error(`Privacy Policy (${locale}): expected sections 1 to ${POLICY_SECTION_COUNT}, found ${sections.length}.`);
-    const text = [meta.flat().join(' '), ...sections.map(s => [s.title, blocksText(s.blocks), ...(s.subsections ?? []).map(sub => sub.title + ' ' + blocksText(sub.blocks)), blocksText(s.closing)].join(' '))].join(' ');
-    const placeholder = text.match(/\[[^\]]*\]|Not yet available|Belum tersedia/);
-    if (placeholder) throw new Error(`Privacy Policy (${locale}): unfilled placeholder "${placeholder[0]}".`);
-  }
-  if (outline('en') !== outline('ms')) throw new Error('Privacy Policy: the English and Bahasa Malaysia section and subsection numbers differ.');
-}
+checkLegalDocument('Privacy Policy', privacyPolicy, 21);

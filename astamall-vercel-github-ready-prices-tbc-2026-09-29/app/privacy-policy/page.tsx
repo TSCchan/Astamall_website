@@ -1,7 +1,8 @@
-import PrivacyPolicyPage, { privacyMetadata } from '@/components/privacy/privacy-policy-page';
+import LegalPage, { legalMetadata } from '@/components/legal/legal-page';
+import { privacyPolicy } from '@/lib/privacy-policy';
 
-export const metadata = privacyMetadata('en');
+export const metadata = legalMetadata(privacyPolicy, 'en');
 
 export default function Page() {
-  return <PrivacyPolicyPage locale="en" />;
+  return <LegalPage docs={privacyPolicy} locale="en" />;
 }

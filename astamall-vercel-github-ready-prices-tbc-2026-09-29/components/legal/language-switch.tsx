@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { privacyPolicy, type PolicyLocale } from '@/lib/privacy-policy';
+import type { LegalLocale } from '@/lib/legal';
 
-const locales: PolicyLocale[] = ['en', 'ms'];
+type Language = { locale: LegalLocale; lang: string; path: string; name: string };
 
 /**
  * English / Bahasa Melayu segmented control. Each option is a real link to that language's URL, so it works without
  * JavaScript, can be opened in a new tab and shared. While reading, the links carry the section in view (#section-n),
  * so switching language lands on the same section.
  */
-export default function LanguageSwitch({ locale }: { locale: PolicyLocale }) {
+export default function LanguageSwitch({ locale, label, languages }: { locale: LegalLocale; label: string; languages: Language[] }) {
   const [anchor, setAnchor] = useState('');
 
   useEffect(() => {
@@ -34,13 +34,12 @@ export default function LanguageSwitch({ locale }: { locale: PolicyLocale }) {
     return () => { observer.disconnect(); window.removeEventListener('hashchange', fromHash); };
   }, []);
 
-  return <nav className="pp-lang" aria-label={privacyPolicy[locale].languageLabel}>
-    {locales.map(option => {
-      const policy = privacyPolicy[option];
-      const current = option === locale;
-      return <Link key={option} href={anchor ? `${policy.path}#${anchor}` : policy.path} hrefLang={policy.lang} lang={policy.lang}
+  return <nav className="pp-lang" aria-label={label}>
+    {languages.map(language => {
+      const current = language.locale === locale;
+      return <Link key={language.locale} href={anchor ? `${language.path}#${anchor}` : language.path} hrefLang={language.lang} lang={language.lang}
         aria-current={current ? 'page' : undefined} onClick={event => { if (current) event.preventDefault(); }}>
-        {policy.languageName}
+        {language.name}
       </Link>;
     })}
   </nav>;

@@ -5,13 +5,11 @@ import { usePathname } from 'next/navigation';
 import { FacebookLogo, InstagramLogo, TiktokLogo } from '@phosphor-icons/react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Logo } from '@/components/brand-assets';
-import { localeForPath, privacyPolicy } from '@/lib/privacy-policy';
+import { legalLinks, localeForPath } from '@/lib/legal';
 
 const links = [
   { label: 'Astaxanthin', href: '/astaxanthin' },
   { label: 'About', href: '/about' },
-  { label: 'Shipping', href: '/shipping' },
-  { label: 'Returns', href: '/returns' },
   { label: 'Terms', href: '/terms' },
 ];
 
@@ -24,9 +22,8 @@ const social = [
 /** A quiet, centred footer: logo, one row of links, social icons, the copyright line, then the large wordmark. */
 export default function Footer1() {
   const reducedMotion = useReducedMotion();
-  // the Privacy Policy link follows the language of the page being read
-  const policy = privacyPolicy[localeForPath(usePathname())];
-  const footerLinks = [...links.slice(0, 4), { label: policy.title, href: policy.path }, ...links.slice(4)];
+  // the policy links follow the language of the page being read
+  const footerLinks = [...links.slice(0, 2), ...legalLinks[localeForPath(usePathname())], ...links.slice(2)];
   return (
     <footer className="ft">
       <motion.div

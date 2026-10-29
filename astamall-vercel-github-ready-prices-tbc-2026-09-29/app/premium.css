@@ -678,8 +678,8 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .category-row[data-category]:before{background:var(--cat-bg)}
 .ab-collection[data-category] .ab-collection-name,.ab-collection[data-category]:hover .ab-collection-name{color:var(--cat-ink)}
 
-/* Privacy Policy: a quiet, readable legal page in two languages */
-.inner-page.privacy-page{max-width:1120px}
+/* Legal pages (Privacy Policy; Shipping, Returns & Refund Policy): quiet and readable, in two languages */
+.inner-page.legal-page{max-width:1120px}
 .pp{--pp-text:#4a3a3d;color:var(--pp-text)}
 .pp-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px 32px;padding-bottom:clamp(28px,3.5vw,40px);border-bottom:1px solid var(--line)}
 .inner-page .pp-header h1{grid-column:1;grid-row:1;margin:0;font-family:var(--font-display);font-weight:500;font-size:clamp(2.6rem,5vw,4.2rem);line-height:1.04;letter-spacing:-.03em;color:var(--ink)}
@@ -722,6 +722,13 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .inner-page .pp-panel h3{margin:0 0 14px;font-family:var(--font-display);font-weight:500;font-size:1.45rem;line-height:1.2;color:var(--ink)}
 .pp-colophon{margin-top:clamp(48px,6vw,72px);padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.7;color:var(--muted)}
 .pp-colophon p{margin:0}
+.pp-table{margin:4px 0 22px;overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+.pp-table table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.55}
+.pp-table th,.pp-table td{padding:13px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.pp-table tbody tr:last-child>*{border-bottom:0}
+.pp-table thead th{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:rgba(255,253,249,.6)}
+.pp-table tbody th{font-weight:500;color:var(--ink)}
+.pp-table td{color:var(--pp-text)}
 @media (max-width:720px){
   .pp-header{grid-template-columns:1fr}
   .pp-lang{grid-column:1;grid-row:1;justify-self:start}
