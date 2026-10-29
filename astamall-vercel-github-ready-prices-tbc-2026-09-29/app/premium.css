@@ -712,17 +712,23 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .pp-body a{color:var(--wine);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
 .pp-body a:hover{text-decoration-thickness:2px}
 .pp-body a:focus-visible{outline:2px solid var(--wine);outline-offset:3px;border-radius:2px}
-.pp-enquiries{margin-top:clamp(40px,5vw,60px);padding-top:clamp(32px,4vw,44px)!important;border-top:1px solid var(--line)}
-.pp-enquiries dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:10px 28px;margin:0 0 24px;font-size:15px;line-height:1.6}
-.pp-enquiries dl>div{display:contents}
-.pp-enquiries dt{color:var(--muted)}
-.pp-enquiries dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.pp-facts{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 28px;margin:0;font-size:15px;line-height:1.6}
+.pp-facts>div{display:contents}
+.pp-facts dt{color:var(--muted)}
+.pp-facts dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.pp-header .pp-facts{grid-column:1 / -1;margin-top:12px;font-size:14px;gap:4px 24px}
+.pp-facts a,.pp-colophon a{color:var(--wine);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.pp-panel{margin:22px 0 26px;padding:22px 24px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,249,.6)}
+.inner-page .pp-panel h3{margin:0 0 14px;font-family:var(--font-display);font-weight:500;font-size:1.45rem;line-height:1.2;color:var(--ink)}
+.pp-colophon{margin-top:clamp(48px,6vw,72px);padding-top:24px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.7;color:var(--muted)}
+.pp-colophon p{margin:0}
 @media (max-width:720px){
   .pp-header{grid-template-columns:1fr}
   .pp-lang{grid-column:1;grid-row:1;justify-self:start}
   .inner-page .pp-header h1{grid-row:2}
   .pp-contents ol{columns:1}
-  .pp-enquiries dl{grid-template-columns:1fr;gap:2px}
-  .pp-enquiries dd{margin-bottom:10px}
+  .pp-facts{grid-template-columns:1fr;gap:2px}
+  .pp-facts dd{margin-bottom:10px}
+  .pp-panel{padding:18px 18px}
 }
 @media (prefers-reduced-motion:reduce){.pp-lang a,.pp-contents a{transition:none}}

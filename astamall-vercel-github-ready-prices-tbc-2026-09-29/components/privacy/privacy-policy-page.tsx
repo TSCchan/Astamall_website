@@ -4,27 +4,34 @@ import { company, privacyPolicy, sectionId, type PolicyBlock, type PolicyLocale 
 import LanguageSwitch from '@/components/privacy/language-switch';
 import DocumentLang from '@/components/privacy/document-lang';
 
-/** **bold** and the contact email (as a mailto link) inside a line of policy text. */
+const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+
+/** **bold**, and the contact email and website as links, inside a line of policy text. */
 function Inline({ text }: { text: string }) {
   const parts: ReactNode[] = [];
-  const pattern = new RegExp(`\\*\\*(.+?)\\*\\*|(${company.email.replace(/[.]/g, '\\.')})`, 'g');
+  const pattern = new RegExp(`\\*\\*(.+?)\\*\\*|(${escape(company.email)})|(${escape(company.website)})`, 'g');
   let last = 0;
   for (const match of text.matchAll(pattern)) {
     if (match.index > last) parts.push(text.slice(last, match.index));
     const key = `${match.index}`;
     if (match[1] !== undefined) parts.push(<strong key={key}><Inline text={match[1]} /></strong>);
-    else parts.push(<a key={key} href={`mailto:${company.email}`}>{company.email}</a>);
+    else if (match[2] !== undefined) parts.push(<a key={key} href={`mailto:${company.email}`}>{company.email}</a>);
+    else parts.push(<a key={key} href={company.website}>{company.website}</a>);
     last = match.index + match[0].length;
   }
   if (last < text.length) parts.push(text.slice(last));
   return <>{parts}</>;
 }
 
-function Blocks({ blocks }: { blocks: PolicyBlock[] }) {
+function Facts({ facts }: { facts: [string, string][] }) {
+  return <dl className="pp-facts">{facts.map(([term, value]) => <div key={term}><dt>{term}</dt><dd><Inline text={value} /></dd></div>)}</dl>;
+}
+
+function Blocks({ blocks = [] }: { blocks?: PolicyBlock[] }) {
   return blocks.map((block, i) => {
     if (typeof block === 'string') return <p key={i}><Inline text={block} /></p>;
-    const items = block.list.map((item, j) => <li key={j}><Inline text={item} /></li>);
-    return block.ordered ? <ol key={i}>{items}</ol> : <ul key={i}>{items}</ul>;
+    if ('list' in block) return <ul key={i}>{block.list.map((item, j) => <li key={j}><Inline text={item} /></li>)}</ul>;
+    return <div key={i} className="pp-panel"><h3>{block.title}</h3><Facts facts={block.facts} /></div>;
   });
 }
 
@@ -37,14 +44,15 @@ export default function PrivacyPolicyPage({ locale }: { locale: PolicyLocale }) 
       <LanguageSwitch locale={locale} />
       <h1 id="pp-title">{policy.title}</h1>
       <p className="pp-updated">{policy.updatedLabel}: <time dateTime={company.updated}>{policy.updated}</time></p>
+      <Facts facts={policy.meta} />
     </header>
 
-    {policy.sections.length > 0 && <nav className="pp-contents" aria-labelledby="pp-contents-title">
+    <nav className="pp-contents" aria-labelledby="pp-contents-title">
       <h2 id="pp-contents-title">{policy.contentsLabel}</h2>
       <ol>{policy.sections.map(section => <li key={section.number}>
         <a href={`#${sectionId(section.number)}`}><span>{section.number}.</span>{section.title}</a>
       </li>)}</ol>
-    </nav>}
+    </nav>
 
     <div className="pp-body">
       {policy.sections.map(section => <section key={section.number} id={sectionId(section.number)} aria-labelledby={`${sectionId(section.number)}-title`}>
@@ -54,17 +62,11 @@ export default function PrivacyPolicyPage({ locale }: { locale: PolicyLocale }) 
           <h3 id={`${sectionId(sub.number)}-title`}><span className="pp-number">{sub.number}</span> {sub.title}</h3>
           <Blocks blocks={sub.blocks} />
         </section>)}
+        <Blocks blocks={section.closing} />
       </section>)}
-
-      <section className="pp-enquiries" id="enquiries" aria-labelledby="enquiries-title">
-        <h2 id="enquiries-title">{policy.enquiries.title}</h2>
-        <dl>{policy.enquiries.facts.map(([term, value]) => <div key={term}>
-          <dt>{term}</dt>
-          <dd>{value === company.email ? <a href={`mailto:${company.email}`}>{value}</a> : value === company.website ? <a href={company.website}>{value}</a> : value}</dd>
-        </div>)}</dl>
-        <Blocks blocks={policy.enquiries.blocks} />
-      </section>
     </div>
+
+    <footer className="pp-colophon">{policy.colophon.map(line => <p key={line}><Inline text={line} /></p>)}</footer>
   </article></main>;
 }
 
