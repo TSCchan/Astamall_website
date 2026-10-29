@@ -677,3 +677,52 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .category-row[data-category] .category-row-copy h3,.category-row[data-category]:hover .category-row-copy h3,.category-row[data-category] .category-row-index,.category-row[data-category] .category-row-arrow{color:var(--cat-ink)}
 .category-row[data-category]:before{background:var(--cat-bg)}
 .ab-collection[data-category] .ab-collection-name,.ab-collection[data-category]:hover .ab-collection-name{color:var(--cat-ink)}
+
+/* Privacy Policy: a quiet, readable legal page in two languages */
+.inner-page.privacy-page{max-width:1120px}
+.pp{--pp-text:#4a3a3d;color:var(--pp-text)}
+.pp-header{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:12px 32px;padding-bottom:clamp(28px,3.5vw,40px);border-bottom:1px solid var(--line)}
+.inner-page .pp-header h1{grid-column:1;grid-row:1;margin:0;font-family:var(--font-display);font-weight:500;font-size:clamp(2.6rem,5vw,4.2rem);line-height:1.04;letter-spacing:-.03em;color:var(--ink)}
+.pp-updated{grid-column:1;margin:0;font-size:14px;color:var(--muted)}
+.pp-lang{grid-column:2;grid-row:1;display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:999px;background:rgba(255,253,249,.7)}
+.pp-lang a{display:inline-flex;align-items:center;min-height:36px;padding:0 15px;border-radius:999px;font-size:13px;letter-spacing:.01em;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color .25s,background-color .3s var(--ease-out)}
+.pp-lang a:hover{color:var(--wine)}
+.pp-lang a[aria-current=page]{background:var(--wine);color:var(--paper);cursor:default}
+.pp-lang a:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+.pp-contents{padding:clamp(24px,3vw,34px) 0;border-bottom:1px solid var(--line)}
+.inner-page .pp-contents h2{margin:0 0 16px;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pp-contents ol{list-style:none;margin:0;padding:0;columns:2;column-gap:48px}
+.pp-contents li{break-inside:avoid}
+.pp-contents a{display:flex;gap:10px;padding:6px 0;font-size:14.5px;line-height:1.5;color:var(--pp-text);text-decoration:none;transition:color .2s}
+.pp-contents a span{min-width:24px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pp-contents a:hover{color:var(--wine)}
+.pp-body{max-width:72ch}
+.pp-body>section{margin-top:clamp(32px,4vw,48px)}
+.inner-page .pp-body h2{margin:0 0 16px;font-family:var(--font-display);font-weight:500;font-size:clamp(1.7rem,2.6vw,2.2rem);line-height:1.15;letter-spacing:-.015em;color:var(--ink)}
+.inner-page .pp-body h3{margin:28px 0 10px;font-family:var(--font-body);font-weight:500;font-size:17px;line-height:1.45;color:var(--ink)}
+.pp h1,.pp h2,.pp h3,.pp-number{font-variant-numeric:lining-nums}
+.pp-body p,.pp-body li{font-size:16px;line-height:1.8}
+.pp-body p{margin:0 0 16px}
+.pp-body ul,.pp-body ol{margin:0 0 18px;padding-left:1.4em}
+.pp-body ul{list-style:disc}
+.pp-body ol{list-style:decimal}
+.pp-body li{margin-bottom:6px;padding-left:.2em}
+.pp-body ul li::marker{color:var(--wine)}
+.pp-body strong{font-weight:500;color:var(--ink)}
+.pp-body a{color:var(--wine);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.pp-body a:hover{text-decoration-thickness:2px}
+.pp-body a:focus-visible{outline:2px solid var(--wine);outline-offset:3px;border-radius:2px}
+.pp-enquiries{margin-top:clamp(40px,5vw,60px);padding-top:clamp(32px,4vw,44px)!important;border-top:1px solid var(--line)}
+.pp-enquiries dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:10px 28px;margin:0 0 24px;font-size:15px;line-height:1.6}
+.pp-enquiries dl>div{display:contents}
+.pp-enquiries dt{color:var(--muted)}
+.pp-enquiries dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+@media (max-width:720px){
+  .pp-header{grid-template-columns:1fr}
+  .pp-lang{grid-column:1;grid-row:1;justify-self:start}
+  .inner-page .pp-header h1{grid-row:2}
+  .pp-contents ol{columns:1}
+  .pp-enquiries dl{grid-template-columns:1fr;gap:2px}
+  .pp-enquiries dd{margin-bottom:10px}
+}
+@media (prefers-reduced-motion:reduce){.pp-lang a,.pp-contents a{transition:none}}
