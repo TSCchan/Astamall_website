@@ -655,6 +655,10 @@ export const privacyPolicy: LegalDocuments = {
                 "202604002255"
               ],
               [
+                "Business Address",
+                "No. 16-17, Jalan Taming P/1 off Lebuh Taming, Taman Taming Jaya, 43300 Balakong, Selangor"
+              ],
+              [
                 "Website",
                 "https://www.astamall.com.my"
               ],
@@ -1242,6 +1246,10 @@ export const privacyPolicy: LegalDocuments = {
               [
                 "Nombor Pendaftaran Perniagaan",
                 "202604002255"
+              ],
+              [
+                "Alamat Perniagaan",
+                "No. 16-17, Jalan Taming P/1 off Lebuh Taming, Taman Taming Jaya, 43300 Balakong, Selangor"
               ],
               [
                 "Laman Web",
