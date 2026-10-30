@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowUUpLeft, Check, EnvelopeSimple, Globe, Medal, Translate, Truck } from '@phosphor-icons/react';
-import { productBrand, type Product } from '@/lib/catalog';
+import { productBrandOf, type Product } from '@/lib/catalog';
 
 type Group = { id: string; label: string };
 
@@ -34,7 +34,7 @@ export function ProductInformation({ product, usageGuide, references }: { produc
   }, []);
 
   const facts: Array<[string, string]> = [
-    ['Brand', product.sourceUrl ? 'NAFU LIFE' : productBrand],
+    ['Brand', productBrandOf(product)],
     ['Origin', 'Taiwan'],
     ['Category', product.category],
     ['Size', product.size || 'Refer to product packaging'],

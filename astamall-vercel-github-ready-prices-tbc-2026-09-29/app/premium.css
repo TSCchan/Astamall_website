@@ -739,3 +739,9 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .pp-panel{padding:18px 18px}
 }
 @media (prefers-reduced-motion:reduce){.pp-lang a,.pp-contents a{transition:none}}
+
+/* Journal: links to the pages an article talks about */
+.journal-article .journal-related{max-width:720px;margin:-24px auto 48px;padding-top:28px;border-top:1px solid var(--line)}
+.journal-article .journal-related h2{margin:0 0 16px;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.journal-article .journal-related ul{display:flex;flex-wrap:wrap;gap:14px 30px;margin:0;padding:0;list-style:none}
+.journal-article .journal-related a{font-size:15px}

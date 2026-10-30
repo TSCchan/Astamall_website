@@ -12,7 +12,7 @@ const check = (ok, message) => {
 
 const fetchPage = async path => {
   const res = await fetch(base + path, { redirect: 'manual' });
-  const body = res.headers.get('content-type')?.includes('text') ? await res.text() : '';
+  const body = /text|xml/.test(res.headers.get('content-type') ?? '') ? await res.text() : '';
   return { status: res.status, location: res.headers.get('location'), robotsHeader: res.headers.get('x-robots-tag') ?? '', body };
 };
 const titlesOf = html => [...html.replace(/<svg[\s\S]*?<\/svg>/g, '').matchAll(/<title>([^<]*)<\/title>/g)].map(m => m[1].replace(/&amp;/g, '&'));
@@ -97,6 +97,87 @@ for (const [from, to] of [['/brand-story', '/about#journey'], ['/privacy', '/pri
 // 6. Google Search Console verification file
 const verification = await fetchPage('/google9409f2a807c1b58a.html');
 check(verification.status === 200 && verification.body.trim() === 'google-site-verification: google9409f2a807c1b58a.html', 'Search Console verification file is served unchanged');
+
+// 7. Phase 2: sitemap, canonicals, descriptions, headings, images and structured data
+const site = 'https://www.astamall.com.my';
+check(new RegExp(`^Sitemap: ${site}/sitemap.xml$`, 'm').test(robots.body), 'robots.txt points to the production sitemap');
+const sitemap = await fetchPage('/sitemap.xml');
+const locs = [...sitemap.body.matchAll(/<loc>([^<]*)<\/loc>/g)].map(m => m[1].replace(/&amp;/g, '&'));
+check(sitemap.status === 200 && /^<\?xml/.test(sitemap.body) && /<urlset[^>]*sitemaps.org\/schemas\/sitemap\/0.9/.test(sitemap.body), `/sitemap.xml is a valid urlset (${locs.length} URLs)`);
+check(locs.every(loc => loc === site || loc.startsWith(site + '/')), 'every sitemap URL is absolute on the production host');
+check(new Set(locs).size === locs.length, 'no duplicate sitemap URLs');
+check(!/changefreq|priority/.test(sitemap.body), 'no change frequency or priority claimed');
+
+const canonicalOf = html => [...html.matchAll(/<link rel="canonical" href="([^"]*)"/g)].map(m => m[1].replace(/&amp;/g, '&'));
+const descriptionOf = html => [...html.matchAll(/<meta name="description" content="([^"]*)"/g)].map(m => m[1].replace(/&amp;/g, '&').replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"'));
+const sitemapProblems = [];
+for (const loc of locs) {
+  const path = loc.slice(site.length) || '/';
+  const page = pages.get(path) ?? await fetchPage(path);
+  if (page.status !== 200) sitemapProblems.push(`${path} ${page.status}`);
+  else if (noindex(page)) sitemapProblems.push(`${path} noindex`);
+  else if (canonicalOf(page.body)[0] !== loc) sitemapProblems.push(`${path} canonical ${canonicalOf(page.body)[0]}`);
+}
+check(sitemapProblems.length === 0, 'every sitemap URL responds 200, is indexable and is its own canonical' + (sitemapProblems.length ? `: ${sitemapProblems.join(', ')}` : ''));
+const crawled = indexable.map(([path]) => path === '/' ? site : site + path);
+const notInSitemap = crawled.filter(url => !locs.includes(url));
+const notCrawled = locs.filter(url => !crawled.includes(url));
+check(notInSitemap.length === 0, 'every indexable page found by crawling is in the sitemap' + (notInSitemap.length ? `: ${notInSitemap.join(', ')}` : ''));
+check(notCrawled.length === 0, 'every sitemap page is reachable through internal links' + (notCrawled.length ? `: ${notCrawled.join(', ')}` : ''));
+
+const descriptions = new Map();
+const outlineProblems = [];
+const altProblems = [];
+for (const [path, page] of indexable) {
+  const canon = canonicalOf(page.body), desc = descriptionOf(page.body);
+  if (canon.length !== 1) check(false, `${path} has exactly one canonical (found ${canon.length})`);
+  if (desc.length !== 1) check(false, `${path} has exactly one description (found ${desc.length})`);
+  else {
+    if (desc[0].length < 70 || desc[0].length > 165) check(false, `${path} description is ${desc[0].length} characters`);
+    descriptions.set(desc[0], [...(descriptions.get(desc[0]) ?? []), path]);
+  }
+  const levels = [...page.body.replace(/<svg[\s\S]*?<\/svg>/g, '').matchAll(/<h([1-6])\b/g)].map(m => +m[1]);
+  if (levels.filter(l => l === 1).length !== 1) outlineProblems.push(`${path}: ${levels.filter(l => l === 1).length} h1`);
+  levels.forEach((l, i) => { if (i && l > levels[i - 1] + 1) outlineProblems.push(`${path}: h${levels[i - 1]} -> h${l}`); });
+  for (const [, tag] of page.body.matchAll(/(<img\b[^>]*>)/g)) if (!/\salt="/.test(tag)) altProblems.push(`${path}: ${tag.slice(0, 80)}`);
+}
+const duplicateDescriptions = [...descriptions].filter(([, paths]) => paths.length > 1);
+check(duplicateDescriptions.length === 0, `${descriptions.size} unique descriptions` + (duplicateDescriptions.length ? `: ${duplicateDescriptions.map(([, p]) => p.join(' = ')).join('; ')}` : ''));
+check(outlineProblems.length === 0, 'one h1 per page and no skipped heading levels' + (outlineProblems.length ? `: ${[...new Set(outlineProblems)].slice(0, 6).join(', ')}` : ''));
+check(altProblems.length === 0, 'every image has an alt attribute' + (altProblems.length ? `: ${altProblems.slice(0, 3).join(', ')}` : ''));
+
+const tracked = await fetchPage('/shop?utm_source=instagram&utm_medium=social');
+check(canonicalOf(tracked.body)[0] === `${site}/shop`, `tracking parameters canonicalise to the clean URL (${canonicalOf(tracked.body)[0]})`);
+const filtered = await fetchPage('/shop?category=Skincare&utm_source=newsletter');
+check(canonicalOf(filtered.body)[0] === `${site}/shop?category=Skincare`, `a category view keeps its category in the canonical (${canonicalOf(filtered.body)[0]})`);
+const shared = await fetchPage('/contact?utm_source=instagram');
+check(!noindex(shared) && canonicalOf(shared.body)[0] === `${site}/contact`, 'a tracked contact link stays indexable and canonicalises to /contact');
+
+// structured data: valid JSON, the right types in the right places, nothing promised that is not there
+const jsonld = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
+const typesOf = blocks => blocks.flatMap(b => (b['@graph'] ?? [b]).map(n => n['@type']));
+let parseErrors = 0;
+const typesAt = {};
+for (const [path, page] of indexable) {
+  try { typesAt[path] = typesOf(jsonld(page.body)); } catch { parseErrors++; }
+}
+check(parseErrors === 0, 'all JSON-LD blocks parse');
+const home = jsonld(pages.get('/').body).flatMap(b => b['@graph'] ?? [b]);
+const org = home.find(n => n['@type'] === 'Organization');
+check(!!org && org.name === 'ASTAMALL' && org.legalName === 'ASTA MALL PLT' && org.url === `${site}/` && org.logo?.url?.startsWith(site), 'home page: Organization with name, legal name, URL and logo');
+check(home.some(n => n['@type'] === 'WebSite' && !n.potentialAction), 'home page: WebSite, without a search action');
+const lipstick = typesAt['/shop/asta-s-glow-lipstick'] ?? [];
+check(lipstick.includes('BreadcrumbList'), 'product page: BreadcrumbList');
+check(!Object.values(typesAt).flat().some(t => t === 'Product' || t === 'ProductGroup' || t === 'Offer'), 'no Product or Offer markup while prices are to be confirmed');
+check((typesAt['/journal/why-we-started-with-astaxanthin'] ?? []).includes('BlogPosting'), 'journal article: BlogPosting');
+check((typesAt['/faq'] ?? []).includes('FAQPage'), 'FAQ page: FAQPage');
+const duplicateTypes = Object.entries(typesAt).filter(([, types]) => new Set(types).size !== types.length);
+check(duplicateTypes.length === 0, 'no page repeats a structured data type' + (duplicateTypes.length ? `: ${duplicateTypes.map(([p]) => p).join(', ')}` : ''));
+const crumbs = jsonld(pages.get('/shop/asta-s-glow-lipstick').body).flatMap(b => b['@graph'] ?? [b]).find(n => n['@type'] === 'BreadcrumbList');
+const crumbUrls = crumbs.itemListElement.map(item => item.item);
+const crumbProblems = [];
+for (const url of crumbUrls) { const page = await fetchPage(url.slice(site.length)); if (page.status !== 200) crumbProblems.push(`${url} ${page.status}`); }
+check(crumbProblems.length === 0, `breadcrumb links resolve (${crumbUrls.map(u => u.slice(site.length) || '/').join(' > ')})`);
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll SEO checks passed');
 process.exit(failures ? 1 : 0);
