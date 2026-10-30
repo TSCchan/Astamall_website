@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/reveal';
 import { ProductCard } from '@/components/brand';
@@ -15,6 +16,8 @@ const marquee = ['Skincare & beauty', 'Health foods', 'Health supplements', 'Ast
 const serum = products.find(p => p.slug === 'asta-s-rejuvenating-serum')!;
 // The serum has its own spotlight; award-winning products lead the rest of the collection.
 const collection = products.filter(p => p.slug !== serum.slug).sort((a, b) => Number(!!b.award) - Number(!!a.award));
+
+export const metadata: Metadata = { title: { absolute: 'ASTAMALL Malaysia | Taiwanese Skincare, Lipstick & Beauty' } };
 
 export default function Home() {
   return <main id="main-content" className="premium-home refined-home lux-home">

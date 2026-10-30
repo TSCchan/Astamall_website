@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { PageHeading, ProductCard, IngredientMark } from '@/components/brand';
 import { Shop, ProductPurchase, ProductGallery, ProductSelectionProvider } from '@/components/shop';
 import { ProductInformation } from '@/components/product-information';
@@ -10,14 +10,13 @@ import { FaqList, ContactForm } from '@/components/forms';
 import AboutStory from '@/components/about-story';
 import { Checkout, OrderConfirmation } from '@/components/checkout';
 import ProductReviews from '@/components/product-reviews';
-import { products, ingredients, articles, faqs } from '@/lib/catalog';
+import { products, ingredients, articles, faqs, categories } from '@/lib/catalog';
 
-type Props = { params: Promise<{ path: string[] }> };
+type Props = { params: Promise<{ path: string[] }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 const pageMeta: Record<string, [string, string]> = {
   shop: ['The Collection', 'Discover ASTAMALL skincare, health foods and health supplements from Taiwan.'],
   astaxanthin: ['Discover Astaxanthin', 'The ingredient that began the ASTAMALL story, and the technology behind Asta-S.'],
   ingredients: ['Ingredient Library', 'Get to know the ingredients and technologies behind our beauty and wellness collection.'],
-  'brand-story': ['Brand Story', 'The journey behind ASTAMALL, from ingredient discovery to Taiwan and Malaysia.'],
   about: ['About Us', 'From Taiwan, thoughtfully brought to Malaysia. The ASTAMALL story.'],
   journal: ['Journal', 'Ingredient understanding, everyday beauty and the ASTAMALL journey.'],
   faq: ['Frequently Asked Questions', 'Answers about the ASTAMALL collection, ingredients and upcoming launch.'],
@@ -27,14 +26,41 @@ const pageMeta: Record<string, [string, string]> = {
   terms: ['Terms', 'Terms information for the ASTAMALL storefront preview.'], 
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+// Search titles: the page's topic first, then the brand. Visible headings come from pageMeta and are unaffected.
+const seoTitles: Record<string, string> = {
+  shop: 'Shop Skincare, Beauty & Wellness Malaysia | ASTAMALL',
+  about: 'About ASTAMALL | Our Brand & Beauty Philosophy',
+  faq: 'Frequently Asked Questions | ASTAMALL',
+  contact: 'Contact ASTAMALL Malaysia',
+  journal: 'ASTAMALL Journal | Ingredient & Beauty Stories',
+};
+const categoryTitles: Record<string, string> = {
+  Skincare: 'Skincare & Beauty Products Malaysia | ASTAMALL',
+  'Health Foods': 'Health Foods Malaysia | ASTAMALL',
+  'Health Supplements': 'Health Supplements Malaysia | ASTAMALL',
+};
+/** `name | suffix`, falling back to the shorter suffix when the title would run past what search results show. */
+const titled = (name: string, suffix: string, short = 'ASTAMALL') => `${name} | ${suffix}`.length <= 60 ? `${name} | ${suffix}` : `${name} | ${short}`;
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { path } = await params;
   const [section, slug] = path;
   let meta = pageMeta[section];
-  if (section === 'shop' && slug) { const p = products.find(p => p.slug === slug); if (p) meta = [p.name, p.description]; }
-  if (section === 'ingredients' && slug) { const i = ingredients.find(i => i.slug === slug); if (i) meta = [i.name, i.caption]; }
-  if (section === 'journal' && slug) { const a = articles.find(a => a.slug === slug); if (a) meta = [a.title, a.excerpt]; }
-  return { title: meta?.[0] || 'Page not found', description: meta?.[1], robots: ['cart', 'checkout', 'order-confirmation'].includes(section) ? { index: false, follow: false } : undefined };
+  let title: string | undefined = seoTitles[section];
+  if (section === 'shop' && slug) { const p = products.find(p => p.slug === slug); if (p) { meta = [p.name, p.description]; title = titled(p.name, 'ASTAMALL Malaysia'); } }
+  if (section === 'ingredients' && slug) { const i = ingredients.find(i => i.slug === slug); if (i) { meta = [i.name, i.caption]; title = titled(i.name, 'Ingredient Library | ASTAMALL'); } }
+  if (section === 'journal' && slug) { const a = articles.find(a => a.slug === slug); if (a) { meta = [a.title, a.excerpt]; title = titled(a.title, 'ASTAMALL Journal'); } }
+  const query = await searchParams;
+  const category = typeof query.category === 'string' ? query.category : undefined;
+  if (section === 'shop' && !slug && category && categories.includes(category) && categoryTitles[category]) title = categoryTitles[category];
+  // cart, checkout and confirmation stay out of search; so do contact links pre-filled with a product enquiry
+  const privatePage = ['cart', 'checkout', 'order-confirmation'].includes(section);
+  const prefilledEnquiry = section === 'contact' && Object.keys(query).length > 0;
+  return {
+    title: title ? { absolute: title } : meta?.[0] || 'Page not found',
+    description: meta?.[1],
+    robots: privatePage ? { index: false, follow: false } : prefilledEnquiry ? { index: false, follow: true } : undefined,
+  };
 }
 
 function JsonLd({ value }: { value: unknown }) { return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(value).replace(/</g, '\\u003c') }} />; }
@@ -44,7 +70,6 @@ export default async function ContentPage({ params }: Props) {
   if (path.length > 2) notFound();
   const [section, slug] = path;
   if (slug && !['shop', 'ingredients', 'journal'].includes(section)) notFound();
-  if (section === 'brand-story') redirect('/about#journey');
   if (section === 'shop' && slug) {
     const p = products.find(p => p.slug === slug);
     if (!p) notFound();
