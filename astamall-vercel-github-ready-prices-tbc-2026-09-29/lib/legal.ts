@@ -6,6 +6,8 @@
  * links wherever they appear.
  */
 
+import { business } from '@/lib/site';
+
 export type LegalLocale = 'en' | 'ms';
 
 /** A paragraph, a list of points, a short table of labelled details, or a table. */
@@ -46,10 +48,10 @@ export type LegalDocument = {
 export type LegalDocuments = Record<LegalLocale, LegalDocument>;
 
 export const company = {
-  legalName: 'ASTA MALL PLT',
-  registration: '202604002255',
+  legalName: business.legalName,
+  registration: business.registration,
   website: 'https://www.astamall.com.my',
-  email: 'astamall92@gmail.com',
+  email: business.email,
 };
 
 export const sectionId = (number: number | string) => `section-${String(number).replace(/\./g, '-')}`;

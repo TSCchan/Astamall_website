@@ -323,7 +323,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 /* ---------- Ingredient pages ---------- */
 .inner-page .page-heading h1,.inner-page .ingredient-detail .prose h2,.inner-page .related-section>h2{font-family:var(--font-display);font-weight:500}
 .ingredient-detail-art{background:transparent!important;display:grid;place-items:center;overflow:visible!important;aspect-ratio:1!important}
-.ingredient-mark{position:relative;width:min(100%,460px);aspect-ratio:1;display:grid;place-items:center}
+.ingredient-mark{position:relative;width:min(100%,460px);aspect-ratio:1;display:grid;place-items:center;overflow-x:clip}
 .ingredient-mark:before{content:"";position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#b8434f,var(--wine) 70%);box-shadow:0 40px 80px -30px rgba(100,28,43,.6),inset 0 2px 0 rgba(255,255,255,.15)}
 .ingredient-mark-ring{position:absolute;inset:0;width:100%;height:100%;animation:lux-spin 40s linear infinite}
 .ingredient-mark-ring text{font-family:var(--font-body);font-size:11px;letter-spacing:.2em;fill:var(--wine)}
@@ -598,7 +598,7 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
 .ft-social a:hover{background:var(--wine);border-color:var(--wine);color:var(--paper);transform:translateY(-3px)}
 .ft-copy{width:100%;margin-top:clamp(30px,3.4vw,40px);padding-top:clamp(22px,2.6vw,30px);border-top:1px solid var(--line);font-size:13.5px;color:var(--muted)}
 .ft a:focus-visible{outline:2px solid var(--wine);outline-offset:4px;border-radius:4px}
-.ft-wordmark{max-width:1400px;margin:clamp(40px,5vw,72px) auto 0;font-family:var(--font-display);font-size:clamp(4rem,17.5vw,17rem);line-height:.8;letter-spacing:-.05em;text-align:center;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--wine) 35%,transparent);user-select:none;white-space:nowrap}
+.ft-wordmark{max-width:1400px;margin:clamp(40px,5vw,72px) auto 0;font-family:var(--font-display);font-size:clamp(3rem,17.5vw,17rem);line-height:.8;letter-spacing:-.05em;text-align:center;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--wine) 35%,transparent);user-select:none;white-space:nowrap}
 
 /* ---------- Product information: one section, every group visible ---------- */
 .lux-detail .pdp-information{margin:0 auto;max-width:none}
@@ -739,3 +739,9 @@ html[data-scrolled] .site-header .brand-logo{width:50px}
   .pp-panel{padding:18px 18px}
 }
 @media (prefers-reduced-motion:reduce){.pp-lang a,.pp-contents a{transition:none}}
+
+/* Journal: links to the pages an article talks about */
+.journal-article .journal-related{max-width:720px;margin:-24px auto 48px;padding-top:28px;border-top:1px solid var(--line)}
+.journal-article .journal-related h2{margin:0 0 16px;font-family:var(--font-body);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.journal-article .journal-related ul{display:flex;flex-wrap:wrap;gap:14px 30px;margin:0;padding:0;list-style:none}
+.journal-article .journal-related a{font-size:15px}

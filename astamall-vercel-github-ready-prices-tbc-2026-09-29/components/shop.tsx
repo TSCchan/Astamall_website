@@ -25,7 +25,8 @@ export function Shop() {
 function ShopFilters({ initial }: { initial: string }) {
  const [category,setCategory]=useState(initial); const reduce=useReducedMotion();
  const shown=products.filter(p=>category==='All'||p.category===category);
- return <section className="shop-editorial" aria-label="Products">
+ return <section className="shop-editorial" aria-labelledby="shop-products-title">
+  <h2 id="shop-products-title" className="sr-only">Products</h2>
   <motion.div className="shop-toolbar lux-toolbar" initial={reduce?false:{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:.6,ease:[.16,1,.3,1]}}>
    <div className="category-filters motion-filters" aria-label="Product categories">{categories.map(c=><button key={c} aria-pressed={c===category} onClick={()=>setCategory(c)}>{c===category&&<motion.span className="filter-selection" layoutId="active-category" transition={{type:'spring',stiffness:380,damping:32}}/>}<span>{c}</span><small>{c==='All'?products.length:products.filter(p=>p.category===c).length}</small></button>)}</div>
   </motion.div>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { PageHeading, ProductCard, IngredientMark } from '@/components/brand';
 import { Shop, ProductPurchase, ProductGallery, ProductSelectionProvider } from '@/components/shop';
 import { ProductInformation } from '@/components/product-information';
@@ -11,13 +11,15 @@ import AboutStory from '@/components/about-story';
 import { Checkout, OrderConfirmation } from '@/components/checkout';
 import ProductReviews from '@/components/product-reviews';
 import { products, ingredients, articles, faqs } from '@/lib/catalog';
+import { sectionSeo, categorySeo, productSeo, ingredientSeo, articleSeo, shopCategory, canonicalPath } from '@/lib/seo';
+import { breadcrumbs, blogPosting, graph, productStructuredData } from '@/lib/structured-data';
+import { JsonLd } from '@/components/json-ld';
 
-type Props = { params: Promise<{ path: string[] }> };
+type Props = { params: Promise<{ path: string[] }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 const pageMeta: Record<string, [string, string]> = {
   shop: ['The Collection', 'Discover ASTAMALL skincare, health foods and health supplements from Taiwan.'],
   astaxanthin: ['Discover Astaxanthin', 'The ingredient that began the ASTAMALL story, and the technology behind Asta-S.'],
   ingredients: ['Ingredient Library', 'Get to know the ingredients and technologies behind our beauty and wellness collection.'],
-  'brand-story': ['Brand Story', 'The journey behind ASTAMALL, from ingredient discovery to Taiwan and Malaysia.'],
   about: ['About Us', 'From Taiwan, thoughtfully brought to Malaysia. The ASTAMALL story.'],
   journal: ['Journal', 'Ingredient understanding, everyday beauty and the ASTAMALL journey.'],
   faq: ['Frequently Asked Questions', 'Answers about the ASTAMALL collection, ingredients and upcoming launch.'],
@@ -27,24 +29,37 @@ const pageMeta: Record<string, [string, string]> = {
   terms: ['Terms', 'Terms information for the ASTAMALL storefront preview.'], 
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { path } = await params;
   const [section, slug] = path;
-  let meta = pageMeta[section];
-  if (section === 'shop' && slug) { const p = products.find(p => p.slug === slug); if (p) meta = [p.name, p.description]; }
-  if (section === 'ingredients' && slug) { const i = ingredients.find(i => i.slug === slug); if (i) meta = [i.name, i.caption]; }
-  if (section === 'journal' && slug) { const a = articles.find(a => a.slug === slug); if (a) meta = [a.title, a.excerpt]; }
-  return { title: meta?.[0] || 'Page not found', description: meta?.[1], robots: ['cart', 'checkout', 'order-confirmation'].includes(section) ? { index: false, follow: false } : undefined };
+  const query = await searchParams;
+  // titles and descriptions live in lib/seo.ts; visible headings come from pageMeta and are unaffected
+  let seo = slug ? undefined : sectionSeo[section];
+  if (section === 'shop' && slug) { const p = products.find(p => p.slug === slug); seo = p && productSeo(p); }
+  if (section === 'ingredients' && slug) seo = ingredientSeo(slug);
+  if (section === 'journal' && slug) seo = articleSeo(slug);
+  const category = section === 'shop' && !slug ? shopCategory(query.category) : undefined;
+  if (category && categorySeo[category]) seo = categorySeo[category];
+  // cart, checkout and confirmation stay out of search; so do contact links pre-filled with a product enquiry
+  const privatePage = ['cart', 'checkout', 'order-confirmation'].includes(section);
+  const prefilledEnquiry = section === 'contact' && ['product', 'items', 'topic'].some(key => key in query);
+  if (seo && !privatePage && !prefilledEnquiry) {
+    // any other query (tracking parameters, for instance) points back to the clean URL
+    return { title: { absolute: seo.title }, description: seo.description, alternates: { canonical: canonicalPath(path, category) } };
+  }
+  const meta = pageMeta[section];
+  return {
+    title: seo ? { absolute: seo.title } : meta?.[0] || 'Page not found',
+    description: seo?.description ?? meta?.[1],
+    robots: privatePage ? { index: false, follow: false } : prefilledEnquiry ? { index: false, follow: true } : undefined,
+  };
 }
-
-function JsonLd({ value }: { value: unknown }) { return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(value).replace(/</g, '\\u003c') }} />; }
 
 export default async function ContentPage({ params }: Props) {
   const { path } = await params;
   if (path.length > 2) notFound();
   const [section, slug] = path;
   if (slug && !['shop', 'ingredients', 'journal'].includes(section)) notFound();
-  if (section === 'brand-story') redirect('/about#journey');
   if (section === 'shop' && slug) {
     const p = products.find(p => p.slug === slug);
     if (!p) notFound();
@@ -56,7 +71,9 @@ export default async function ContentPage({ params }: Props) {
       .filter(other => other.slug !== p.slug)
       .sort((a, b) => relatedScore(b) - relatedScore(a))
       .slice(0, 4);
+    const productData = productStructuredData(p);
     return <main id="main-content" className="inner-page premium-detail lux-detail">
+      <JsonLd value={graph(breadcrumbs([{ name: 'Shop', path: '/shop' }, { name: p.category, path: canonicalPath(['shop'], p.category) }, { name: p.name, path: `/shop/${p.slug}` }]), ...(productData ? [productData] : []))} />
       <div className="breadcrumbs"><Link href="/shop">Shop</Link><span>/</span><Link href={`/shop?category=${encodeURIComponent(p.category)}`}>{p.category}</Link><span>/</span><span>{p.short}</span></div>
       <ProductSelectionProvider key={p.slug}><section className="pdp-hero" id="overview"><ProductGallery product={p}/><div className="pdp-copy"><p className="product-category-label"><span className="category-tag" data-category={p.category}>{p.category}</span></p><h1>{p.name}</h1><p className="intro-text">{p.description}</p><ProductPurchase product={p}/></div></section></ProductSelectionProvider>
       <div className="pdp-information">
@@ -73,7 +90,7 @@ export default async function ContentPage({ params }: Props) {
     const ingredient = ingredients.find(i => i.slug === slug);
     if (!ingredient) notFound();
     const containing = products.filter(p => p.ingredients.includes(slug) || (slug === 'astaxanthin' && p.ingredients.includes('asta-s')));
-    return <main id="main-content" className="inner-page"><div className="breadcrumbs"><Link href="/ingredients">Ingredient Library</Link><span>/</span><span>{ingredient.name}</span></div><PageHeading title={ingredient.name} text={ingredient.caption} /><div className="ingredient-detail"><div className="ingredient-detail-art"><IngredientMark name={ingredient.name} ring={ingredient.caption.replace(/\.$/, '').toUpperCase()} /></div><div className="prose"><section><h2>What is it?</h2><p>{ingredient.text}</p></section><section><h2>Why is it used?</h2><p>{ingredient.use}</p></section><section><h2>Within the formula.</h2><p>{ingredient.formula}</p></section></div></div><section className="related-section"><h2>Find it in the collection.</h2>{containing.length ? <div className="product-grid">{containing.map(p => <ProductCard key={p.slug} product={p} />)}</div> : <p>Product formulation details are being confirmed.</p>}</section></main>;
+    return <main id="main-content" className="inner-page"><JsonLd value={graph(breadcrumbs([{ name: 'Ingredient Library', path: '/ingredients' }, { name: ingredient.name, path: `/ingredients/${ingredient.slug}` }]))} /><div className="breadcrumbs"><Link href="/ingredients">Ingredient Library</Link><span>/</span><span>{ingredient.name}</span></div><PageHeading title={ingredient.name} text={ingredient.caption} /><div className="ingredient-detail"><div className="ingredient-detail-art"><IngredientMark name={ingredient.name} ring={ingredient.caption.replace(/\.$/, '').toUpperCase()} /></div><div className="prose"><section><h2>What is it?</h2><p>{ingredient.text}</p></section><section><h2>Why is it used?</h2><p>{ingredient.use}</p></section><section><h2>Within the formula.</h2><p>{ingredient.formula}</p></section></div></div><section className="related-section"><h2>Find it in the collection.</h2>{containing.length ? <div className="product-grid">{containing.map(p => <ProductCard key={p.slug} product={p} />)}</div> : <p>Product formulation details are being confirmed.</p>}</section></main>;
   }
   if (!pageMeta[section]) notFound();
   const [title, description] = pageMeta[section];
@@ -83,7 +100,7 @@ export default async function ContentPage({ params }: Props) {
     {section === 'ingredients' && <><PageHeading title="Know what goes in." text="An introduction to the ingredients and technologies behind the ASTAMALL collection, with clear distinctions between confirmed information and details still awaiting documentation." label="Ingredient Library" /><div className="ingredient-index">{ingredients.map((i, n) => <Link href={`/ingredients/${i.slug}`} key={i.slug}><span className="ingredient-index-number" aria-hidden="true">{String(n + 1).padStart(2, '0')}</span><div><h2>{i.name}</h2><p>{i.caption}</p></div><span aria-hidden="true">↗</span></Link>)}</div></>}
     {section === 'about' && <AboutStory />}
     {section === 'journal' && !slug && <><PageHeading title="ASTAMALL Journal" text="Ingredient stories, beauty routines, skin education and wellness, edited with clarity." label="Read and discover" /><div className="journal-index">{articles.map((article, index) => <Link href={`/journal/${article.slug}`} key={article.slug} className="journal-index-item"><div><span>{article.category}</span><h2>{article.title}</h2><p>{article.excerpt}</p><span className="text-link">Read article <span aria-hidden="true">↗</span></span></div></Link>)}</div></>}
-    {section === 'journal' && slug && (() => { const article=articles.find(item=>item.slug===slug); if(!article) notFound(); return <article className="journal-article"><div className="breadcrumbs"><Link href="/journal">Journal</Link><span>/</span><span>{article.category}</span></div><header><p className="eyebrow">{article.category}</p><h1>{article.title}</h1><p>{article.excerpt}</p></header><div className="journal-body">{article.paragraphs.map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div><Link href="/shop" className="button">Explore the Collection</Link></article>; })()}
+    {section === 'journal' && slug && (() => { const article=articles.find(item=>item.slug===slug); if(!article) notFound(); return <article className="journal-article"><JsonLd value={graph(breadcrumbs([{ name: 'Journal', path: '/journal' }, { name: article.title, path: `/journal/${article.slug}` }]), blogPosting(article, articleSeo(article.slug)!.description))} /><div className="breadcrumbs"><Link href="/journal">Journal</Link><span>/</span><span>{article.category}</span></div><header><p className="eyebrow">{article.category}</p><h1>{article.title}</h1><p>{article.excerpt}</p></header><div className="journal-body">{article.paragraphs.map(paragraph=><p key={paragraph}>{paragraph}</p>)}</div>{article.related&&<nav className="journal-related" aria-labelledby="journal-related-title"><h2 id="journal-related-title">Continue exploring</h2><ul>{article.related.map(link=><li key={link.href}><Link href={link.href} className="text-link">{link.label} <span aria-hidden="true">↗</span></Link></li>)}</ul></nav>}<Link href="/shop" className="button">Explore the Collection</Link></article>; })()}
     {section === 'faq' && <><JsonLd value={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }} /><PageHeading title="Help & FAQ" text="Products, payment and delivery information." /><FaqList /><div className="education-note"><h2>Still curious?</h2><Link href="/contact" className="button">Contact Us</Link></div></>}
     {section === 'contact' && <><PageHeading title="Contact us" text="Product questions, ingredient information or business enquiries." /><div className="contact-layout"><aside><h2>Let’s talk.</h2></aside><ContactForm /></div></>}
     {section === 'cart' && <><PageHeading title="Your cart" text="Review your items and selected options." /><div className="cart-page-content"><CartContents fullPage /></div></>}

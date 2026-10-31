@@ -4,6 +4,7 @@ import "./refinement.css";
 import "./premium.css";
 import StoreShell from '@/components/store-shell';
 import { Footer } from '@/components/brand';
+import { SITE_URL } from '@/lib/site';
 import '@fontsource/cormorant-garamond/500.css';
 import '@fontsource/cormorant-garamond/500-italic.css';
 import '@fontsource/dm-sans/400.css';
@@ -12,7 +13,7 @@ import '@fontsource/cormorant-garamond/400-italic.css';
 import '@fontsource/cormorant-garamond/600.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.astamall.com.my'),
+  metadataBase: new URL(SITE_URL),
   title: { default: 'ASTAMALL | Beauty, powered by Astaxanthin', template: '%s | ASTAMALL' },
   description: "Malaysia's home of astaxanthin beauty and wellness, with science-led formulas from Taiwan.",
   icons: {

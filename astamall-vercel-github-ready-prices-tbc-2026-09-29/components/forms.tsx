@@ -23,7 +23,8 @@ export function FaqList({ compact = false }: { compact?: boolean }) {
     </button>
   </>;
   const visible = faqs.filter(f => category === 'All' || f.category === category);
-  return <><div className="category-filters">{['All', ...faqs.map(f => f.category)].map(c => <button key={c} onClick={() => setCategory(c)} aria-pressed={c === category}>{c}</button>)}</div><Accordion type="single" collapsible className="faq-list">{visible.map(item)}</Accordion></>;
+  // the full list sits under the page title; the questions (h3) need a section heading above them
+  return <><h2 className="sr-only">All questions</h2><div className="category-filters">{['All', ...faqs.map(f => f.category)].map(c => <button key={c} onClick={() => setCategory(c)} aria-pressed={c === category}>{c}</button>)}</div><Accordion type="single" collapsible className="faq-list">{visible.map(item)}</Accordion></>;
 }
 
 const contactFields = [

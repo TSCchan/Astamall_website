@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:seo": "node scripts/seo-check.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

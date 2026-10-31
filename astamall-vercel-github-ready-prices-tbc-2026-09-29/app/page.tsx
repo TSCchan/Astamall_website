@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Reveal from '@/components/reveal';
 import { ProductCard } from '@/components/brand';
@@ -5,6 +6,9 @@ import { FaqList } from '@/components/forms';
 import { ProductRail, CategoryRow, Marquee } from '@/components/home-motion';
 import { products, articles } from '@/lib/catalog';
 import AstamallLiquidJourney from '@/components/ui/astamall-liquid-journey';
+import { JsonLd } from '@/components/json-ld';
+import { homeSeo } from '@/lib/seo';
+import { graph, organization, website } from '@/lib/structured-data';
 
 const categories = [
   { name: 'Skincare', label: 'Skincare & beauty', note: 'Your daily ritual, thoughtfully considered.' },
@@ -16,8 +20,11 @@ const serum = products.find(p => p.slug === 'asta-s-rejuvenating-serum')!;
 // The serum has its own spotlight; award-winning products lead the rest of the collection.
 const collection = products.filter(p => p.slug !== serum.slug).sort((a, b) => Number(!!b.award) - Number(!!a.award));
 
+export const metadata: Metadata = { title: { absolute: homeSeo.title }, description: homeSeo.description, alternates: { canonical: '/' } };
+
 export default function Home() {
   return <main id="main-content" className="premium-home refined-home lux-home">
+    <JsonLd value={graph(organization(), website())} />
     <div id="top" />
     <AstamallLiquidJourney />
 

@@ -6,6 +6,7 @@ import { FacebookLogo, InstagramLogo, TiktokLogo } from '@phosphor-icons/react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Logo } from '@/components/brand-assets';
 import { legalLinks, localeForPath } from '@/lib/legal';
+import { socialProfiles } from '@/lib/site';
 
 const links = [
   { label: 'Astaxanthin', href: '/astaxanthin' },
@@ -13,11 +14,8 @@ const links = [
   { label: 'Terms', href: '/terms' },
 ];
 
-const social = [
-  { label: 'TikTok', href: 'https://www.tiktok.com/@astamall_', Icon: TiktokLogo },
-  { label: 'Instagram', href: 'https://www.instagram.com/astamall92/', Icon: InstagramLogo },
-  { label: 'Facebook', href: 'https://www.facebook.com/share/1HWHkT7DHX/?mibextid=wwXIfr', Icon: FacebookLogo },
-];
+const icons = { TikTok: TiktokLogo, Instagram: InstagramLogo, Facebook: FacebookLogo };
+const social = socialProfiles.map(profile => ({ ...profile, Icon: icons[profile.label] }));
 
 /** A quiet, centred footer: logo, one row of links, social icons, the copyright line, then the large wordmark. */
 export default function Footer1() {
