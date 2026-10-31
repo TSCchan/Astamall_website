@@ -14,7 +14,7 @@ const links = [
 ];
 
 const social = [
-  { label: 'TikTok', href: 'https://www.tiktok.com/@astamall92', Icon: TiktokLogo },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@astamall_', Icon: TiktokLogo },
   { label: 'Instagram', href: 'https://www.instagram.com/astamall92/', Icon: InstagramLogo },
   { label: 'Facebook', href: 'https://www.facebook.com/share/1HWHkT7DHX/?mibextid=wwXIfr', Icon: FacebookLogo },
 ];
